@@ -1,0 +1,47 @@
+{
+    "name": "msstc4php/value-objects",
+    "description": "Immutable value objects for PHP 8.4+ with optional Doctrine ORM/ODM and Symfony Validator bridges.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["value-object", "immutable", "doctrine", "symfony", "validator", "ddd"],
+    "require": {
+        "php": ">=8.4"
+    },
+    "require-dev": {
+        "doctrine/dbal": "^4.4",
+        "doctrine/orm": "^3.3",
+        "doctrine/mongodb-odm": "^2.9",
+        "symfony/validator": "^7.2",
+        "symfony/intl": "^7.2",
+        "phpunit/phpunit": "^11.5 || ^12.0",
+        "phpstan/phpstan": "^2.1",
+        "friendsofphp/php-cs-fixer": "^3.64",
+        "rector/rector": "^2.0",
+        "deptrac/deptrac": "^3.0"
+    },
+    "suggest": {
+        "doctrine/dbal": "To persist scalar value objects as Doctrine ORM column types.",
+        "doctrine/orm": "To map value objects and the GeoCoordinates embeddable.",
+        "doctrine/mongodb-odm": "To persist value objects with Doctrine MongoDB ODM.",
+        "symfony/validator": "To validate raw input against value object rules via constraints.",
+        "brick/money": "Pairs with CurrencyCode for full money handling (arithmetic, rounding)."
+    },
+    "autoload": {
+        "psr-4": {
+            "MSSTC4PHP\\ValueObject\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MSSTC4PHP\\ValueObject\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

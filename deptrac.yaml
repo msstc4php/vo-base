@@ -1,0 +1,22 @@
+deptrac:
+  paths:
+    - ./src
+  layers:
+    - name: Bridge
+      collectors:
+        - type: directory
+          value: src/Bridge/.*
+    - name: Core
+      collectors:
+        - type: bool
+          must:
+            - type: directory
+              value: src/.*
+          must_not:
+            - type: directory
+              value: src/Bridge/.*
+  ruleset:
+    # Core is dependency-free: it must never reference a bridge (autoload safety, KTD2).
+    Core: ~
+    Bridge:
+      - Core
