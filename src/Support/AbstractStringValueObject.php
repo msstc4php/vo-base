@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Support;
 
+use MSSTC4PHP\ValueObject\Contract\StringConvertible;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
-use Stringable;
 
 /**
  * Base for string-backed value objects. Subclasses implement {@see parse()} to
  * validate the raw input and return the canonical stored form; every other
  * concern (construction convention, equality, serialization) is provided here.
  */
-abstract class AbstractStringValueObject implements ValueObject, Stringable
+abstract class AbstractStringValueObject implements StringConvertible, ValueObject
 {
     public readonly string $value;
 

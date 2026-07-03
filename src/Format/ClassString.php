@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Format;
 
+use MSSTC4PHP\ValueObject\Contract\StringConvertible;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidClassStringException;
-use Stringable;
 
 /**
  * A fully-qualified name of an existing class, interface, trait or enum.
@@ -14,7 +14,7 @@ use Stringable;
  * Backed directly (not via the string base) so the stored value can be typed
  * as {@see class-string} rather than a plain string.
  */
-final readonly class ClassString implements ValueObject, Stringable
+final readonly class ClassString implements StringConvertible, ValueObject
 {
     /** @var class-string */
     public string $value;
@@ -33,7 +33,7 @@ final readonly class ClassString implements ValueObject, Stringable
         $this->value = $value;
     }
 
-    public static function from(string $value): self
+    public static function from(string $value): static
     {
         return new self($value);
     }

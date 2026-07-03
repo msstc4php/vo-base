@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Identity;
 
+use MSSTC4PHP\ValueObject\Contract\StringConvertible;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidUuidException;
-use Stringable;
 
 /**
  * A universally unique identifier in canonical 8-4-4-4-12 hexadecimal form.
@@ -15,7 +15,7 @@ use Stringable;
  * generation helpers live on the type itself. The stored value is always
  * lowercased; generation never reads the wall clock (timestamps are passed in).
  */
-final readonly class Uuid implements ValueObject, Stringable
+final readonly class Uuid implements StringConvertible, ValueObject
 {
     private const string CANONICAL_PATTERN = '/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/';
 
@@ -30,7 +30,7 @@ final readonly class Uuid implements ValueObject, Stringable
         $this->value = \strtolower($value);
     }
 
-    public static function from(string $value): self
+    public static function from(string $value): static
     {
         return new self($value);
     }
