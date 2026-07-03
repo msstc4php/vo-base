@@ -39,7 +39,8 @@ final class ValidValueObjectValidator extends ConstraintValidator
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ value }}', $value)
                 ->setParameter('{{ type }}', $constraint->class)
-                ->addViolation();
+                ->addViolation()
+            ;
         }
     }
 }

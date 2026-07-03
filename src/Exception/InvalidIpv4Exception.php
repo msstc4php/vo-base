@@ -7,4 +7,6 @@ namespace MSSTC4PHP\ValueObject\Exception;
 /**
  * Thrown when a value is not a valid IPv4 address.
  */
-final class InvalidIpv4Exception extends InvalidValueObjectException {}
+final class InvalidIpv4Exception extends InvalidValueObjectException
+{
+}

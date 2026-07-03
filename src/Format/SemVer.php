@@ -130,7 +130,7 @@ final class SemVer extends AbstractStringValueObject implements Comparable
         $rightIds = \explode('.', $right);
         $shared = \min(\count($leftIds), \count($rightIds));
 
-        for ($i = 0; $i < $shared; ++$i) {
+        for ($i = 0; $i < $shared; $i++) {
             $result = $this->compareIdentifier($leftIds[$i], $rightIds[$i]);
             if ($result !== 0) {
                 return $result;

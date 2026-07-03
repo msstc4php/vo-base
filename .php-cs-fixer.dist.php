@@ -1,26 +1,46 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
-$finder = PhpCsFixer\Finder::create()
-    ->in([__DIR__ . '/src', __DIR__ . '/tests'])
+$finder = (new PhpCsFixer\Finder())
+    ->in(__DIR__ . '/src')
+    ->in(__DIR__ . '/tests')
     ->append([__FILE__, __DIR__ . '/tools/generate-iso-enums.php'])
     // Generated ISO enums are owned by the generator, not the style tool.
     ->notPath('I18n/CountryCode.php')
     ->notPath('I18n/CurrencyCode.php')
-    ->notPath('I18n/LanguageCode.php');
+    ->notPath('I18n/LanguageCode.php')
+;
 
-return new PhpCsFixer\Config()
-    ->setRiskyAllowed(true)
+return (new PhpCsFixer\Config())
     ->setRules([
-        '@PER-CS' => true,
-        '@PHP84Migration' => true,
+        '@Symfony' => true,
         'declare_strict_types' => true,
-        'strict_param' => true,
-        'strict_comparison' => true,
-        'native_function_invocation' => ['include' => ['@internal'], 'scope' => 'namespaced'],
-        'global_namespace_import' => ['import_classes' => true, 'import_functions' => false, 'import_constants' => false],
-        'ordered_imports' => ['sort_algorithm' => 'alpha'],
-        'no_unused_imports' => true,
+        'phpdoc_align' => [
+            'align' => 'left',
+        ],
+        'method_argument_space' => [
+            'on_multiline' => 'ensure_fully_multiline',
+        ],
+        'phpdoc_to_comment' => false,
+        'linebreak_after_opening_tag' => false,
+        'blank_line_after_opening_tag' => false,
+        'concat_space' => [
+            'spacing' => 'one',
+        ],
+        'increment_style' => [
+            'style' => 'post',
+        ],
+        'yoda_style' => ['equal' => false, 'identical' => false, 'less_and_greater' => false],
+        'class_attributes_separation' => true,
+        'trailing_comma_in_multiline' => [
+            'elements' => ['arguments', 'arrays', 'match', 'parameters'],
+        ],
+        'multiline_whitespace_before_semicolons' => ['strategy' => 'new_line_for_chained_calls'],
+        'global_namespace_import' => ['import_classes' => true],
+        'blank_line_before_statement' => [
+            'statements' => ['declare', 'return'],
+        ],
     ])
-    ->setFinder($finder);
+    ->setFinder($finder)
+    ->setParallelConfig(new PhpCsFixer\Runner\Parallel\ParallelConfig(4, 8))
+    ->setRiskyAllowed(true)
+;

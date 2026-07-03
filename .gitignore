@@ -1,10 +1,29 @@
 /vendor/
 /composer.lock
-/.php-cs-fixer.cache
+/coverage/
+/junit.xml
+/var/
+
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
 /.phpunit.cache/
-/.phpunit.result.cache
+###< phpunit/phpunit ###
+
+###> phpstan/phpstan ###
 /phpstan.neon
-/.rector.cache
-/.deptrac.cache
 /build/
-/.claude/worktrees/
+###< phpstan/phpstan ###
+
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+###< friendsofphp/php-cs-fixer ###
+
+###> rector/rector ###
+/.rector.cache
+###< rector/rector ###
+
+###> deptrac/deptrac ###
+/.deptrac.cache
+###< deptrac/deptrac ###

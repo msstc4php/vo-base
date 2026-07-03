@@ -14,7 +14,8 @@ final readonly class GeoCoordinates implements ValueObject
     public function __construct(
         public Latitude $latitude,
         public Longitude $longitude,
-    ) {}
+    ) {
+    }
 
     public static function fromFloats(float $latitude, float $longitude): self
     {

@@ -7,4 +7,6 @@ namespace MSSTC4PHP\ValueObject\Exception;
 /**
  * Thrown when a geo-coordinates pair cannot be constructed.
  */
-final class InvalidGeoCoordinatesException extends InvalidValueObjectException {}
+final class InvalidGeoCoordinatesException extends InvalidValueObjectException
+{
+}

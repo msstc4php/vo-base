@@ -4,4 +4,6 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Exception;
 
-final class InvalidNonEmptyStringException extends InvalidValueObjectException {}
+final class InvalidNonEmptyStringException extends InvalidValueObjectException
+{
+}

@@ -7,4 +7,6 @@ namespace MSSTC4PHP\ValueObject\Exception;
 /**
  * Thrown when a value is not a valid URL scheme.
  */
-final class InvalidUrlSchemeException extends InvalidValueObjectException {}
+final class InvalidUrlSchemeException extends InvalidValueObjectException
+{
+}

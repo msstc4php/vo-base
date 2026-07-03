@@ -7,4 +7,6 @@ namespace MSSTC4PHP\ValueObject\Exception;
 /**
  * Thrown when a value is not a valid RFC 3986 URI.
  */
-final class InvalidUriException extends InvalidValueObjectException {}
+final class InvalidUriException extends InvalidValueObjectException
+{
+}

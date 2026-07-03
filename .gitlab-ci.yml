@@ -1,0 +1,80 @@
+stages:
+  - check
+  - test
+
+variables:
+  COMPOSER_ALLOW_SUPERUSER: "1"
+  PHP_IMAGE: php:8.4-cli
+
+default:
+  image: $PHP_IMAGE
+  cache:
+    key:
+      files:
+        - composer.json
+    paths:
+      - vendor/
+
+# Full environment: PHP extensions + all dev dependencies (bridges included).
+.setup: &setup
+  before_script:
+    - apt-get update -yqq && apt-get install -yqq git unzip libicu-dev $PHPIZE_DEPS
+    - docker-php-ext-install intl
+    - pecl install mongodb && docker-php-ext-enable mongodb
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    - composer install --no-interaction --no-progress --prefer-dist
+
+lint:
+  stage: check
+  <<: *setup
+  script:
+    - find ./src ./tests -name '*.php' | xargs -r -P4 -n50 php -l
+
+phpstan:
+  stage: check
+  <<: *setup
+  script:
+    - vendor/bin/phpstan analyse --memory-limit=512M -c phpstan-ci.neon
+
+cs-fixer:
+  stage: check
+  <<: *setup
+  script:
+    - vendor/bin/php-cs-fixer check
+
+rector:
+  stage: check
+  <<: *setup
+  script:
+    - vendor/bin/rector process -n
+
+deptrac:
+  stage: check
+  <<: *setup
+  script:
+    - vendor/bin/deptrac analyse --config-file=deptrac.yaml --no-progress
+
+composer-audit:
+  stage: check
+  <<: *setup
+  script:
+    - composer validate --strict --no-check-publish
+    - composer audit
+
+phpunit:
+  stage: test
+  <<: *setup
+  script:
+    - vendor/bin/phpunit
+
+# Proves the core loads and runs with zero framework dependencies installed.
+core-only:
+  stage: test
+  cache: {}
+  before_script:
+    - apt-get update -yqq && apt-get install -yqq git unzip libicu-dev
+    - docker-php-ext-install intl
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    - composer install --no-dev --no-interaction --no-progress --prefer-dist
+  script:
+    - php -r "require 'vendor/autoload.php'; use MSSTC4PHP\ValueObject\Network\Ipv4Address; use MSSTC4PHP\ValueObject\I18n\CurrencyCode; exit(Ipv4Address::isValid('1.2.3.4') && CurrencyCode::from('USD')->minorUnits() === 2 ? 0 : 1);"

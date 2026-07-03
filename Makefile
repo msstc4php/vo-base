@@ -1,27 +1,35 @@
-.DEFAULT_GOAL := check
-.PHONY: check fix test phpstan cs cs-fix rector rector-fix deptrac
+PHPSTAN_CONFIG ?= phpstan.dist.neon
 
-check: phpstan cs rector deptrac test
+check: ## Check code
+	find ./src ./tests -name '*.php' | xargs -r php -l
+	vendor/bin/phpstan analyse --memory-limit=512M -c $(PHPSTAN_CONFIG)
+	vendor/bin/php-cs-fixer check
+	composer validate --strict --no-check-publish
+	composer audit
+	vendor/bin/rector process -n
+	vendor/bin/deptrac analyse --config-file=deptrac.yaml --no-progress
 
-fix: cs-fix rector-fix
-
-test:
+test: ## Test code
 	vendor/bin/phpunit
 
-phpstan:
-	vendor/bin/phpstan analyse --no-progress
+test-with-coverage: ## Test code with coverage
+	XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html coverage
 
-cs:
-	vendor/bin/php-cs-fixer fix --dry-run --diff
+infection: ## Run mutation testing
+	XDEBUG_MODE=coverage vendor/bin/infection --threads=$(shell nproc) --no-interaction
 
-cs-fix:
+regenerate-baseline: ## Regenerate PHPStan baseline
+	vendor/bin/phpstan analyse --memory-limit=512M -c $(PHPSTAN_CONFIG) -b phpstan-baseline.neon
+
+fix: ## Fix code
 	vendor/bin/php-cs-fixer fix
-
-rector:
-	vendor/bin/rector process --dry-run
-
-rector-fix:
 	vendor/bin/rector process
 
-deptrac:
-	vendor/bin/deptrac analyse --no-progress
+## Help
+help: ## List of all commands
+	@grep -E '(^[a-zA-Z_0-9-]+:.*?##.*$$)|(^##)' Makefile \
+	| awk 'BEGIN {FS = ":.*?## "}; {printf "%-24s %s\n", $$1, $$2}' \
+	| sed -e 's/## //'
+
+.DEFAULT_GOAL := help
+.PHONY: check test test-with-coverage infection regenerate-baseline fix help

@@ -21,7 +21,7 @@ class ValidValueObject extends Constraint
 
     /**
      * @param class-string<StringConvertible> $class
-     * @param array<string>|null              $groups
+     * @param array<string>|null $groups
      */
     public function __construct(public string $class, ?string $message = null, ?array $groups = null, mixed $payload = null)
     {

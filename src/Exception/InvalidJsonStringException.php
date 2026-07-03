@@ -4,4 +4,6 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Exception;
 
-final class InvalidJsonStringException extends InvalidValueObjectException {}
+final class InvalidJsonStringException extends InvalidValueObjectException
+{
+}
