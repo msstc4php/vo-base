@@ -27,3 +27,7 @@
 ###> deptrac/deptrac ###
 /.deptrac.cache
 ###< deptrac/deptrac ###
+
+# Claude Code local/temp files
+/.claude/settings.local.json
+/.claude/**/*.tmp.*
