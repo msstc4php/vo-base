@@ -80,4 +80,38 @@ final class UuidTest extends TestCase
 
         self::assertTrue($uuid->equals(Uuid::from((string) $uuid)));
     }
+
+    public function testNilUuidHasZeroVersionAndVariant(): void
+    {
+        $nil = Uuid::from('00000000-0000-0000-0000-000000000000');
+
+        self::assertSame(0, $nil->version());
+        self::assertSame(0, $nil->variant());
+    }
+
+    public function testRfc4122VariantForCanonicalString(): void
+    {
+        self::assertSame(1, Uuid::from(self::SAMPLE_V4)->variant());
+    }
+
+    public function testEqualsIsFalseForDifferentValue(): void
+    {
+        self::assertFalse(Uuid::from(self::SAMPLE_V4)->equals(Uuid::v4()));
+    }
+
+    public function testJsonSerializationAndStringConversion(): void
+    {
+        $uuid = Uuid::from(self::SAMPLE_V4);
+
+        self::assertSame(self::SAMPLE_V4, $uuid->jsonSerialize());
+        self::assertSame(self::SAMPLE_V4, (string) $uuid);
+    }
+
+    public function testTryFromAndIsValid(): void
+    {
+        self::assertNull(Uuid::tryFrom('not-a-uuid'));
+        self::assertFalse(Uuid::isValid('not-a-uuid'));
+        self::assertInstanceOf(Uuid::class, Uuid::tryFrom(self::SAMPLE_V4));
+        self::assertTrue(Uuid::isValid(self::SAMPLE_V4));
+    }
 }

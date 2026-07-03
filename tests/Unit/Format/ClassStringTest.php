@@ -49,4 +49,32 @@ final class ClassStringTest extends TestCase
         self::assertTrue($type->isSubclassOf(Exception::class));
         self::assertFalse($type->isSubclassOf(JsonSerializable::class));
     }
+
+    public function testTryFromReturnsNullForUnknownName(): void
+    {
+        self::assertNull(ClassString::tryFrom('Totally\\Missing\\Type'));
+        self::assertFalse(ClassString::isValid('Totally\\Missing\\Type'));
+    }
+
+    public function testTryFromReturnsInstanceForKnownName(): void
+    {
+        self::assertInstanceOf(ClassString::class, ClassString::tryFrom(RuntimeException::class));
+        self::assertTrue(ClassString::isValid(RuntimeException::class));
+    }
+
+    public function testStringConversionAndJsonSerialization(): void
+    {
+        $type = ClassString::from(RuntimeException::class);
+
+        self::assertSame(RuntimeException::class, (string) $type);
+        self::assertSame(RuntimeException::class, $type->jsonSerialize());
+    }
+
+    public function testEquals(): void
+    {
+        $type = ClassString::from(RuntimeException::class);
+
+        self::assertTrue($type->equals(ClassString::from(RuntimeException::class)));
+        self::assertFalse($type->equals(ClassString::from(Exception::class)));
+    }
 }

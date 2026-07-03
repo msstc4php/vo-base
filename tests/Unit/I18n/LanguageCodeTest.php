@@ -31,4 +31,11 @@ final class LanguageCodeTest extends TestCase
     {
         self::assertNull(LanguageCode::tryFrom($code));
     }
+
+    public function testEveryCaseRoundTrips(): void
+    {
+        foreach (LanguageCode::cases() as $language) {
+            self::assertSame($language, LanguageCode::from($language->value), $language->value);
+        }
+    }
 }

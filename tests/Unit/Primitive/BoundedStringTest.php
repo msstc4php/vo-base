@@ -45,4 +45,34 @@ final class BoundedStringTest extends TestCase
         self::assertFalse(new BoundedString('abc', 1, 5)->equals(new BoundedString('abc', 1, 6)));
         self::assertFalse(new BoundedString('abc', 1, 5)->equals(new BoundedString('abc', 0, 5)));
     }
+
+    public function testUnboundedMaximumAcceptsAnyLength(): void
+    {
+        $string = new BoundedString(\str_repeat('x', 1000), 0);
+
+        self::assertSame(1000, \mb_strlen($string->value));
+        self::assertNull($string->maxLength);
+    }
+
+    public function testNegativeMinimumThrows(): void
+    {
+        $this->expectException(InvalidBoundedStringException::class);
+
+        new BoundedString('abc', -1);
+    }
+
+    public function testMaximumBelowMinimumThrows(): void
+    {
+        $this->expectException(InvalidBoundedStringException::class);
+
+        new BoundedString('abc', 5, 3);
+    }
+
+    public function testStringConversionAndJsonSerialization(): void
+    {
+        $string = new BoundedString('abc', 1, 5);
+
+        self::assertSame('abc', (string) $string);
+        self::assertSame('abc', $string->jsonSerialize());
+    }
 }

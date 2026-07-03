@@ -25,4 +25,12 @@ final class CurrencyCodeTest extends TestCase
 
         CurrencyCode::from('ZZZ');
     }
+
+    public function testEveryCaseHasNonNegativeMinorUnitsAndRoundTrips(): void
+    {
+        foreach (CurrencyCode::cases() as $currency) {
+            self::assertGreaterThanOrEqual(0, $currency->minorUnits(), $currency->value);
+            self::assertSame($currency, CurrencyCode::from($currency->value), $currency->value);
+        }
+    }
 }

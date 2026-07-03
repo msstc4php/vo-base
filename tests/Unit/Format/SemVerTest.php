@@ -6,7 +6,9 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Format;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidSemVerException;
 use MSSTC4PHP\ValueObject\Format\SemVer;
+use MSSTC4PHP\ValueObject\Primitive\Percentage;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(SemVer::class)]
@@ -51,5 +53,50 @@ final class SemVerTest extends TestCase
         $this->expectException(InvalidSemVerException::class);
 
         SemVer::from('1.2');
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function precedenceChain(): iterable
+    {
+        // semver.org 2.0.0 example ordering of ascending prerelease precedence.
+        yield 'alpha < alpha.1' => ['1.0.0-alpha', '1.0.0-alpha.1'];
+        yield 'alpha.1 < alpha.beta' => ['1.0.0-alpha.1', '1.0.0-alpha.beta'];
+        yield 'alpha.beta < beta' => ['1.0.0-alpha.beta', '1.0.0-beta'];
+        yield 'beta < beta.2' => ['1.0.0-beta', '1.0.0-beta.2'];
+        yield 'beta.2 < beta.11' => ['1.0.0-beta.2', '1.0.0-beta.11'];
+        yield 'beta.11 < rc.1' => ['1.0.0-beta.11', '1.0.0-rc.1'];
+        yield 'rc.1 < release' => ['1.0.0-rc.1', '1.0.0'];
+    }
+
+    #[DataProvider('precedenceChain')]
+    public function testPrereleasePrecedenceOrdering(string $lower, string $higher): void
+    {
+        self::assertSame(-1, SemVer::from($lower)->compareTo(SemVer::from($higher)));
+        self::assertSame(1, SemVer::from($higher)->compareTo(SemVer::from($lower)));
+    }
+
+    public function testNumericIdentifierRanksBelowAlphanumeric(): void
+    {
+        self::assertSame(-1, SemVer::from('1.0.0-1')->compareTo(SemVer::from('1.0.0-alpha')));
+    }
+
+    public function testBuildMetadataIsIgnoredButExposed(): void
+    {
+        self::assertSame('a', SemVer::from('1.0.0+a')->build());
+        self::assertSame(0, SemVer::from('1.0.0+a')->compareTo(SemVer::from('1.0.0+b')));
+    }
+
+    public function testEqualPrereleasesCompareEqual(): void
+    {
+        self::assertSame(0, SemVer::from('1.0.0-rc.1')->compareTo(SemVer::from('1.0.0-rc.1')));
+    }
+
+    public function testCompareToRejectsNonSemVer(): void
+    {
+        $this->expectException(InvalidSemVerException::class);
+
+        SemVer::from('1.0.0')->compareTo(Percentage::from(50.0));
     }
 }

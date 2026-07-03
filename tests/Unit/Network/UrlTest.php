@@ -36,4 +36,31 @@ final class UrlTest extends TestCase
 
         Url::from('http://');
     }
+
+    public function testPortIsExposedWhenPresent(): void
+    {
+        self::assertSame(8443, Url::from('https://example.com:8443/a')->port());
+    }
+
+    public function testPortIsNullWhenAbsent(): void
+    {
+        self::assertNull(Url::from('https://example.com/a')->port());
+    }
+
+    public function testPathIsEmptyStringWhenAbsent(): void
+    {
+        self::assertSame('', Url::from('https://example.com')->path());
+    }
+
+    public function testTryFromAndIsValid(): void
+    {
+        self::assertNull(Url::tryFrom('not a url'));
+        self::assertFalse(Url::isValid('ftp://example.com'));
+        self::assertTrue(Url::isValid('https://example.com'));
+    }
+
+    public function testJsonSerialization(): void
+    {
+        self::assertSame('https://example.com/a', Url::from('https://example.com/a')->jsonSerialize());
+    }
 }

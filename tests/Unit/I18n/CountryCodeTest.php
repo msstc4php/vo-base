@@ -48,4 +48,14 @@ final class CountryCodeTest extends TestCase
 
         CountryCode::fromAlpha3('ZZZ');
     }
+
+    public function testEveryCaseHasConsistentAccessorsAndRoundTrips(): void
+    {
+        foreach (CountryCode::cases() as $country) {
+            self::assertSame(3, \strlen($country->alpha3()), $country->value);
+            self::assertMatchesRegularExpression('/^\d{3}$/', $country->numeric(), $country->value);
+            self::assertSame($country, CountryCode::fromAlpha3($country->alpha3()), $country->value);
+            self::assertSame($country, CountryCode::fromNumeric($country->numeric()), $country->value);
+        }
+    }
 }

@@ -31,4 +31,25 @@ final class UriTest extends TestCase
 
         Uri::from('/no-scheme');
     }
+
+    public function testOptionalComponentsAreNullWhenAbsent(): void
+    {
+        $uri = Uri::from('mailto:user@example.com');
+
+        self::assertNull($uri->host());
+        self::assertNull($uri->port());
+        self::assertNull($uri->query());
+        self::assertNull($uri->fragment());
+    }
+
+    public function testPathIsEmptyStringWhenAbsent(): void
+    {
+        self::assertSame('', Uri::from('https://example.com')->path());
+    }
+
+    public function testTryFromAndIsValid(): void
+    {
+        self::assertNull(Uri::tryFrom('/no-scheme'));
+        self::assertTrue(Uri::isValid('https://example.com'));
+    }
 }

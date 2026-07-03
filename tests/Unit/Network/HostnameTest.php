@@ -37,4 +37,28 @@ final class HostnameTest extends TestCase
 
         Hostname::from('a.');
     }
+
+    public function testEmptyValueThrows(): void
+    {
+        $this->expectException(InvalidHostnameException::class);
+
+        Hostname::from('');
+    }
+
+    public function testOverLongValueThrows(): void
+    {
+        $this->expectException(InvalidHostnameException::class);
+
+        Hostname::from(\str_repeat('a.', 200) . 'com');
+    }
+
+    public function testTryFromIsValidEqualsAndSerialization(): void
+    {
+        self::assertNull(Hostname::tryFrom('-bad'));
+        self::assertTrue(Hostname::isValid('example.com'));
+        self::assertTrue(Hostname::from('example.com')->equals(Hostname::from('EXAMPLE.COM')));
+        self::assertFalse(Hostname::from('a.com')->equals(Hostname::from('b.com')));
+        self::assertSame('example.com', Hostname::from('example.com')->jsonSerialize());
+        self::assertSame('example.com', (string) Hostname::from('example.com'));
+    }
 }
