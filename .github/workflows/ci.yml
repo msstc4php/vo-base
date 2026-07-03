@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  full:
+    name: Full toolchain (with bridges)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: intl, mongodb, mbstring, bcmath
+          coverage: none
+      - run: composer install --no-interaction --no-progress
+      - run: make check
+
+  core-only:
+    name: Core loads with zero framework dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: intl, mbstring
+          coverage: none
+      # No dev dependencies: proves the core needs no Doctrine/Symfony to load.
+      - run: composer install --no-dev --no-interaction --no-progress
+      - name: Construct value objects without any framework installed
+        run: |
+          php -r "require 'vendor/autoload.php';
+          use MSSTC4PHP\ValueObject\Network\Ipv4Address;
+          use MSSTC4PHP\ValueObject\I18n\CurrencyCode;
+          exit(Ipv4Address::isValid('1.2.3.4') && CurrencyCode::from('USD')->minorUnits() === 2 ? 0 : 1);"
