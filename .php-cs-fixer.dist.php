@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 $finder = PhpCsFixer\Finder::create()
     ->in([__DIR__ . '/src', __DIR__ . '/tests'])
-    ->append([__FILE__]);
+    ->append([__FILE__, __DIR__ . '/tools/generate-iso-enums.php'])
+    // Generated ISO enums are owned by the generator, not the style tool.
+    ->notPath('I18n/CountryCode.php')
+    ->notPath('I18n/CurrencyCode.php')
+    ->notPath('I18n/LanguageCode.php');
 
 return new PhpCsFixer\Config()
     ->setRiskyAllowed(true)
