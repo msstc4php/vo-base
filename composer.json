@@ -10,6 +10,7 @@
         "php": ">=8.4"
     },
     "require-dev": {
+        "brick/money": "^0.10",
         "deptrac/deptrac": "^3.0",
         "doctrine/dbal": "^4.4",
         "doctrine/mongodb-odm": "^2.9",

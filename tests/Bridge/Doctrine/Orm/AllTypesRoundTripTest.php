@@ -4,25 +4,39 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Tests\Bridge\Doctrine\Orm;
 
+use Brick\Money\Money;
+use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Types\Type;
 use InvalidArgumentException;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\AbstractStringVoType;
+use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\AbstractTextVoType;
+use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\Base64StringType;
+use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\BicType;
+use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\BrickMoneyType;
+use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\CidrType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\ClassStringType;
+use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\CreditCardNumberType;
+use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\DateRangeType;
+use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\DecimalType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\DomainNameType;
+use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\DurationType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\EmailAddressType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\GeoCoordinatesType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\HexColorType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\HostnameType;
+use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\IbanType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\IpAddressType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\Ipv4AddressType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\Ipv6AddressType;
+use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\JsonStringType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\LocaleType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\MacAddressType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\PhoneNumberType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\PortType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\SemVerType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\SlugType;
+use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\TimeOfDayType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\TypeRegistrar;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\UriType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\UrlPathType;
@@ -30,8 +44,14 @@ use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\UrlSchemeType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\UrlType;
 use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\UuidType;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
+use MSSTC4PHP\ValueObject\Finance\Bic;
+use MSSTC4PHP\ValueObject\Finance\CreditCardNumber;
+use MSSTC4PHP\ValueObject\Finance\Decimal;
+use MSSTC4PHP\ValueObject\Finance\Iban;
+use MSSTC4PHP\ValueObject\Format\Base64String;
 use MSSTC4PHP\ValueObject\Format\ClassString;
 use MSSTC4PHP\ValueObject\Format\HexColor;
+use MSSTC4PHP\ValueObject\Format\JsonString;
 use MSSTC4PHP\ValueObject\Format\PhoneNumber;
 use MSSTC4PHP\ValueObject\Format\SemVer;
 use MSSTC4PHP\ValueObject\Format\Slug;
@@ -39,6 +59,7 @@ use MSSTC4PHP\ValueObject\Geo\GeoCoordinates;
 use MSSTC4PHP\ValueObject\I18n\Locale;
 use MSSTC4PHP\ValueObject\Identity\EmailAddress;
 use MSSTC4PHP\ValueObject\Identity\Uuid;
+use MSSTC4PHP\ValueObject\Network\Cidr;
 use MSSTC4PHP\ValueObject\Network\DomainName;
 use MSSTC4PHP\ValueObject\Network\Hostname;
 use MSSTC4PHP\ValueObject\Network\IpAddress;
@@ -50,13 +71,28 @@ use MSSTC4PHP\ValueObject\Network\Uri;
 use MSSTC4PHP\ValueObject\Network\Url;
 use MSSTC4PHP\ValueObject\Network\UrlPath;
 use MSSTC4PHP\ValueObject\Network\UrlScheme;
+use MSSTC4PHP\ValueObject\Temporal\DateRange;
+use MSSTC4PHP\ValueObject\Temporal\Duration;
+use MSSTC4PHP\ValueObject\Temporal\TimeOfDay;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 #[CoversClass(AbstractStringVoType::class)]
+#[CoversClass(AbstractTextVoType::class)]
+#[CoversClass(Base64StringType::class)]
+#[CoversClass(BicType::class)]
+#[CoversClass(BrickMoneyType::class)]
+#[CoversClass(CidrType::class)]
 #[CoversClass(ClassStringType::class)]
+#[CoversClass(CreditCardNumberType::class)]
+#[CoversClass(DateRangeType::class)]
+#[CoversClass(DecimalType::class)]
+#[CoversClass(DurationType::class)]
+#[CoversClass(IbanType::class)]
+#[CoversClass(JsonStringType::class)]
+#[CoversClass(TimeOfDayType::class)]
 #[CoversClass(DomainNameType::class)]
 #[CoversClass(EmailAddressType::class)]
 #[CoversClass(GeoCoordinatesType::class)]
@@ -112,6 +148,41 @@ final class AllTypesRoundTripTest extends TestCase
         yield 'locale' => [LocaleType::NAME, Locale::from('en-US')];
         yield 'port' => [PortType::NAME, Port::from(8080)];
         yield 'geo' => [GeoCoordinatesType::NAME, GeoCoordinates::fromFloats(51.5, -0.12)];
+        yield 'iban' => [IbanType::NAME, Iban::from('GB82WEST12345698765432')];
+        yield 'bic' => [BicType::NAME, Bic::from('DEUTDEFF')];
+        yield 'credit_card_number' => [CreditCardNumberType::NAME, CreditCardNumber::from('4111111111111111')];
+        yield 'decimal' => [DecimalType::NAME, Decimal::from('1.23')];
+        yield 'cidr' => [CidrType::NAME, Cidr::from('192.168.0.0/24')];
+        yield 'time_of_day' => [TimeOfDayType::NAME, TimeOfDay::from('09:30:00')];
+        yield 'duration' => [DurationType::NAME, Duration::from('PT30S')];
+        yield 'base64_string' => [Base64StringType::NAME, Base64String::from('SGVsbG8=')];
+        yield 'json_string' => [JsonStringType::NAME, JsonString::from('{"a":1}')];
+        yield 'date_range' => [DateRangeType::NAME, new DateRange(new DateTimeImmutable('2026-01-01T00:00:00+00:00'), new DateTimeImmutable('2026-12-31T23:59:59+00:00'))];
+    }
+
+    public function testMoneyRoundTrips(): void
+    {
+        $type = Type::getType(BrickMoneyType::NAME);
+        $money = Money::of('100.00', 'USD');
+
+        $db = $type->convertToDatabaseValue($money, $this->platform);
+        self::assertSame('USD 100.00', $db);
+
+        $restored = $type->convertToPHPValue($db, $this->platform);
+        self::assertInstanceOf(Money::class, $restored);
+        self::assertTrue($money->isAmountAndCurrencyEqualTo($restored));
+    }
+
+    public function testMoneyRejectsNonMoneyOnDatabaseConversion(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        Type::getType(BrickMoneyType::NAME)->convertToDatabaseValue('not-money', $this->platform);
+    }
+
+    public function testMoneySqlDeclarationIsNonEmpty(): void
+    {
+        self::assertNotSame('', Type::getType(BrickMoneyType::NAME)->getSQLDeclaration([], $this->platform));
     }
 
     #[DataProvider('everyType')]

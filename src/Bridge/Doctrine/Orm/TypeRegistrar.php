@@ -37,6 +37,17 @@ final class TypeRegistrar
         LocaleType::NAME => LocaleType::class,
         PortType::NAME => PortType::class,
         GeoCoordinatesType::NAME => GeoCoordinatesType::class,
+        IbanType::NAME => IbanType::class,
+        BicType::NAME => BicType::class,
+        CreditCardNumberType::NAME => CreditCardNumberType::class,
+        DecimalType::NAME => DecimalType::class,
+        CidrType::NAME => CidrType::class,
+        TimeOfDayType::NAME => TimeOfDayType::class,
+        DurationType::NAME => DurationType::class,
+        Base64StringType::NAME => Base64StringType::class,
+        JsonStringType::NAME => JsonStringType::class,
+        DateRangeType::NAME => DateRangeType::class,
+        BrickMoneyType::NAME => BrickMoneyType::class,
     ];
 
     public static function registerAll(): void
