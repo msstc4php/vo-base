@@ -111,6 +111,15 @@ final readonly class Uuid implements StringConvertible, ValueObject
         return new self(self::format($bytes));
     }
 
+    /**
+     * Convenience wrapper over {@see v7()} that reads the current wall-clock time.
+     * Prefer passing an explicit timestamp to v7() where determinism matters.
+     */
+    public static function v7Now(): self
+    {
+        return self::v7(\max(0, (int) (\microtime(true) * 1000)));
+    }
+
     public function __toString(): string
     {
         return $this->value;

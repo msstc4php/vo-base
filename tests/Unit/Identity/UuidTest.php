@@ -114,4 +114,10 @@ final class UuidTest extends TestCase
         self::assertInstanceOf(Uuid::class, Uuid::tryFrom(self::SAMPLE_V4));
         self::assertTrue(Uuid::isValid(self::SAMPLE_V4));
     }
+
+    public function testV7NowGeneratesVersion7(): void
+    {
+        self::assertSame(7, Uuid::v7Now()->version());
+        self::assertFalse(Uuid::v7Now()->equals(Uuid::v7Now()));
+    }
 }
