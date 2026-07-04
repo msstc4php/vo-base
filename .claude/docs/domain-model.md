@@ -33,6 +33,27 @@ All value objects are immutable and validate at construction. `from()` throws,
 - `Latitude` (−90..90), `Longitude` (−180..180), `GeoCoordinates` (composite,
   `toArray()`/`jsonSerialize()` → `{lat, lng}`).
 
+## Finance (`src/Finance/`)
+- `Iban` — strips spaces, uppercases, validates format + ISO 7064 mod-97 (via
+  `bcmath`); `countryCode()`/`checkDigits()`.
+- `Bic` — SWIFT/BIC 8 or 11 chars; `bankCode/countryCode/locationCode/branchCode`.
+- `CreditCardNumber` — strips separators, 12–19 digits, Luhn check;
+  `last4()`, `brand()` (`visa|mastercard|amex|discover|unknown`).
+- `Decimal` — arbitrary-precision numeric string implementing `Comparable`
+  (`bccomp` at max scale); normalizes sign/leading/trailing zeros; `isZero()`.
+
+## Temporal (`src/Temporal/`)
+- `TimeOfDay` — `HH:MM[:SS]`, normalized to `HH:MM:SS`; `hour/minute/second`.
+- `Duration` — ISO 8601 duration, validated via `\DateInterval` + regex;
+  `toDateInterval()`.
+- `DateRange` — composite of two `\DateTimeImmutable` with `start <= end`;
+  `contains()`, `overlaps()`, `jsonSerialize()` → `{start, end}` (ATOM).
+
+## Network extras (`src/Network/`)
+- `Cidr` — `<ip>/<prefix>` (v4 0–32, v6 0–128); `address(): IpAddress`,
+  `prefixLength()`, `version()`.
+- `HttpMethod` — backed enum (GET…CONNECT) with `isSafe()`/`isIdempotent()`.
+
 ## Primitives (`src/Primitive/`)
 - `NonEmptyString`, `PositiveInt`, `NonNegativeInt`, `Percentage` (0..100).
 - `BoundedString` — per-instance min/max length (`mb_strlen`); equality includes

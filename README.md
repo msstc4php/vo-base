@@ -43,11 +43,17 @@ The construction convention mirrors `BackedEnum`: `from()` (throws),
 
 | Group | Value objects |
 |---|---|
-| Network | `Ipv4Address`, `Ipv6Address`, `IpAddress`, `MacAddress`, `Hostname`, `DomainName`, `Port`, `UrlScheme`, `UrlPath`, `Uri`, `Url` |
-| Identity | `EmailAddress`, `Uuid` (validate, version detect, `v4()`/`v7()`) |
+| Network | `Ipv4Address`, `Ipv6Address`, `IpAddress`, `MacAddress`, `Hostname`, `DomainName`, `Port`, `UrlScheme`, `UrlPath`, `Uri`, `Url`, `Cidr`, `HttpMethod` |
+| Identity | `EmailAddress`, `Uuid` (validate, version detect, `v4()`/`v7()`/`v7Now()`) |
 | i18n / geo | `CountryCode`, `CurrencyCode`, `LanguageCode` (ISO enums), `Locale`, `Latitude`, `Longitude`, `GeoCoordinates` |
+| Finance | `Iban`, `Bic`, `CreditCardNumber` (Luhn), `Decimal` (arbitrary precision) |
+| Temporal | `TimeOfDay`, `Duration` (ISO 8601), `DateRange` |
 | Primitives | `NonEmptyString`, `BoundedString`, `PositiveInt`, `NonNegativeInt`, `IntRange`, `Percentage` |
 | Format | `Slug`, `HexColor`, `Base64String`, `JsonString`, `PhoneNumber`, `SemVer`, `ClassString` |
+
+Full money handling is delegated to `brick/money`: pair `CurrencyCode` with
+`Brick\Money\Money`, and use the bundled `BrickMoneyType` to persist it with
+Doctrine.
 
 `CountryCode`, `CurrencyCode`, and `LanguageCode` are `string`-backed enums
 generated from `symfony/intl` and committed, so they carry no runtime
