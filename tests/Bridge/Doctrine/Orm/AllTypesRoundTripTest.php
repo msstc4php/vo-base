@@ -212,6 +212,22 @@ final class AllTypesRoundTripTest extends TestCase
         yield 'string vo' => [EmailAddressType::NAME];
         yield 'integer' => [PortType::NAME];
         yield 'json' => [GeoCoordinatesType::NAME];
+        yield 'date range' => [DateRangeType::NAME];
+        yield 'money' => [BrickMoneyType::NAME];
+    }
+
+    public function testDateRangeConverterRejectsNonStringColumnValue(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        Type::getType(DateRangeType::NAME)->convertToPHPValue(123, $this->platform);
+    }
+
+    public function testMoneyConverterRejectsNonStringColumnValue(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        Type::getType(BrickMoneyType::NAME)->convertToPHPValue(123, $this->platform);
     }
 
     #[DataProvider('nullableConverterKinds')]

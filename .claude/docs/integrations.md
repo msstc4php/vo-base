@@ -9,8 +9,10 @@ present (dependency direction Bridge → Core, enforced by deptrac).
   `StringConvertible` VO to VARCHAR. A concrete type only names its VO class and
   (optionally) a column length. **DBAL 4:** do not implement `getName()` or
   `requiresSQLCommentHint()` — both removed; type identity is the registered name.
-- 18 thin concrete string types + `PortType` (integer) + `GeoCoordinatesType`
-  (single JSON column).
+- Thin concrete string types for every string VO + `PortType` (integer) +
+  `GeoCoordinatesType`/`DateRangeType` (single JSON column). Large text VOs
+  (`Base64String`, `JsonString`) use `AbstractTextVoType` (CLOB). `BrickMoneyType`
+  maps `Brick\Money\Money` to a `"CUR amount"` VARCHAR (opt-in; needs brick/money).
 - `TypeRegistrar::registerAll()` — idempotent (guards with `Type::hasType`);
   `types()` returns the full name → class map. Bare Doctrine calls it at
   bootstrap; Symfony maps under `doctrine.dbal.types` instead.

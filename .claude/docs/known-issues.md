@@ -25,16 +25,21 @@
   autoload-safety rule. Map it as an embeddable in the consuming app if
   sub-field querying is needed. (Deviation from the plan's R10.)
 
-## Deliberate scope cuts (follow-up work)
+## Adding more coverage
 
-- **Doctrine types cover the string VOs + `Port` + `GeoCoordinates`.**
-  `Base64String`/`JsonString` have no bundled type yet (text-heavy). Adding any
-  missing VO type is one thin subclass of `AbstractStringVoType` plus a line in
-  the `TypeRegistrar` — the generic base does the work.
-- **Symfony `Assert*` attributes** ship for a representative six
-  (Email/Ipv4/Uuid/Url/Slug/PhoneNumber). Any other VO already works via the
-  generic `ValidValueObject(<VoClass>::class)`; add a thin attribute if a
-  dedicated one is wanted.
-- Financial family (`Iban`/`Bic`/`CreditCardNumber`/`Decimal`), `Cidr`/`IpRange`,
-  `HttpMethod`, temporal VOs, and `brick/money` interop are deferred to v1.1
-  (see the plan's Scope Boundaries).
+- **A new string VO Doctrine type** is one thin subclass of `AbstractStringVoType`
+  (ORM) / the ODM base, plus a line in the respective `TypeRegistrar`. Large
+  text VOs extend `AbstractTextVoType` (ORM, CLOB) instead. Composite VOs mirror
+  `GeoCoordinatesType`/`DateRangeType` (JSON column / BSON array).
+- **A dedicated Symfony `Assert*`** is a ctor-arg-free `final class extends
+  ValidValueObject`. Any VO also works out of the box via the generic
+  `ValidValueObject(<VoClass>::class)`.
+
+## Still deferred
+
+- **Violation-collecting validation path** — intentionally NOT built; it
+  contradicts the fail-fast decision (KTD5). Would be a separate design track,
+  not a drop-in.
+- A standalone `IpRange` VO (start–end) — `Cidr` covers the common case.
+- `brick/money` bridge stores `"CUR amount"` as a single column; a two-column
+  (minor-units + currency) mapping could be added if sub-field querying is needed.

@@ -47,34 +47,40 @@ final class AssertConstraintsTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{Constraint, string, string}>
+     * @return iterable<string, array{class-string<Constraint>, string, string}>
      */
     public static function constraints(): iterable
     {
-        yield 'email' => [new AssertEmailAddress(), 'user@example.com', 'nope'];
-        yield 'ipv4' => [new AssertIpv4(), '192.168.0.1', '999.1.1.1'];
-        yield 'phone' => [new AssertPhoneNumber(), '+14155552671', 'abc'];
-        yield 'slug' => [new AssertSlug(), 'my-slug', 'Not a Slug!'];
-        yield 'url' => [new AssertUrl(), 'https://example.com/a', 'not a url'];
-        yield 'uuid' => [new AssertUuid(), '018f8c1e-7b2a-7cde-8f01-2a3b4c5d6e7f', 'not-a-uuid'];
-        yield 'iban' => [new AssertIban(), 'GB82WEST12345698765432', 'not-an-iban'];
-        yield 'bic' => [new AssertBic(), 'DEUTDEFF', 'nope'];
-        yield 'credit_card_number' => [new AssertCreditCardNumber(), '4111111111111111', '4111111111111112'];
-        yield 'decimal' => [new AssertDecimal(), '1.23', 'not-a-number'];
-        yield 'cidr' => [new AssertCidr(), '192.168.0.0/24', 'not-a-cidr'];
-        yield 'time_of_day' => [new AssertTimeOfDay(), '09:30:00', '25:00:00'];
-        yield 'duration' => [new AssertDuration(), 'PT30S', 'not-a-duration'];
+        yield 'email' => [AssertEmailAddress::class, 'user@example.com', 'nope'];
+        yield 'ipv4' => [AssertIpv4::class, '192.168.0.1', '999.1.1.1'];
+        yield 'phone' => [AssertPhoneNumber::class, '+14155552671', 'abc'];
+        yield 'slug' => [AssertSlug::class, 'my-slug', 'Not a Slug!'];
+        yield 'url' => [AssertUrl::class, 'https://example.com/a', 'not a url'];
+        yield 'uuid' => [AssertUuid::class, '018f8c1e-7b2a-7cde-8f01-2a3b4c5d6e7f', 'not-a-uuid'];
+        yield 'iban' => [AssertIban::class, 'GB82WEST12345698765432', 'not-an-iban'];
+        yield 'bic' => [AssertBic::class, 'DEUTDEFF', 'nope'];
+        yield 'credit_card_number' => [AssertCreditCardNumber::class, '4111111111111111', '4111111111111112'];
+        yield 'decimal' => [AssertDecimal::class, '1.23', 'not-a-number'];
+        yield 'cidr' => [AssertCidr::class, '192.168.0.0/24', 'not-a-cidr'];
+        yield 'time_of_day' => [AssertTimeOfDay::class, '09:30:00', '25:00:00'];
+        yield 'duration' => [AssertDuration::class, 'PT30S', 'not-a-duration'];
     }
 
+    /**
+     * @param class-string<Constraint> $constraintClass
+     */
     #[DataProvider('constraints')]
-    public function testValidValueHasNoViolations(Constraint $constraint, string $valid, string $invalid): void
+    public function testValidValueHasNoViolations(string $constraintClass, string $valid, string $invalid): void
     {
-        self::assertCount(0, $this->validator->validate($valid, $constraint));
+        self::assertCount(0, $this->validator->validate($valid, new $constraintClass()));
     }
 
+    /**
+     * @param class-string<Constraint> $constraintClass
+     */
     #[DataProvider('constraints')]
-    public function testInvalidValueHasOneViolation(Constraint $constraint, string $valid, string $invalid): void
+    public function testInvalidValueHasOneViolation(string $constraintClass, string $valid, string $invalid): void
     {
-        self::assertCount(1, $this->validator->validate($invalid, $constraint));
+        self::assertCount(1, $this->validator->validate($invalid, new $constraintClass()));
     }
 }

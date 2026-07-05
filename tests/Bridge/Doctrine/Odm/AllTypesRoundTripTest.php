@@ -195,6 +195,8 @@ final class AllTypesRoundTripTest extends TestCase
         yield 'string vo' => [EmailAddressType::NAME];
         yield 'integer' => [PortType::NAME];
         yield 'array' => [GeoCoordinatesType::NAME];
+        yield 'date range' => [DateRangeType::NAME];
+        yield 'money' => [BrickMoneyType::NAME];
     }
 
     #[DataProvider('nullableConverterKinds')]
@@ -233,5 +235,19 @@ final class AllTypesRoundTripTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         Type::getType(GeoCoordinatesType::NAME)->convertToPHPValue('not-an-array');
+    }
+
+    public function testDateRangeConverterRejectsNonArrayDatabaseValue(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        Type::getType(DateRangeType::NAME)->convertToPHPValue('not-an-array');
+    }
+
+    public function testMoneyConverterRejectsNonStringDatabaseValue(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        Type::getType(BrickMoneyType::NAME)->convertToPHPValue(123);
     }
 }
