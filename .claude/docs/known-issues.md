@@ -67,3 +67,32 @@
 - **`EmailAddress::domainName()` is nullable** — a syntactically valid email
   (e.g. `user@example.c`, 1-char TLD) can have a domain that is not a
   registrable `DomainName`.
+
+## v1.1.x quality hardening (2026-07-20)
+
+- **`isPublic()` excludes IANA special-purpose ranges** (not just RFC1918/
+  loopback/link-local/multicast): v4 `0.0.0.0/8`, `100.64.0.0/10` (CGNAT),
+  `192.0.0.0/24`, `192.0.2.0/24`, `198.18.0.0/15`, `198.51.100.0/24`,
+  `203.0.113.0/24`, `240.0.0.0/4` (covers `255.255.255.255`); v6 `::/128`,
+  `::ffff:0:0/96`, `64:ff9b::/96`, `2001:db8::/32`. Exposed as the public
+  `isReserved()` predicate. **`isPublic()` is a syntactic classifier, NOT an
+  SSRF gate** — documented on the method. A behavior change: addresses in these
+  ranges now report `isPublic() === false`.
+- **`IntRange::length()` throws `\RangeException` on overflow** (extreme bounds
+  like `[PHP_INT_MIN, PHP_INT_MAX]` or any span reaching `PHP_INT_MAX`), rather
+  than PHP promoting the subtraction to a float / clamping to 1. The guard is
+  written as overflow-safe comparisons because PHPStan does not model int
+  overflow (`int - int` is always `int` to it, so an `is_int()`/`is_float()`
+  check reads as "always true/false").
+- **`ClassifiesIpAddress` trait now lives in `Network`** (was `Support`) — it
+  references `Cidr`/`IpAddress`, so keeping it in `Network` avoids a
+  Support→Network upward dependency (CR-009). Pure relocation.
+- **Mutation floor in CI.** `infection.json5` sets `minMsi: 70` /
+  `minCoveredMsi: 84` (current ~72% / ~86%, buffered for run-variance); the
+  GitLab `infection` job (installs pcov) enforces it. **Equivalent-mutant
+  policy:** genuine equivalents are ignored narrowly per-mutator in
+  `infection.json5` with a reason (currently `GreaterThan`/`LessThan`/
+  `DecrementInteger` on `IntRange::length` — the `=== PHP_INT_MAX` fallback and
+  `max(1, …)` clamp make them unkillable). Do NOT chase 100% MSI; the many
+  remaining escaped mutants are equivalent (e.g. `(int) substr($v,0,2)` on a
+  canonical `HH:MM:SS`, unreachable `inet_pton(...) === false` guards).

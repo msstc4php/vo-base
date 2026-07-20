@@ -68,3 +68,24 @@ Convention: behavior methods that return another VO construct it through its
 normal validating path (single source of truth); when the target may legitimately
 not exist for a valid input, the accessor is nullable (`tryFrom` semantics)
 rather than throwing.
+
+## Testing rigor (added v1.1.x)
+
+- **Data-provider invariant tests.** Algebraic properties are covered with
+  PHPUnit `#[DataProvider]` matrices (no PBT library): `Duration` plus-
+  commutativity and `fromSeconds`/`toSeconds` round-trip, `Cidr` first/last-
+  always-contained across prefixes, `IntRange` intersect-commutativity,
+  `ComparableHelpers` min/max-agree-with-compareTo. **Gotcha:** the
+  `#[DataProvider]` attribute must be imported (`use PHPUnit\Framework\
+  Attributes\DataProvider;`) — without the import PHP resolves it to the test's
+  own namespace, PHPUnit silently ignores it, and the strict flags surface it as
+  an `ArgumentCountError` ("0 passed, N expected").
+- **`min()`/`max()` are trait methods, not on the `Comparable` interface**, so a
+  `Comparable`-typed variable cannot call them (PHPStan `method.notFound`).
+  Invariant tests exercise them through concrete types, not a shared
+  `Comparable` parameter. Adding them to the interface would be a breaking API
+  change and is deliberately avoided.
+- **Mutation testing** runs via `vendor/bin/infection` (needs a coverage driver
+  — Xdebug locally, pcov in CI). The floor lives in `infection.json5`
+  (`minMsi`/`minCoveredMsi`), so every run enforces it. See `known-issues.md`
+  for the equivalent-mutant ignore policy.

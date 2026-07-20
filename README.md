@@ -60,6 +60,13 @@ without it, those types still construct, compare, and serialize, but arithmetic
 throws `MissingDependencyException`. Network math (`Cidr`, IP predicates) is
 dependency-free.
 
+> **`isPublic()` is not an SSRF gate.** It is a syntactic classification of the
+> address value (excludes private, loopback, link-local, multicast, and IANA
+> special-purpose ranges). It does not resolve DNS, cannot see DNS-rebinding,
+> and may lag the IANA registries. Use a dedicated egress-filtering layer for
+> SSRF defense. Likewise, `Cidr::hostCount()` throws for IPv6 blocks of `/64`
+> or wider (the count exceeds PHP's integer range).
+
 ## Catalogue
 
 | Group | Value objects |
