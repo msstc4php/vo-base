@@ -48,15 +48,20 @@ final class Ipv6Address extends AbstractStringValueObject
 
     /**
      * IANA special-purpose ranges that are not globally routable: the
-     * unspecified address (::/128), IPv4-mapped (::ffff:0:0/96), IPv4/IPv6
-     * translation (64:ff9b::/96), and the documentation range (2001:db8::/32).
+     * unspecified address (::/128), the discard-only prefix (100::/64),
+     * IPv4-mapped (::ffff:0:0/96), IPv4/IPv6 translation (64:ff9b::/96),
+     * benchmarking (2001:2::/48), and the documentation ranges (2001:db8::/32,
+     * 3fff::/20 per RFC 9637).
      */
     public function isReserved(): bool
     {
         return $this->inRange('::/128')
+            || $this->inRange('100::/64')
             || $this->inRange('::ffff:0:0/96')
             || $this->inRange('64:ff9b::/96')
-            || $this->inRange('2001:db8::/32');
+            || $this->inRange('2001:2::/48')
+            || $this->inRange('2001:db8::/32')
+            || $this->inRange('3fff::/20');
     }
 
     protected function parse(string $value): string

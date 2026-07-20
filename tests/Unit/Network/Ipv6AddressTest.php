@@ -8,6 +8,7 @@ use MSSTC4PHP\ValueObject\Exception\InvalidIpv6Exception;
 use MSSTC4PHP\ValueObject\Network\Cidr;
 use MSSTC4PHP\ValueObject\Network\Ipv6Address;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Ipv6Address::class)]
@@ -43,15 +44,43 @@ final class Ipv6AddressTest extends TestCase
         self::assertFalse(Ipv6Address::from('::1')->isPublic());
     }
 
-    public function testReservedRangesAreNotPublic(): void
+    #[DataProvider('reservedProvider')]
+    public function testReservedRangesAreNotPublic(string $address): void
     {
-        self::assertTrue(Ipv6Address::from('::')->isReserved());
-        self::assertTrue(Ipv6Address::from('::ffff:192.0.2.1')->isReserved());
-        self::assertTrue(Ipv6Address::from('2001:db8::1')->isReserved());
+        self::assertTrue(Ipv6Address::from($address)->isReserved());
+        self::assertFalse(Ipv6Address::from($address)->isPublic());
+    }
 
-        self::assertFalse(Ipv6Address::from('::')->isPublic());
-        self::assertFalse(Ipv6Address::from('2001:db8::1')->isPublic());
-        self::assertFalse(Ipv6Address::from('2606:4700::1')->isReserved());
+    /**
+     * @return iterable<string, array{non-empty-string}>
+     */
+    public static function reservedProvider(): iterable
+    {
+        yield 'unspecified' => ['::'];
+        yield 'discard-only' => ['100::1'];
+        yield 'v4-mapped' => ['::ffff:192.0.2.1'];
+        yield 'v4/v6 translation' => ['64:ff9b::1'];
+        yield 'benchmarking' => ['2001:2::1'];
+        yield 'documentation 2001:db8' => ['2001:db8::1'];
+        yield 'documentation 3fff' => ['3fff::1'];
+    }
+
+    #[DataProvider('routableProvider')]
+    public function testRoutableAddressesStayPublic(string $address): void
+    {
+        self::assertFalse(Ipv6Address::from($address)->isReserved());
+        self::assertTrue(Ipv6Address::from($address)->isPublic());
+    }
+
+    /**
+     * @return iterable<string, array{non-empty-string}>
+     */
+    public static function routableProvider(): iterable
+    {
+        yield 'cloudflare' => ['2606:4700::1'];
+        yield 'google' => ['2001:4860:4860::8888'];
+        yield 'just outside 2001:db8' => ['2001:db9::1'];
+        yield 'just outside 3fff' => ['4000::1'];
     }
 
     public function testIsInRange(): void

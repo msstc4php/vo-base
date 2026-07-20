@@ -48,6 +48,13 @@ final class IntRangeTest extends TestCase
         self::assertSame(6, new IntRange(-5, 0)->length());
     }
 
+    public function testLengthAtMaxRepresentableDoesNotThrow(): void
+    {
+        // The largest span that still fits: max - min == PHP_INT_MAX - 1, so the
+        // count is exactly PHP_INT_MAX. This must NOT trip either guard.
+        self::assertSame(\PHP_INT_MAX, new IntRange(0, \PHP_INT_MAX - 1)->length());
+    }
+
     public function testLengthOverflowThrows(): void
     {
         $this->expectException(RangeException::class);
