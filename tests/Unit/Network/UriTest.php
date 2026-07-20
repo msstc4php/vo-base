@@ -52,4 +52,24 @@ final class UriTest extends TestCase
         self::assertNull(Uri::tryFrom('/no-scheme'));
         self::assertTrue(Uri::isValid('https://example.com'));
     }
+
+    public function testWithComponentsRoundTrip(): void
+    {
+        $uri = Uri::from('https://example.com/a?x=1#top');
+
+        self::assertSame('https://example.com/b?x=1#top', $uri->withPath('/b')->value);
+        self::assertSame('https://example.com/a?y=2#top', $uri->withQuery('y=2')->value);
+        self::assertSame('https://example.com/a?x=1', $uri->withFragment('')->value);
+    }
+
+    public function testQueryParameters(): void
+    {
+        self::assertSame(['x' => '1', 'y' => '2'], Uri::from('https://example.com/a?x=1&y=2')->queryParameters());
+        self::assertSame([], Uri::from('mailto:user@example.com')->queryParameters());
+    }
+
+    public function testWithSchemeOnSchemeOnlyUri(): void
+    {
+        self::assertSame('urn:isbn:0451450523', Uri::from('urn:isbn:0451450523')->withScheme('urn')->value);
+    }
 }

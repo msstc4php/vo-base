@@ -6,12 +6,15 @@ namespace MSSTC4PHP\ValueObject\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidUrlException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use MSSTC4PHP\ValueObject\Support\UriComponents;
 
 /**
  * The http/https subset of a URI: an absolute URL with a non-empty host.
  */
 final class Url extends AbstractStringValueObject
 {
+    use UriComponents;
+
     protected function parse(string $value): string
     {
         $parts = \parse_url($value);

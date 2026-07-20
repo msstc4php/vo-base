@@ -6,12 +6,15 @@ namespace MSSTC4PHP\ValueObject\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidUriException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use MSSTC4PHP\ValueObject\Support\UriComponents;
 
 /**
  * An RFC 3986 URI that carries an explicit scheme (e.g. https://host/path).
  */
 final class Uri extends AbstractStringValueObject
 {
+    use UriComponents;
+
     protected function parse(string $value): string
     {
         $parts = \parse_url($value);
