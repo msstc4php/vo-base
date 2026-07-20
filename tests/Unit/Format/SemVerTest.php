@@ -99,4 +99,23 @@ final class SemVerTest extends TestCase
 
         SemVer::from('1.0.0')->compareTo(Percentage::from(50.0));
     }
+
+    public function testIsStable(): void
+    {
+        self::assertTrue(SemVer::from('1.0.0')->isStable());
+        self::assertFalse(SemVer::from('0.9.0')->isStable());
+        self::assertFalse(SemVer::from('1.0.0-alpha')->isStable());
+    }
+
+    public function testBumpMethods(): void
+    {
+        self::assertSame('2.0.0', SemVer::from('1.2.3')->nextMajor()->value);
+        self::assertSame('1.3.0', SemVer::from('1.2.3')->nextMinor()->value);
+        self::assertSame('1.2.4', SemVer::from('1.2.3')->nextPatch()->value);
+    }
+
+    public function testBumpDropsPrerelease(): void
+    {
+        self::assertSame('1.2.4', SemVer::from('1.2.3-rc.1')->nextPatch()->value);
+    }
 }

@@ -62,6 +62,38 @@ final class SemVer extends AbstractStringValueObject implements Comparable
         return $this->parts()['build'];
     }
 
+    /**
+     * A stable release: major version >= 1 and no pre-release identifier.
+     */
+    public function isStable(): bool
+    {
+        return $this->major() >= 1 && $this->prerelease() === null;
+    }
+
+    /**
+     * The next major version (minor/patch reset, pre-release and build dropped).
+     */
+    public function nextMajor(): self
+    {
+        return new self(($this->major() + 1) . '.0.0');
+    }
+
+    /**
+     * The next minor version (patch reset, pre-release and build dropped).
+     */
+    public function nextMinor(): self
+    {
+        return new self($this->major() . '.' . ($this->minor() + 1) . '.0');
+    }
+
+    /**
+     * The next patch version (pre-release and build dropped).
+     */
+    public function nextPatch(): self
+    {
+        return new self($this->major() . '.' . $this->minor() . '.' . ($this->patch() + 1));
+    }
+
     public function compareTo(Comparable $other): int
     {
         if (!$other instanceof self) {

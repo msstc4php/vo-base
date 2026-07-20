@@ -36,4 +36,26 @@ final class IntRangeTest extends TestCase
         self::assertFalse(new IntRange(1, 10)->equals(new IntRange(1, 9)));
         self::assertFalse(new IntRange(1, 10)->equals(new IntRange(0, 10)));
     }
+
+    public function testLength(): void
+    {
+        self::assertSame(5, new IntRange(1, 5)->length());
+        self::assertSame(1, new IntRange(3, 3)->length());
+    }
+
+    public function testOverlapsAndIntersect(): void
+    {
+        $intersection = new IntRange(1, 5)->intersect(new IntRange(4, 9));
+
+        self::assertTrue(new IntRange(1, 5)->overlaps(new IntRange(4, 9)));
+        self::assertNotNull($intersection);
+        self::assertSame(4, $intersection->min);
+        self::assertSame(5, $intersection->max);
+    }
+
+    public function testDisjointRangesDoNotIntersect(): void
+    {
+        self::assertFalse(new IntRange(1, 2)->overlaps(new IntRange(5, 6)));
+        self::assertNull(new IntRange(1, 3)->intersect(new IntRange(4, 6)));
+    }
 }
