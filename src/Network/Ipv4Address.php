@@ -49,6 +49,25 @@ final class Ipv4Address extends AbstractStringValueObject
         return $this->inRange('224.0.0.0/4');
     }
 
+    /**
+     * IANA special-purpose ranges that are not globally routable: "this host"
+     * (0.0.0.0/8), CGNAT (100.64.0.0/10), IETF protocol assignments
+     * (192.0.0.0/24), the documentation ranges (192.0.2.0/24, 198.51.100.0/24,
+     * 203.0.113.0/24), benchmarking (198.18.0.0/15), and reserved/future use
+     * plus limited broadcast (240.0.0.0/4, which includes 255.255.255.255).
+     */
+    public function isReserved(): bool
+    {
+        return $this->inRange('0.0.0.0/8')
+            || $this->inRange('100.64.0.0/10')
+            || $this->inRange('192.0.0.0/24')
+            || $this->inRange('192.0.2.0/24')
+            || $this->inRange('198.18.0.0/15')
+            || $this->inRange('198.51.100.0/24')
+            || $this->inRange('203.0.113.0/24')
+            || $this->inRange('240.0.0.0/4');
+    }
+
     protected function parse(string $value): string
     {
         if (\filter_var($value, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV4) === false) {

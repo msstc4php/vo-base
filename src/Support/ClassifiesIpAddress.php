@@ -22,16 +22,24 @@ trait ClassifiesIpAddress
 
     abstract public function isMulticast(): bool;
 
+    abstract public function isReserved(): bool;
+
     /**
-     * A routable public address: none of the private, loopback, link-local, or
-     * multicast ranges.
+     * A routable public address: none of the private, loopback, link-local,
+     * multicast, or reserved/special-purpose ranges.
+     *
+     * WARNING: this is a syntactic classification, not a security boundary. Do
+     * NOT use it as an SSRF allow/deny gate — it does not resolve names, cannot
+     * see DNS-rebinding, and may lag the IANA special-purpose registries. Use a
+     * dedicated egress-filtering layer for SSRF defense.
      */
     public function isPublic(): bool
     {
         return !$this->isPrivate()
             && !$this->isLoopback()
             && !$this->isLinkLocal()
-            && !$this->isMulticast();
+            && !$this->isMulticast()
+            && !$this->isReserved();
     }
 
     public function isInRange(Cidr $cidr): bool

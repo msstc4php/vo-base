@@ -38,8 +38,20 @@ final class Ipv6AddressTest extends TestCase
         self::assertTrue(Ipv6Address::from('fd12::1')->isPrivate());
         self::assertTrue(Ipv6Address::from('ff02::1')->isMulticast());
 
-        self::assertTrue(Ipv6Address::from('2001:db8::1')->isPublic());
+        // A genuinely routable global-unicast address (Cloudflare).
+        self::assertTrue(Ipv6Address::from('2606:4700::1')->isPublic());
         self::assertFalse(Ipv6Address::from('::1')->isPublic());
+    }
+
+    public function testReservedRangesAreNotPublic(): void
+    {
+        self::assertTrue(Ipv6Address::from('::')->isReserved());
+        self::assertTrue(Ipv6Address::from('::ffff:192.0.2.1')->isReserved());
+        self::assertTrue(Ipv6Address::from('2001:db8::1')->isReserved());
+
+        self::assertFalse(Ipv6Address::from('::')->isPublic());
+        self::assertFalse(Ipv6Address::from('2001:db8::1')->isPublic());
+        self::assertFalse(Ipv6Address::from('2606:4700::1')->isReserved());
     }
 
     public function testIsInRange(): void

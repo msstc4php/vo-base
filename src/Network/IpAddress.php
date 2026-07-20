@@ -47,6 +47,11 @@ final class IpAddress extends AbstractStringValueObject
         return $this->concrete()->isMulticast();
     }
 
+    public function isReserved(): bool
+    {
+        return $this->concrete()->isReserved();
+    }
+
     public function isPublic(): bool
     {
         return $this->concrete()->isPublic();

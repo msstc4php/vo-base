@@ -40,6 +40,8 @@ final class IpAddressTest extends TestCase
         self::assertTrue(IpAddress::from('10.0.0.1')->isPrivate());
         self::assertTrue(IpAddress::from('127.0.0.1')->isLoopback());
         self::assertTrue(IpAddress::from('8.8.8.8')->isPublic());
+        self::assertTrue(IpAddress::from('240.0.0.1')->isReserved());
+        self::assertTrue(IpAddress::from('2001:db8::1')->isReserved());
         self::assertTrue(IpAddress::from('::1')->isLoopback());
         self::assertTrue(IpAddress::from('fe80::1')->isLinkLocal());
         self::assertTrue(IpAddress::from('ff02::1')->isMulticast());
