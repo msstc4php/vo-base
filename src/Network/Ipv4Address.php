@@ -6,12 +6,15 @@ namespace MSSTC4PHP\ValueObject\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIpv4Exception;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use MSSTC4PHP\ValueObject\Support\ClassifiesIpAddress;
 
 /**
  * An IPv4 address in dotted-decimal notation (e.g. 192.168.0.1).
  */
 final class Ipv4Address extends AbstractStringValueObject
 {
+    use ClassifiesIpAddress;
+
     /**
      * RFC 1918 private ranges.
      */
@@ -46,23 +49,6 @@ final class Ipv4Address extends AbstractStringValueObject
         return $this->inRange('224.0.0.0/4');
     }
 
-    /**
-     * A routable public address: none of the private, loopback, link-local, or
-     * multicast ranges.
-     */
-    public function isPublic(): bool
-    {
-        return !$this->isPrivate()
-            && !$this->isLoopback()
-            && !$this->isLinkLocal()
-            && !$this->isMulticast();
-    }
-
-    public function isInRange(Cidr $cidr): bool
-    {
-        return $cidr->contains(IpAddress::fromString($this->value));
-    }
-
     protected function parse(string $value): string
     {
         if (\filter_var($value, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV4) === false) {
@@ -70,10 +56,5 @@ final class Ipv4Address extends AbstractStringValueObject
         }
 
         return $value;
-    }
-
-    private function inRange(string $cidr): bool
-    {
-        return Cidr::from($cidr)->contains(IpAddress::fromString($this->value));
     }
 }
