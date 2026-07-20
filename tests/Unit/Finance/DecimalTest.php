@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Finance;
 
+use Brick\Math\RoundingMode;
 use MSSTC4PHP\ValueObject\Exception\InvalidDecimalException;
 use MSSTC4PHP\ValueObject\Finance\Decimal;
 use MSSTC4PHP\ValueObject\Format\SemVer;
@@ -103,10 +104,17 @@ final class DecimalTest extends TestCase
         Decimal::from('1')->divide('0', 2);
     }
 
+    public function testDivideHonorsExplicitRoundingMode(): void
+    {
+        self::assertSame('0', Decimal::from('1')->divide('3', 0)->value);
+        self::assertSame('1', Decimal::from('1')->divide('3', 0, RoundingMode::Up)->value);
+    }
+
     public function testRound(): void
     {
         self::assertSame('3', Decimal::from('2.5')->round(0)->value);
         self::assertSame('1.23', Decimal::from('1.2345')->round(2)->value);
+        self::assertSame('2', Decimal::from('2.5')->round(0, RoundingMode::Down)->value);
     }
 
     public function testSign(): void

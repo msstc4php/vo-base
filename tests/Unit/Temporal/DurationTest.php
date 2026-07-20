@@ -91,6 +91,28 @@ final class DurationTest extends TestCase
         Duration::from('PT30M')->minus(Duration::from('PT1H'));
     }
 
+    public function testMinusNegativeInMonthsBucketThrows(): void
+    {
+        $this->expectException(InvalidDurationException::class);
+
+        Duration::from('P1D')->minus(Duration::from('P1M'));
+    }
+
+    public function testMinusNegativeInDaysBucketThrows(): void
+    {
+        $this->expectException(InvalidDurationException::class);
+
+        Duration::from('P1M')->minus(Duration::from('P2D'));
+    }
+
+    public function testIsZeroIsFalseWhenAnySingleBucketIsSet(): void
+    {
+        self::assertFalse(Duration::from('P1M')->isZero());
+        self::assertFalse(Duration::from('P1D')->isZero());
+        self::assertFalse(Duration::from('PT1S')->isZero());
+        self::assertTrue(Duration::fromSeconds(0)->isZero());
+    }
+
     public function testMultipliedBy(): void
     {
         self::assertSame('PT1H30M', Duration::from('PT30M')->multipliedBy(3)->value);

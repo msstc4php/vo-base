@@ -58,4 +58,14 @@ final class IntRangeTest extends TestCase
         self::assertFalse(new IntRange(1, 2)->overlaps(new IntRange(5, 6)));
         self::assertNull(new IntRange(1, 3)->intersect(new IntRange(4, 6)));
     }
+
+    public function testOverlapsAtSharedBoundaryPoint(): void
+    {
+        self::assertTrue(new IntRange(1, 5)->overlaps(new IntRange(5, 9)));
+
+        $intersection = new IntRange(1, 5)->intersect(new IntRange(5, 9));
+        self::assertNotNull($intersection);
+        self::assertSame(5, $intersection->min);
+        self::assertSame(5, $intersection->max);
+    }
 }

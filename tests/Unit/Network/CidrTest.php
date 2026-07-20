@@ -132,11 +132,22 @@ final class CidrTest extends TestCase
         self::assertFalse(Cidr::from('192.168.0.0/16')->overlaps(Cidr::from('2001:db8::/32')));
     }
 
+    public function testOverlapsAtRangeBoundary(): void
+    {
+        // The single host equals the block's last address -> the ranges touch.
+        self::assertTrue(Cidr::from('192.168.1.0/24')->overlaps(Cidr::from('192.168.1.255/32')));
+        self::assertTrue(Cidr::from('192.168.1.255/32')->overlaps(Cidr::from('192.168.1.0/24')));
+        // Adjacent but non-overlapping blocks.
+        self::assertFalse(Cidr::from('192.168.0.0/24')->overlaps(Cidr::from('192.168.1.0/24')));
+    }
+
     public function testIsSubnetOf(): void
     {
         self::assertTrue(Cidr::from('192.168.1.0/24')->isSubnetOf(Cidr::from('192.168.0.0/16')));
         self::assertTrue(Cidr::from('192.168.0.0/16')->isSubnetOf(Cidr::from('192.168.0.0/16')));
         self::assertFalse(Cidr::from('192.168.0.0/16')->isSubnetOf(Cidr::from('192.168.1.0/24')));
         self::assertFalse(Cidr::from('192.168.1.0/24')->isSubnetOf(Cidr::from('2001:db8::/32')));
+        // Shares the network address but is wider -> not a subnet.
+        self::assertFalse(Cidr::from('10.0.0.0/8')->isSubnetOf(Cidr::from('10.0.0.0/16')));
     }
 }

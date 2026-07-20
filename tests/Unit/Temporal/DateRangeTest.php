@@ -147,7 +147,16 @@ final class DateRangeTest extends TestCase
         $b = new DateRange(new DateTimeImmutable('2026-01-05T00:00:00Z'), new DateTimeImmutable('2026-01-10T00:00:00Z'));
 
         self::assertTrue($a->isAdjacentTo($b));
+        self::assertTrue($b->isAdjacentTo($a));
         self::assertNull($a->gap($b));
+    }
+
+    public function testNonAdjacentRanges(): void
+    {
+        $a = new DateRange(new DateTimeImmutable('2026-01-01T00:00:00Z'), new DateTimeImmutable('2026-01-05T00:00:00Z'));
+        $b = new DateRange(new DateTimeImmutable('2026-01-10T00:00:00Z'), new DateTimeImmutable('2026-01-15T00:00:00Z'));
+
+        self::assertFalse($a->isAdjacentTo($b));
     }
 
     public function testContainsRange(): void

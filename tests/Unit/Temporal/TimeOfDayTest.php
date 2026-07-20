@@ -9,6 +9,7 @@ use MSSTC4PHP\ValueObject\Network\Port;
 use MSSTC4PHP\ValueObject\Temporal\Duration;
 use MSSTC4PHP\ValueObject\Temporal\TimeOfDay;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(TimeOfDay::class)]
@@ -89,10 +90,30 @@ final class TimeOfDayTest extends TestCase
         self::assertSame('23:30:00', TimeOfDay::from('00:00')->minus(Duration::from('PT30M'))->value);
     }
 
-    public function testRejectsDurationWithDateComponents(): void
+    public function testShiftCountsStartingSeconds(): void
+    {
+        self::assertSame('10:00:45', TimeOfDay::from('10:00:15')->plus(Duration::from('PT30S'))->value);
+        self::assertSame('09:59:45', TimeOfDay::from('10:00:15')->minus(Duration::from('PT30S'))->value);
+    }
+
+    /**
+     * @param non-empty-string $duration
+     */
+    #[DataProvider('dateComponentProvider')]
+    public function testRejectsDurationWithDateComponents(string $duration): void
     {
         $this->expectException(InvalidTimeOfDayException::class);
 
-        TimeOfDay::from('12:00')->plus(Duration::from('P1D'));
+        TimeOfDay::from('12:00')->plus(Duration::from($duration));
+    }
+
+    /**
+     * @return iterable<string, array{non-empty-string}>
+     */
+    public static function dateComponentProvider(): iterable
+    {
+        yield 'days' => ['P1D'];
+        yield 'months' => ['P1M'];
+        yield 'years' => ['P1Y'];
     }
 }
