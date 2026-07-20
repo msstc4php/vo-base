@@ -6,7 +6,6 @@ namespace MSSTC4PHP\ValueObject\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIpv6Exception;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
-use MSSTC4PHP\ValueObject\Support\ClassifiesIpAddress;
 
 /**
  * An IPv6 address (e.g. 2001:db8::1).

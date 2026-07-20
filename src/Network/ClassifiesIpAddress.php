@@ -2,10 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MSSTC4PHP\ValueObject\Support;
-
-use MSSTC4PHP\ValueObject\Network\Cidr;
-use MSSTC4PHP\ValueObject\Network\IpAddress;
+namespace MSSTC4PHP\ValueObject\Network;
 
 /**
  * Shared IP classification behavior. The concrete address type provides the

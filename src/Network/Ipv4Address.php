@@ -6,7 +6,6 @@ namespace MSSTC4PHP\ValueObject\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIpv4Exception;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
-use MSSTC4PHP\ValueObject\Support\ClassifiesIpAddress;
 
 /**
  * An IPv4 address in dotted-decimal notation (e.g. 192.168.0.1).
