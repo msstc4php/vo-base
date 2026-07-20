@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Finance;
 
+use Brick\Math\BigDecimal;
+use Brick\Math\Exception\MathException;
+use Brick\Math\RoundingMode;
 use MSSTC4PHP\ValueObject\Contract\Comparable;
 use MSSTC4PHP\ValueObject\Exception\InvalidDecimalException;
+use MSSTC4PHP\ValueObject\Exception\MissingDependencyException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
 use MSSTC4PHP\ValueObject\Support\ComparableHelpers;
 
@@ -63,6 +67,87 @@ final class Decimal extends AbstractStringValueObject implements Comparable
     }
 
     /**
+     * @throws MissingDependencyException when "brick/math" is not installed
+     */
+    public function add(self|int|string $that): self
+    {
+        return $this->rebuild(fn (BigDecimal $value): BigDecimal => $value->plus($this->operandOf($that)));
+    }
+
+    /**
+     * @throws MissingDependencyException when "brick/math" is not installed
+     */
+    public function subtract(self|int|string $that): self
+    {
+        return $this->rebuild(fn (BigDecimal $value): BigDecimal => $value->minus($this->operandOf($that)));
+    }
+
+    /**
+     * @throws MissingDependencyException when "brick/math" is not installed
+     */
+    public function multiply(self|int|string $that): self
+    {
+        return $this->rebuild(fn (BigDecimal $value): BigDecimal => $value->multipliedBy($this->operandOf($that)));
+    }
+
+    /**
+     * @param non-negative-int $scale
+     *
+     * @throws MissingDependencyException when "brick/math" is not installed
+     * @throws InvalidDecimalException when dividing by zero
+     */
+    public function divide(self|int|string $that, int $scale, ?RoundingMode $mode = null): self
+    {
+        return $this->rebuild(function (BigDecimal $value) use ($that, $scale, $mode): BigDecimal {
+            try {
+                return $value->dividedBy($this->operandOf($that), $scale, $mode ?? RoundingMode::HalfUp);
+            } catch (MathException $exception) {
+                throw new InvalidDecimalException(\sprintf('Cannot divide "%s" by "%s".', $this->value, $this->operandOf($that)), 0, $exception);
+            }
+        });
+    }
+
+    /**
+     * @param non-negative-int $scale
+     *
+     * @throws MissingDependencyException when "brick/math" is not installed
+     */
+    public function round(int $scale, ?RoundingMode $mode = null): self
+    {
+        return $this->rebuild(fn (BigDecimal $value): BigDecimal => $value->toScale($scale, $mode ?? RoundingMode::HalfUp));
+    }
+
+    /**
+     * @throws MissingDependencyException when "brick/math" is not installed
+     */
+    public function abs(): self
+    {
+        return $this->rebuild(fn (BigDecimal $value): BigDecimal => $value->abs());
+    }
+
+    /**
+     * @throws MissingDependencyException when "brick/math" is not installed
+     */
+    public function negated(): self
+    {
+        return $this->rebuild(fn (BigDecimal $value): BigDecimal => $value->negated());
+    }
+
+    /**
+     * The sign: -1 for negative, 0 for zero, 1 for positive.
+     *
+     * @return -1|0|1
+     *
+     * @throws MissingDependencyException when "brick/math" is not installed
+     */
+    public function sign(): int
+    {
+        $this->requireBrickMath();
+
+        return BigDecimal::of($this->value)->getSign();
+    }
+
+    /**
      * @return non-negative-int
      */
     private function fractionLength(): int
@@ -70,5 +155,29 @@ final class Decimal extends AbstractStringValueObject implements Comparable
         $dot = \strpos($this->value, '.');
 
         return $dot === false ? 0 : \max(0, \strlen($this->value) - $dot - 1);
+    }
+
+    /**
+     * Apply a brick/math operation and wrap the result back into a normalized Decimal.
+     *
+     * @param callable(BigDecimal): BigDecimal $operation
+     */
+    private function rebuild(callable $operation): self
+    {
+        $this->requireBrickMath();
+
+        return new self((string) $operation(BigDecimal::of($this->value)));
+    }
+
+    private function operandOf(self|int|string $that): string
+    {
+        return $that instanceof self ? $that->value : (string) $that;
+    }
+
+    private function requireBrickMath(): void
+    {
+        if (!class_exists(BigDecimal::class)) {
+            throw new MissingDependencyException('Decimal arithmetic requires the "brick/math" package. Run: composer require brick/math');
+        }
     }
 }

@@ -73,4 +73,54 @@ final class DecimalTest extends TestCase
 
         Decimal::from($value);
     }
+
+    public function testExactArithmetic(): void
+    {
+        self::assertSame('3.3', Decimal::from('1.1')->add('2.2')->value);
+        self::assertSame('-1.1', Decimal::from('1.1')->subtract('2.2')->value);
+        self::assertSame('0.02', Decimal::from('0.1')->multiply('0.2')->value);
+        self::assertSame('4.2', Decimal::from('-4.20')->abs()->value);
+        self::assertSame('-4.2', Decimal::from('4.2')->negated()->value);
+    }
+
+    public function testAddAcceptsDecimalIntAndString(): void
+    {
+        self::assertSame('5', Decimal::from('2')->add(Decimal::from('3'))->value);
+        self::assertSame('5', Decimal::from('2')->add(3)->value);
+        self::assertSame('5', Decimal::from('2')->add('3')->value);
+    }
+
+    public function testDivideWithRounding(): void
+    {
+        self::assertSame('0.3333', Decimal::from('1')->divide('3', 4)->value);
+        self::assertSame('0.25', Decimal::from('1')->divide('4', 2)->value);
+    }
+
+    public function testDivideByZeroThrows(): void
+    {
+        $this->expectException(InvalidDecimalException::class);
+
+        Decimal::from('1')->divide('0', 2);
+    }
+
+    public function testRound(): void
+    {
+        self::assertSame('3', Decimal::from('2.5')->round(0)->value);
+        self::assertSame('1.23', Decimal::from('1.2345')->round(2)->value);
+    }
+
+    public function testSign(): void
+    {
+        self::assertSame(-1, Decimal::from('-4.2')->sign());
+        self::assertSame(0, Decimal::from('0')->sign());
+        self::assertSame(1, Decimal::from('4.2')->sign());
+    }
+
+    public function testArithmeticIsImmutable(): void
+    {
+        $decimal = Decimal::from('1.1');
+        $decimal->add('2.2');
+
+        self::assertSame('1.1', $decimal->value);
+    }
 }

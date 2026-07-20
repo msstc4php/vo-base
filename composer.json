@@ -10,6 +10,7 @@
         "php": ">=8.4"
     },
     "require-dev": {
+        "brick/math": "^0.12 || ^0.13 || ^0.14",
         "brick/money": "^0.10",
         "deptrac/deptrac": "^3.0",
         "doctrine/dbal": "^4.4",
@@ -36,6 +37,7 @@
         "doctrine/orm": "To map value objects and the GeoCoordinates embeddable.",
         "doctrine/mongodb-odm": "To persist value objects with Doctrine MongoDB ODM.",
         "symfony/validator": "To validate raw input against value object rules via constraints.",
+        "brick/math": "Enables arithmetic on Decimal and Percentage (add, divide, round, ...).",
         "brick/money": "Pairs with CurrencyCode for full money handling (arithmetic, rounding)."
     },
     "autoload": {
