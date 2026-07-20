@@ -14,6 +14,8 @@ use Stringable;
  */
 abstract class AbstractFloatValueObject implements Comparable, ValueObject, Stringable
 {
+    use ComparableHelpers;
+
     public readonly float $value;
 
     final public function __construct(float $value)

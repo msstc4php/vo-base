@@ -14,6 +14,8 @@ use Stringable;
  */
 abstract class AbstractIntValueObject implements Comparable, ValueObject, Stringable
 {
+    use ComparableHelpers;
+
     public readonly int $value;
 
     final public function __construct(int $value)

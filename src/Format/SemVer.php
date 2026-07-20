@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Format;
 use MSSTC4PHP\ValueObject\Contract\Comparable;
 use MSSTC4PHP\ValueObject\Exception\InvalidSemVerException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use MSSTC4PHP\ValueObject\Support\ComparableHelpers;
 
 /**
  * Semantic version (semver.org 2.0.0) with precedence-aware comparison.
@@ -21,6 +22,8 @@ use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
  */
 final class SemVer extends AbstractStringValueObject implements Comparable
 {
+    use ComparableHelpers;
+
     private const string PATTERN = '/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)'
         . '(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?'
         . '(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/';

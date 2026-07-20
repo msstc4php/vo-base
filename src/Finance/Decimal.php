@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Finance;
 use MSSTC4PHP\ValueObject\Contract\Comparable;
 use MSSTC4PHP\ValueObject\Exception\InvalidDecimalException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use MSSTC4PHP\ValueObject\Support\ComparableHelpers;
 
 /**
  * Arbitrary-precision decimal number stored as a normalized numeric string.
@@ -14,6 +15,8 @@ use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
  */
 final class Decimal extends AbstractStringValueObject implements Comparable
 {
+    use ComparableHelpers;
+
     private const string PATTERN = '/^[+-]?\d+(\.\d+)?$/';
 
     protected function parse(string $value): string
