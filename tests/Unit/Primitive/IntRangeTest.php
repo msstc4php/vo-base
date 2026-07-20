@@ -8,6 +8,7 @@ use MSSTC4PHP\ValueObject\Exception\InvalidIntRangeException;
 use MSSTC4PHP\ValueObject\Primitive\IntRange;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RangeException;
 
 #[CoversClass(IntRange::class)]
 final class IntRangeTest extends TestCase
@@ -41,6 +42,21 @@ final class IntRangeTest extends TestCase
     {
         self::assertSame(5, new IntRange(1, 5)->length());
         self::assertSame(1, new IntRange(3, 3)->length());
+    }
+
+    public function testLengthOverflowThrows(): void
+    {
+        $this->expectException(RangeException::class);
+
+        new IntRange(\PHP_INT_MIN, \PHP_INT_MAX)->length();
+    }
+
+    public function testLengthAtIntegerCeilingThrows(): void
+    {
+        $this->expectException(RangeException::class);
+
+        // max - min == PHP_INT_MAX, so + 1 would overflow.
+        new IntRange(0, \PHP_INT_MAX)->length();
     }
 
     public function testOverlapsAndIntersect(): void

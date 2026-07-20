@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Primitive;
 
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidIntRangeException;
+use RangeException;
 
 /**
  * An inclusive integer interval [min, max].
@@ -30,11 +31,27 @@ final readonly class IntRange implements ValueObject
      * The number of integers in the inclusive interval.
      *
      * @return positive-int
+     *
+     * @throws RangeException when the count exceeds PHP's integer range
      */
     public function length(): int
     {
-        // Always >= 1: the constructor guarantees min <= max.
-        return max(1, $this->max - $this->min + 1);
+        // Guard the span before computing it, so the subtraction itself never
+        // overflows into a float. PHP_INT_MAX + $this->min is safe here because
+        // $this->min is negative in that branch.
+        if ($this->min < 0 && $this->max > \PHP_INT_MAX + $this->min) {
+            throw new RangeException(\sprintf('Length of range [%d, %d] exceeds the integer range.', $this->min, $this->max));
+        }
+
+        $span = $this->max - $this->min;
+        if ($span === \PHP_INT_MAX) {
+            // span + 1 would overflow.
+            throw new RangeException(\sprintf('Length of range [%d, %d] exceeds the integer range.', $this->min, $this->max));
+        }
+
+        // max(1, …) only satisfies the positive-int type; the constructor's
+        // min <= max invariant already makes $span + 1 >= 1.
+        return max(1, $span + 1);
     }
 
     public function overlaps(self $other): bool
