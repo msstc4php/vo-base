@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIpv4Exception;
+use MSSTC4PHP\ValueObject\Network\Cidr;
 use MSSTC4PHP\ValueObject\Network\Ipv4Address;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -36,5 +37,38 @@ final class Ipv4AddressTest extends TestCase
         $this->expectException(InvalidIpv4Exception::class);
 
         Ipv4Address::from('');
+    }
+
+    public function testPrivateAndPublic(): void
+    {
+        self::assertTrue(Ipv4Address::from('10.0.0.1')->isPrivate());
+        self::assertTrue(Ipv4Address::from('172.16.0.1')->isPrivate());
+        self::assertTrue(Ipv4Address::from('192.168.1.1')->isPrivate());
+        self::assertFalse(Ipv4Address::from('8.8.8.8')->isPrivate());
+
+        self::assertTrue(Ipv4Address::from('8.8.8.8')->isPublic());
+        self::assertFalse(Ipv4Address::from('10.0.0.1')->isPublic());
+    }
+
+    public function testLoopbackLinkLocalMulticast(): void
+    {
+        self::assertTrue(Ipv4Address::from('127.0.0.1')->isLoopback());
+        self::assertFalse(Ipv4Address::from('8.8.8.8')->isLoopback());
+        self::assertTrue(Ipv4Address::from('169.254.1.1')->isLinkLocal());
+        self::assertTrue(Ipv4Address::from('224.0.0.1')->isMulticast());
+    }
+
+    public function testPrivateRangeBoundaries(): void
+    {
+        self::assertTrue(Ipv4Address::from('172.16.0.0')->isPrivate());
+        self::assertTrue(Ipv4Address::from('172.31.255.255')->isPrivate());
+        self::assertFalse(Ipv4Address::from('172.15.255.255')->isPrivate());
+        self::assertFalse(Ipv4Address::from('172.32.0.0')->isPrivate());
+    }
+
+    public function testIsInRange(): void
+    {
+        self::assertTrue(Ipv4Address::from('192.168.1.42')->isInRange(Cidr::from('192.168.1.0/24')));
+        self::assertFalse(Ipv4Address::from('192.168.2.1')->isInRange(Cidr::from('192.168.1.0/24')));
     }
 }

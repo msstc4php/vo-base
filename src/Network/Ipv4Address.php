@@ -12,6 +12,57 @@ use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
  */
 final class Ipv4Address extends AbstractStringValueObject
 {
+    /**
+     * RFC 1918 private ranges.
+     */
+    public function isPrivate(): bool
+    {
+        return $this->inRange('10.0.0.0/8')
+            || $this->inRange('172.16.0.0/12')
+            || $this->inRange('192.168.0.0/16');
+    }
+
+    /**
+     * The 127.0.0.0/8 loopback range.
+     */
+    public function isLoopback(): bool
+    {
+        return $this->inRange('127.0.0.0/8');
+    }
+
+    /**
+     * The 169.254.0.0/16 link-local (APIPA) range.
+     */
+    public function isLinkLocal(): bool
+    {
+        return $this->inRange('169.254.0.0/16');
+    }
+
+    /**
+     * The 224.0.0.0/4 multicast range.
+     */
+    public function isMulticast(): bool
+    {
+        return $this->inRange('224.0.0.0/4');
+    }
+
+    /**
+     * A routable public address: none of the private, loopback, link-local, or
+     * multicast ranges.
+     */
+    public function isPublic(): bool
+    {
+        return !$this->isPrivate()
+            && !$this->isLoopback()
+            && !$this->isLinkLocal()
+            && !$this->isMulticast();
+    }
+
+    public function isInRange(Cidr $cidr): bool
+    {
+        return $cidr->contains(IpAddress::fromString($this->value));
+    }
+
     protected function parse(string $value): string
     {
         if (\filter_var($value, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV4) === false) {
@@ -19,5 +70,10 @@ final class Ipv4Address extends AbstractStringValueObject
         }
 
         return $value;
+    }
+
+    private function inRange(string $cidr): bool
+    {
+        return Cidr::from($cidr)->contains(IpAddress::fromString($this->value));
     }
 }

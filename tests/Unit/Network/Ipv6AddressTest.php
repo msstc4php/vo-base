@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIpv6Exception;
+use MSSTC4PHP\ValueObject\Network\Cidr;
 use MSSTC4PHP\ValueObject\Network\Ipv6Address;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -27,5 +28,23 @@ final class Ipv6AddressTest extends TestCase
         $this->expectException(InvalidIpv6Exception::class);
 
         Ipv6Address::from('192.168.0.1');
+    }
+
+    public function testClassification(): void
+    {
+        self::assertTrue(Ipv6Address::from('::1')->isLoopback());
+        self::assertTrue(Ipv6Address::from('fe80::1')->isLinkLocal());
+        self::assertTrue(Ipv6Address::from('fc00::1')->isPrivate());
+        self::assertTrue(Ipv6Address::from('fd12::1')->isPrivate());
+        self::assertTrue(Ipv6Address::from('ff02::1')->isMulticast());
+
+        self::assertTrue(Ipv6Address::from('2001:db8::1')->isPublic());
+        self::assertFalse(Ipv6Address::from('::1')->isPublic());
+    }
+
+    public function testIsInRange(): void
+    {
+        self::assertTrue(Ipv6Address::from('2001:db8::1')->isInRange(Cidr::from('2001:db8::/32')));
+        self::assertFalse(Ipv6Address::from('2001:db9::1')->isInRange(Cidr::from('2001:db8::/32')));
     }
 }

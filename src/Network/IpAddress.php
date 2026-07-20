@@ -27,6 +27,36 @@ final class IpAddress extends AbstractStringValueObject
         return \filter_var($this->value, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV4) !== false ? 4 : 6;
     }
 
+    public function isPrivate(): bool
+    {
+        return $this->concrete()->isPrivate();
+    }
+
+    public function isLoopback(): bool
+    {
+        return $this->concrete()->isLoopback();
+    }
+
+    public function isLinkLocal(): bool
+    {
+        return $this->concrete()->isLinkLocal();
+    }
+
+    public function isMulticast(): bool
+    {
+        return $this->concrete()->isMulticast();
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->concrete()->isPublic();
+    }
+
+    public function isInRange(Cidr $cidr): bool
+    {
+        return $cidr->contains($this);
+    }
+
     protected function parse(string $value): string
     {
         if (\filter_var($value, \FILTER_VALIDATE_IP) === false) {
@@ -34,5 +64,12 @@ final class IpAddress extends AbstractStringValueObject
         }
 
         return $value;
+    }
+
+    private function concrete(): Ipv4Address|Ipv6Address
+    {
+        return $this->version() === 4
+            ? Ipv4Address::from($this->value)
+            : Ipv6Address::from($this->value);
     }
 }
