@@ -10,6 +10,7 @@ use MSSTC4PHP\ValueObject\Network\IpAddress;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use RangeException;
 
 #[CoversClass(Cidr::class)]
 final class CidrTest extends TestCase
@@ -54,5 +55,88 @@ final class CidrTest extends TestCase
         $this->expectException(InvalidCidrException::class);
 
         Cidr::from($value);
+    }
+
+    public function testContainsIpv4(): void
+    {
+        $block = Cidr::from('192.168.1.0/24');
+
+        self::assertTrue($block->contains(IpAddress::from('192.168.1.42')));
+        self::assertTrue($block->contains(IpAddress::from('192.168.1.0')));
+        self::assertTrue($block->contains(IpAddress::from('192.168.1.255')));
+        self::assertFalse($block->contains(IpAddress::from('192.168.2.1')));
+    }
+
+    public function testContainsIpv6(): void
+    {
+        $block = Cidr::from('2001:db8::/32');
+
+        self::assertTrue($block->contains(IpAddress::from('2001:db8::1')));
+        self::assertFalse($block->contains(IpAddress::from('2001:db9::1')));
+    }
+
+    public function testContainsRejectsOtherFamily(): void
+    {
+        self::assertFalse(Cidr::from('192.168.1.0/24')->contains(IpAddress::from('2001:db8::1')));
+        self::assertFalse(Cidr::from('2001:db8::/32')->contains(IpAddress::from('192.168.1.1')));
+    }
+
+    public function testIpv4AddressRange(): void
+    {
+        $block = Cidr::from('192.168.1.0/24');
+
+        self::assertSame('192.168.1.0', $block->firstAddress()->value);
+        self::assertSame('192.168.1.255', $block->lastAddress()->value);
+        self::assertSame('255.255.255.0', $block->netmask()->value);
+        self::assertSame('192.168.1.255', $block->broadcast()?->value);
+        self::assertSame(254, $block->hostCount());
+    }
+
+    public function testNormalizesToNetworkAddress(): void
+    {
+        // Host bits set on input are cleared when computing the network address.
+        $block = Cidr::from('192.168.1.42/24');
+
+        self::assertSame('192.168.1.0', $block->firstAddress()->value);
+    }
+
+    public function testIpv6AddressRange(): void
+    {
+        $block = Cidr::from('2001:db8::/32');
+
+        self::assertSame('2001:db8::', $block->firstAddress()->value);
+        self::assertSame('2001:db8:ffff:ffff:ffff:ffff:ffff:ffff', $block->lastAddress()->value);
+        self::assertSame('ffff:ffff::', $block->netmask()->value);
+        self::assertNull($block->broadcast());
+    }
+
+    public function testSingleHostAndFullRangeCounts(): void
+    {
+        self::assertSame(1, Cidr::from('192.168.1.7/32')->hostCount());
+        self::assertSame(2, Cidr::from('192.168.1.0/31')->hostCount());
+        self::assertSame(1, Cidr::from('2001:db8::/128')->hostCount());
+    }
+
+    public function testHostCountThrowsOnWideIpv6(): void
+    {
+        $this->expectException(RangeException::class);
+
+        Cidr::from('2001:db8::/32')->hostCount();
+    }
+
+    public function testOverlaps(): void
+    {
+        self::assertTrue(Cidr::from('192.168.0.0/16')->overlaps(Cidr::from('192.168.1.0/24')));
+        self::assertTrue(Cidr::from('192.168.1.0/24')->overlaps(Cidr::from('192.168.0.0/16')));
+        self::assertFalse(Cidr::from('10.0.0.0/8')->overlaps(Cidr::from('192.168.0.0/16')));
+        self::assertFalse(Cidr::from('192.168.0.0/16')->overlaps(Cidr::from('2001:db8::/32')));
+    }
+
+    public function testIsSubnetOf(): void
+    {
+        self::assertTrue(Cidr::from('192.168.1.0/24')->isSubnetOf(Cidr::from('192.168.0.0/16')));
+        self::assertTrue(Cidr::from('192.168.0.0/16')->isSubnetOf(Cidr::from('192.168.0.0/16')));
+        self::assertFalse(Cidr::from('192.168.0.0/16')->isSubnetOf(Cidr::from('192.168.1.0/24')));
+        self::assertFalse(Cidr::from('192.168.1.0/24')->isSubnetOf(Cidr::from('2001:db8::/32')));
     }
 }
