@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Support;
 
 use MSSTC4PHP\ValueObject\Finance\Decimal;
+use MSSTC4PHP\ValueObject\Format\SemVer;
 use MSSTC4PHP\ValueObject\Network\Port;
 use MSSTC4PHP\ValueObject\Support\ComparableHelpers;
 use MSSTC4PHP\ValueObject\Temporal\TimeOfDay;
@@ -63,5 +64,34 @@ final class ComparableHelpersTest extends TestCase
     {
         self::assertTrue(Decimal::from('1.5')->isLessThan(Decimal::from('1.50001')));
         self::assertTrue(TimeOfDay::from('08:30')->isLessThan(TimeOfDay::from('08:30:01')));
+    }
+
+    /**
+     * Invariant: min returns the lower operand and max the higher, for every
+     * Comparable family. min/max are trait methods (not on the Comparable
+     * interface), so each family is exercised through its concrete type.
+     */
+    public function testMinMaxAgreeWithCompareToAcrossFamilies(): void
+    {
+        $lowPort = Port::from(80);
+        $highPort = Port::from(443);
+        self::assertSame($lowPort, $lowPort->min($highPort));
+        self::assertSame($lowPort, $highPort->min($lowPort));
+        self::assertSame($highPort, $lowPort->max($highPort));
+
+        $lowDecimal = Decimal::from('2.5');
+        $highDecimal = Decimal::from('2.6');
+        self::assertSame($lowDecimal, $lowDecimal->min($highDecimal));
+        self::assertSame($highDecimal, $lowDecimal->max($highDecimal));
+
+        $lowVer = SemVer::from('1.2.3');
+        $highVer = SemVer::from('1.10.0');
+        self::assertSame($lowVer, $lowVer->min($highVer));
+        self::assertSame($highVer, $lowVer->max($highVer));
+
+        $earlier = TimeOfDay::from('06:30');
+        $later = TimeOfDay::from('23:00');
+        self::assertSame($earlier, $later->min($earlier));
+        self::assertSame($later, $earlier->max($later));
     }
 }

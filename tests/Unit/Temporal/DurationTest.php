@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use MSSTC4PHP\ValueObject\Exception\InvalidDurationException;
 use MSSTC4PHP\ValueObject\Temporal\Duration;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Duration::class)]
@@ -166,5 +167,54 @@ final class DurationTest extends TestCase
         $duration->plus(Duration::from('PT30M'));
 
         self::assertSame('PT30M', $duration->value);
+    }
+
+    /**
+     * Invariant: addition is commutative across the calendar-safe buckets.
+     *
+     * @param non-empty-string $a
+     * @param non-empty-string $b
+     */
+    #[DataProvider('durationPairProvider')]
+    public function testPlusIsCommutative(string $a, string $b): void
+    {
+        self::assertSame(
+            Duration::from($a)->plus(Duration::from($b))->value,
+            Duration::from($b)->plus(Duration::from($a))->value,
+        );
+    }
+
+    /**
+     * @return iterable<string, array{non-empty-string, non-empty-string}>
+     */
+    public static function durationPairProvider(): iterable
+    {
+        yield 'months + days' => ['P1M', 'P10D'];
+        yield 'years + seconds' => ['P1Y', 'PT30S'];
+        yield 'mixed + mixed' => ['P1Y2M3DT4H5M6S', 'P2Y1M'];
+        yield 'time + time' => ['PT40M', 'PT50M'];
+    }
+
+    /**
+     * Invariant: fromSeconds/toSeconds round-trips for anchorless second counts.
+     *
+     * @param non-negative-int $seconds
+     */
+    #[DataProvider('secondsProvider')]
+    public function testFromSecondsToSecondsRoundTrip(int $seconds): void
+    {
+        self::assertSame($seconds, Duration::fromSeconds($seconds)->toSeconds());
+    }
+
+    /**
+     * @return iterable<string, array{non-negative-int}>
+     */
+    public static function secondsProvider(): iterable
+    {
+        yield 'zero' => [0];
+        yield 'one minute' => [60];
+        yield 'ninety minutes' => [5400];
+        yield 'one day' => [86400];
+        yield 'large' => [123456789];
     }
 }

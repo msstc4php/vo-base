@@ -150,4 +150,33 @@ final class CidrTest extends TestCase
         // Shares the network address but is wider -> not a subnet.
         self::assertFalse(Cidr::from('10.0.0.0/8')->isSubnetOf(Cidr::from('10.0.0.0/16')));
     }
+
+    /**
+     * Invariant: a block always contains its own first and last address, across
+     * v4/v6 prefix widths.
+     *
+     * @param non-empty-string $block
+     */
+    #[DataProvider('blockProvider')]
+    public function testFirstAndLastAreAlwaysContained(string $block): void
+    {
+        $cidr = Cidr::from($block);
+
+        self::assertTrue($cidr->contains($cidr->firstAddress()), 'first not contained');
+        self::assertTrue($cidr->contains($cidr->lastAddress()), 'last not contained');
+    }
+
+    /**
+     * @return iterable<string, array{non-empty-string}>
+     */
+    public static function blockProvider(): iterable
+    {
+        yield 'v4 /0' => ['0.0.0.0/0'];
+        yield 'v4 /24' => ['192.168.1.0/24'];
+        yield 'v4 /31' => ['192.168.1.0/31'];
+        yield 'v4 /32' => ['192.168.1.7/32'];
+        yield 'v6 /64' => ['2001:db8::/64'];
+        yield 'v6 /128' => ['2001:db8::1/128'];
+        yield 'v6 /0' => ['::/0'];
+    }
 }

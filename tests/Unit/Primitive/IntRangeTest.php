@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Primitive;
 use MSSTC4PHP\ValueObject\Exception\InvalidIntRangeException;
 use MSSTC4PHP\ValueObject\Primitive\IntRange;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RangeException;
 
@@ -83,5 +84,39 @@ final class IntRangeTest extends TestCase
         self::assertNotNull($intersection);
         self::assertSame(5, $intersection->min);
         self::assertSame(5, $intersection->max);
+    }
+
+    /**
+     * Invariant: intersection is commutative (a∩b == b∩a).
+     */
+    #[DataProvider('rangePairProvider')]
+    public function testIntersectIsCommutative(int $aMin, int $aMax, int $bMin, int $bMax): void
+    {
+        $a = new IntRange($aMin, $aMax);
+        $b = new IntRange($bMin, $bMax);
+
+        $ab = $a->intersect($b);
+        $ba = $b->intersect($a);
+
+        if (!$ab instanceof IntRange || !$ba instanceof IntRange) {
+            self::assertNull($ab);
+            self::assertNull($ba);
+
+            return;
+        }
+
+        self::assertTrue($ab->equals($ba));
+    }
+
+    /**
+     * @return iterable<string, array{int, int, int, int}>
+     */
+    public static function rangePairProvider(): iterable
+    {
+        yield 'overlapping' => [1, 10, 5, 20];
+        yield 'touching' => [1, 5, 5, 9];
+        yield 'disjoint' => [1, 3, 4, 6];
+        yield 'nested' => [1, 100, 20, 30];
+        yield 'identical' => [3, 7, 3, 7];
     }
 }
