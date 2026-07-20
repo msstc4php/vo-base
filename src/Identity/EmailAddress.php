@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Identity;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidEmailAddressException;
+use MSSTC4PHP\ValueObject\Network\DomainName;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
 
 /**
@@ -36,6 +37,15 @@ final class EmailAddress extends AbstractStringValueObject
     public function domain(): string
     {
         return \substr($this->value, $this->atPosition() + 1);
+    }
+
+    /**
+     * The domain as a {@see DomainName}, or null when it is not a registrable
+     * domain (e.g. a bare host or an IP-literal domain).
+     */
+    public function domainName(): ?DomainName
+    {
+        return DomainName::tryFrom($this->domain());
     }
 
     /**

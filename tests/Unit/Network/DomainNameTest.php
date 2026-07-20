@@ -57,4 +57,18 @@ final class DomainNameTest extends TestCase
         self::assertSame('example.com', DomainName::from('example.com')->jsonSerialize());
         self::assertSame('example.com', (string) DomainName::from('example.com'));
     }
+
+    public function testLabelsAndTld(): void
+    {
+        self::assertSame(['www', 'example', 'com'], DomainName::from('www.example.com')->labels());
+        self::assertSame('com', DomainName::from('www.example.com')->tld());
+    }
+
+    public function testIsSubdomainOf(): void
+    {
+        self::assertTrue(DomainName::from('api.example.com')->isSubdomainOf(DomainName::from('example.com')));
+        self::assertFalse(DomainName::from('example.com')->isSubdomainOf(DomainName::from('example.com')));
+        self::assertFalse(DomainName::from('evilexample.com')->isSubdomainOf(DomainName::from('example.com')));
+        self::assertFalse(DomainName::from('example.org')->isSubdomainOf(DomainName::from('example.com')));
+    }
 }

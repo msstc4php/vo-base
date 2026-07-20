@@ -43,4 +43,18 @@ final class EmailAddressTest extends TestCase
 
         EmailAddress::from($value);
     }
+
+    public function testDomainNameForRegistrableDomain(): void
+    {
+        $domain = EmailAddress::from('user@example.com')->domainName();
+
+        self::assertNotNull($domain);
+        self::assertSame('example.com', $domain->value);
+    }
+
+    public function testDomainNameNullForNonRegistrableDomain(): void
+    {
+        // Valid address, but "example.c" is not a registrable domain (1-char TLD).
+        self::assertNull(EmailAddress::from('user@example.c')->domainName());
+    }
 }

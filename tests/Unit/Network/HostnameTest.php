@@ -61,4 +61,13 @@ final class HostnameTest extends TestCase
         self::assertSame('example.com', Hostname::from('example.com')->jsonSerialize());
         self::assertSame('example.com', (string) Hostname::from('example.com'));
     }
+
+    public function testLabelsTldAndSubdomain(): void
+    {
+        self::assertSame(['www', 'example', 'com'], Hostname::from('www.example.com')->labels());
+        self::assertSame(['localhost'], Hostname::from('localhost')->labels());
+        self::assertSame('com', Hostname::from('www.example.com')->tld());
+        self::assertTrue(Hostname::from('a.b.example.com')->isSubdomainOf(Hostname::from('example.com')));
+        self::assertFalse(Hostname::from('localhost')->isSubdomainOf(Hostname::from('example.com')));
+    }
 }
