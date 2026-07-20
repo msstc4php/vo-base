@@ -38,6 +38,26 @@ final class TimeOfDay extends AbstractStringValueObject implements Comparable
         return \strcmp($this->value, $other->value) <=> 0;
     }
 
+    /**
+     * Add a time-only duration, wrapping around midnight. A duration carrying
+     * date components (years/months/days) is rejected — they have no meaning
+     * for a wall-clock time.
+     *
+     * @throws InvalidTimeOfDayException when the duration has date components
+     */
+    public function plus(Duration $duration): self
+    {
+        return $this->shiftBy($this->durationSeconds($duration));
+    }
+
+    /**
+     * @throws InvalidTimeOfDayException when the duration has date components
+     */
+    public function minus(Duration $duration): self
+    {
+        return $this->shiftBy(-$this->durationSeconds($duration));
+    }
+
     public function hour(): int
     {
         return (int) \substr($this->value, 0, 2);
@@ -51,5 +71,31 @@ final class TimeOfDay extends AbstractStringValueObject implements Comparable
     public function second(): int
     {
         return (int) \substr($this->value, 6, 2);
+    }
+
+    private function shiftBy(int $deltaSeconds): self
+    {
+        $current = $this->hour() * 3600 + $this->minute() * 60 + $this->second();
+        $wrapped = (($current + $deltaSeconds) % 86400 + 86400) % 86400;
+
+        return new self(\sprintf(
+            '%02d:%02d:%02d',
+            \intdiv($wrapped, 3600),
+            \intdiv($wrapped % 3600, 60),
+            $wrapped % 60,
+        ));
+    }
+
+    /**
+     * @throws InvalidTimeOfDayException when the duration carries date components
+     */
+    private function durationSeconds(Duration $duration): int
+    {
+        $interval = $duration->toDateInterval();
+        if ($interval->y !== 0 || $interval->m !== 0 || $interval->d !== 0) {
+            throw new InvalidTimeOfDayException(\sprintf('Duration "%s" has date components and cannot shift a time of day.', $duration));
+        }
+
+        return $interval->h * 3600 + $interval->i * 60 + $interval->s;
     }
 }

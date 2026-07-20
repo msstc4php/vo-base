@@ -105,4 +105,57 @@ final class DateRangeTest extends TestCase
             $range->jsonSerialize(),
         );
     }
+
+    public function testDuration(): void
+    {
+        $range = new DateRange(
+            new DateTimeImmutable('2026-01-01T10:00:00Z'),
+            new DateTimeImmutable('2026-01-01T11:00:00Z'),
+        );
+
+        self::assertSame('PT1H', $range->duration()->value);
+    }
+
+    public function testIntersectOverlapping(): void
+    {
+        $a = new DateRange(new DateTimeImmutable('2026-01-01T00:00:00Z'), new DateTimeImmutable('2026-01-10T00:00:00Z'));
+        $b = new DateRange(new DateTimeImmutable('2026-01-05T00:00:00Z'), new DateTimeImmutable('2026-01-20T00:00:00Z'));
+
+        $intersection = $a->intersect($b);
+
+        self::assertNotNull($intersection);
+        self::assertEquals(new DateTimeImmutable('2026-01-05T00:00:00Z'), $intersection->start);
+        self::assertEquals(new DateTimeImmutable('2026-01-10T00:00:00Z'), $intersection->end);
+    }
+
+    public function testDisjointRangesIntersectNullAndGapNonNull(): void
+    {
+        $a = new DateRange(new DateTimeImmutable('2026-01-01T00:00:00Z'), new DateTimeImmutable('2026-01-05T00:00:00Z'));
+        $b = new DateRange(new DateTimeImmutable('2026-01-10T00:00:00Z'), new DateTimeImmutable('2026-01-15T00:00:00Z'));
+
+        self::assertNull($a->intersect($b));
+
+        $gap = $a->gap($b);
+        self::assertNotNull($gap);
+        self::assertEquals(new DateTimeImmutable('2026-01-05T00:00:00Z'), $gap->start);
+        self::assertEquals(new DateTimeImmutable('2026-01-10T00:00:00Z'), $gap->end);
+    }
+
+    public function testTouchingRangesAreAdjacentWithNoGap(): void
+    {
+        $a = new DateRange(new DateTimeImmutable('2026-01-01T00:00:00Z'), new DateTimeImmutable('2026-01-05T00:00:00Z'));
+        $b = new DateRange(new DateTimeImmutable('2026-01-05T00:00:00Z'), new DateTimeImmutable('2026-01-10T00:00:00Z'));
+
+        self::assertTrue($a->isAdjacentTo($b));
+        self::assertNull($a->gap($b));
+    }
+
+    public function testContainsRange(): void
+    {
+        $outer = new DateRange(new DateTimeImmutable('2026-01-01T00:00:00Z'), new DateTimeImmutable('2026-01-31T00:00:00Z'));
+        $inner = new DateRange(new DateTimeImmutable('2026-01-10T00:00:00Z'), new DateTimeImmutable('2026-01-20T00:00:00Z'));
+
+        self::assertTrue($outer->contains($inner));
+        self::assertFalse($inner->contains($outer));
+    }
 }

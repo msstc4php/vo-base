@@ -33,14 +33,67 @@ final readonly class DateRange implements ValueObject
         return $this->end;
     }
 
-    public function contains(DateTimeImmutable $point): bool
+    /**
+     * Whether the given instant or range falls entirely within this range.
+     */
+    public function contains(DateTimeImmutable|self $value): bool
     {
-        return $point >= $this->start && $point <= $this->end;
+        if ($value instanceof self) {
+            return $this->start <= $value->start && $value->end <= $this->end;
+        }
+
+        return $value >= $this->start && $value <= $this->end;
     }
 
     public function overlaps(self $other): bool
     {
         return $this->start <= $other->end && $other->start <= $this->end;
+    }
+
+    /**
+     * The elapsed wall-clock time between the endpoints.
+     */
+    public function duration(): Duration
+    {
+        return Duration::fromSeconds($this->end->getTimestamp() - $this->start->getTimestamp());
+    }
+
+    /**
+     * The overlapping range shared with the other, or null when they are disjoint.
+     */
+    public function intersect(self $other): ?self
+    {
+        if (!$this->overlaps($other)) {
+            return null;
+        }
+
+        return new self(
+            $this->start >= $other->start ? $this->start : $other->start,
+            $this->end <= $other->end ? $this->end : $other->end,
+        );
+    }
+
+    /**
+     * The range spanning the space between two disjoint ranges, or null when
+     * they overlap or merely touch.
+     */
+    public function gap(self $other): ?self
+    {
+        if ($this->overlaps($other)) {
+            return null;
+        }
+
+        [$first, $second] = $this->end < $other->start ? [$this, $other] : [$other, $this];
+
+        return new self($first->end, $second->start);
+    }
+
+    /**
+     * Whether the two ranges touch at exactly one endpoint without overlapping further.
+     */
+    public function isAdjacentTo(self $other): bool
+    {
+        return ($this->end <=> $other->start) === 0 || ($other->end <=> $this->start) === 0;
     }
 
     public function equals(ValueObject $other): bool
