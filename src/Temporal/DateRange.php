@@ -51,7 +51,10 @@ final readonly class DateRange implements ValueObject
     }
 
     /**
-     * The elapsed wall-clock time between the endpoints.
+     * The elapsed wall-clock time between the endpoints, as a second-granular
+     * duration. The result fills only the seconds bucket, so a one-year range
+     * renders as e.g. "PT8760H" rather than "P1Y"; sub-second precision is
+     * dropped (Duration is second-granular).
      */
     public function duration(): Duration
     {

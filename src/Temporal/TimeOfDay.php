@@ -27,7 +27,10 @@ final class TimeOfDay extends AbstractStringValueObject implements Comparable
 
     /**
      * Chronological ordering. The canonical HH:MM:SS storage makes a plain
-     * string comparison equivalent to comparing the instant of day.
+     * string comparison equivalent to comparing the instant of day. Comparing
+     * against a different value-object type throws (a typed exception rather
+     * than a TypeError) — intentional, and consistent with the other
+     * {@see Comparable} implementations in this library.
      */
     public function compareTo(Comparable $other): int
     {

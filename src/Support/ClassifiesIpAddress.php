@@ -47,6 +47,11 @@ trait ClassifiesIpAddress
         return $cidr->contains(IpAddress::fromString($this->value));
     }
 
+    /**
+     * Each call constructs a fresh Cidr and IpAddress; the range constants are
+     * deliberately not memoized — the cost is negligible for a value-object
+     * library, and caching would trade that for shared mutable state.
+     */
     private function inRange(string $cidr): bool
     {
         return Cidr::from($cidr)->contains(IpAddress::fromString($this->value));

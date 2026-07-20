@@ -87,7 +87,10 @@ final class SemVer extends AbstractStringValueObject implements Comparable
     }
 
     /**
-     * The next patch version (pre-release and build dropped).
+     * The next patch version (pre-release and build dropped). Note: on a
+     * pre-release input (e.g. "1.2.3-rc.1") this yields "1.2.4", skipping the
+     * eventual "1.2.3" release that the pre-release precedes — call this on a
+     * stable version if you mean "the patch after the current release".
      */
     public function nextPatch(): self
     {

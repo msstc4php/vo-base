@@ -108,7 +108,10 @@ final class Cidr extends AbstractStringValueObject
      *
      * @return positive-int
      *
-     * @throws RangeException when the count exceeds PHP's integer range (very wide IPv6 blocks)
+     * @throws RangeException when the count exceeds PHP's integer range — this is
+     *                        any IPv6 block of /64 or wider (a /64 alone holds
+     *                        2^64 addresses), so the method is practical only for
+     *                        IPv4 and narrow IPv6 prefixes
      */
     public function hostCount(): int
     {

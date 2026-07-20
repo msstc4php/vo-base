@@ -10,6 +10,10 @@ use MSSTC4PHP\ValueObject\Contract\Comparable;
  * Default comparison helpers derived from {@see Comparable::compareTo()}.
  * Mix into any value object that implements {@see Comparable} to gain the
  * ergonomic predicates and min/max selection without reimplementing them.
+ *
+ * The `@param static` annotations declare the intended contract: comparing
+ * against a value object of a different type is caller error and surfaces at
+ * runtime as the exception `compareTo()` throws on a type mismatch.
  */
 trait ComparableHelpers
 {

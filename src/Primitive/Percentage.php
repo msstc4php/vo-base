@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Primitive;
 
+use MSSTC4PHP\ValueObject\Exception\InvalidDecimalException;
 use MSSTC4PHP\ValueObject\Exception\InvalidPercentageException;
 use MSSTC4PHP\ValueObject\Exception\MissingDependencyException;
 use MSSTC4PHP\ValueObject\Finance\Decimal;
@@ -44,6 +45,7 @@ final class Percentage extends AbstractFloatValueObject
      * The percentage a part represents of a whole (e.g. fromRatio(1, 4) == 25).
      *
      * @throws MissingDependencyException when "brick/math" is not installed
+     * @throws InvalidDecimalException when the denominator is zero
      * @throws InvalidPercentageException when the ratio falls outside 0..100
      */
     public static function fromRatio(int|string $numerator, int|string $denominator): self
