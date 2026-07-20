@@ -67,3 +67,37 @@ All value objects are immutable and validate at construction. `from()` throws,
   `major/minor/patch/prerelease/build`.
 - `ClassString` — an existing class/interface/trait/enum FQCN, typed
   `class-string`; `isInstanceOf()`/`isSubclassOf()`.
+
+## v1.1 behavior enrichment (2026-07-20)
+
+Value objects gained domain operations (additive, semver-minor). Highlights:
+
+- **Comparison ergonomics** — `Support/ComparableHelpers` trait adds
+  `isLessThan/isGreaterThan/isLessThanOrEqual/isGreaterThanOrEqual/min/max`
+  to every `Comparable` (int/float bases, `Decimal`, `SemVer`, `TimeOfDay`).
+  `TimeOfDay` now implements `Comparable` (string compare == chronological).
+- **`Cidr`** — `contains(IpAddress)`, `firstAddress/lastAddress/netmask`,
+  `broadcast()` (`?IpAddress`, null for v6), `hostCount()` (throws
+  `\RangeException` for wide IPv6), `overlaps/isSubnetOf`. All zero-dep via
+  `inet_pton` binary masking (v4 + v6).
+- **`Ipv4Address`/`Ipv6Address`/`IpAddress`** — `isPrivate/isLoopback/
+  isLinkLocal/isMulticast/isPublic` (RFC ranges via `Support/ClassifiesIpAddress`
+  trait) and `isInRange(Cidr)`. `IpAddress` delegates to the concrete family.
+- **`Url`/`Uri`** — `Support/UriComponents` trait: `with{Scheme,Host,Port,Path,
+  Query,Fragment}()` (revalidate via ctor) + `queryParameters(): array`.
+- **`EmailAddress::domainName(): ?DomainName`** (nullable — a valid email domain
+  may be non-registrable). `DomainName`/`Hostname` gained `labels()/tld()/
+  isSubdomainOf()` via `Support/DottedLabels` (label-boundary, not string-suffix).
+- **`Duration`** — `plus/minus/multipliedBy` (three calendar-safe buckets:
+  months, days, seconds), `isZero`, `toSeconds(?anchor)`, `fromSeconds()`.
+  NO `Comparable` (ISO durations aren't totally ordered without an anchor).
+- **`DateRange`** — `duration(): Duration`, `intersect/gap` (`?self`),
+  `contains(self)` (via union param), `isAdjacentTo`.
+- **`TimeOfDay`** — `plus/minus(Duration)` time-only, wraps mod 24h, rejects
+  date-bearing durations.
+- **`IntRange`** — `length/overlaps/intersect`. **`SemVer`** — `isStable`,
+  `nextMajor/nextMinor/nextPatch` (drop prerelease/build).
+- **`Decimal`/`Percentage` arithmetic** — delegated to optional `brick/math`
+  (guarded by `class_exists`, throws `MissingDependencyException` when absent).
+  `Decimal`: `add/subtract/multiply/divide/round/abs/negated/sign` (default
+  rounding `RoundingMode::HalfUp`). `Percentage`: `applyTo/of/fromRatio`.

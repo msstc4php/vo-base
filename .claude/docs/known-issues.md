@@ -43,3 +43,27 @@
 - A standalone `IpRange` VO (start–end) — `Cidr` covers the common case.
 - `brick/money` bridge stores `"CUR amount"` as a single column; a two-column
   (minor-units + currency) mapping could be added if sub-field querying is needed.
+
+## v1.1 behavior semantics (deliberate)
+
+- **`Duration` has no `Comparable`** and `toSeconds()` requires an anchor
+  `\DateTimeImmutable` when year/month components are present. ISO 8601
+  durations are not totally ordered and not convertible to a fixed second count
+  without a calendar anchor (`P1M` vs `P30D` is undefined). Arithmetic uses
+  three calendar-safe buckets (months w/ years folding at 12, days, seconds w/
+  hours+minutes folding at 60); `minus` throws on any negative bucket (no
+  cross-bucket borrow — you cannot subtract 30s from "1 month").
+- **`Decimal`/`Percentage` arithmetic needs `brick/math`** (optional dep, also
+  pulled in transitively by `brick/money`). Methods guard with
+  `class_exists(BigDecimal::class)` and throw `MissingDependencyException`
+  (a `\RuntimeException`, NOT `InvalidValueObjectException`). Construction,
+  `compareTo`, `isZero`, serialization work without it. The `core-only`
+  GitLab CI leg (`composer install --no-dev`) asserts the guard throws.
+  `RoundingMode` params are `?RoundingMode = null` (resolved to `HalfUp`
+  inside, after the guard) so the default value never triggers class loading
+  when `brick/math` is absent.
+- **`Cidr::hostCount()` throws `\RangeException`** for IPv6 blocks wider than a
+  /65 (host count exceeds PHP int). `broadcast()` returns null for IPv6.
+- **`EmailAddress::domainName()` is nullable** — a syntactically valid email
+  (e.g. `user@example.c`, 1-char TLD) can have a domain that is not a
+  registrable `DomainName`.

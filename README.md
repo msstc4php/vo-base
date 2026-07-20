@@ -17,6 +17,7 @@ Optional bridges (install the frameworks you use):
 composer require doctrine/orm          # or doctrine/dbal
 composer require doctrine/mongodb-odm
 composer require symfony/validator
+composer require brick/math            # arithmetic on Decimal and Percentage
 ```
 
 ## Design
@@ -38,6 +39,26 @@ $ip->equals(Ipv4Address::from('192.168.0.1')); // true
 
 The construction convention mirrors `BackedEnum`: `from()` (throws),
 `tryFrom()` (nullable), `isValid()` (bool).
+
+Beyond validation, value objects carry immutable domain behavior — every
+operation returns a new instance and never mutates in place:
+
+```php
+use MSSTC4PHP\ValueObject\Network\Cidr;
+use MSSTC4PHP\ValueObject\Network\IpAddress;
+
+$block = Cidr::from('10.0.0.0/8');
+$block->contains(IpAddress::from('10.1.2.3'));   // true
+IpAddress::from('10.1.2.3')->isPrivate();         // true
+
+use MSSTC4PHP\ValueObject\Finance\Decimal;        // needs brick/math
+Decimal::from('1')->divide('3', 4);               // Decimal('0.3333')
+```
+
+Arithmetic on `Decimal`/`Percentage` is delegated to **`brick/math`** (optional);
+without it, those types still construct, compare, and serialize, but arithmetic
+throws `MissingDependencyException`. Network math (`Cidr`, IP predicates) is
+dependency-free.
 
 ## Catalogue
 

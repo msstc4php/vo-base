@@ -46,3 +46,25 @@
 - Toolchain gate: `make check` = php -l + PHPStan (lvl 9) + PHP-CS-Fixer +
   composer validate/audit + Rector + deptrac; `make test` runs PHPUnit. Run both
   before considering a change done.
+
+## Behavior traits (`src/Support/`, added v1.1)
+
+Cross-cutting VO behavior lives in small traits mixed into the concrete types,
+keeping duplication out while respecting that VOs don't share a base beyond the
+scalar abstractions:
+
+- **`ComparableHelpers`** — `isLessThan`/`.../min`/`max` on any `Comparable`.
+  Uses `@param static $other` so `min`/`max` return `static` type-cleanly while
+  the native param stays `Comparable` (runtime safety via `compareTo`'s guard).
+- **`UriComponents`** — `with*` mutators + `queryParameters()` for `Url`/`Uri`.
+  Every mutator rebuilds the string and passes it back through the concrete
+  ctor, so invalid combinations throw the type's own exception.
+- **`DottedLabels`** — `labels()/tld()/isSubdomainOf()` for `Hostname`/
+  `DomainName` (label-boundary comparison, not `str_ends_with`).
+- **`ClassifiesIpAddress`** — shared `isPublic()` (negation of the family
+  predicates) + `isInRange()`/`inRange()` for `Ipv4Address`/`Ipv6Address`.
+
+Convention: behavior methods that return another VO construct it through its
+normal validating path (single source of truth); when the target may legitimately
+not exist for a valid input, the accessor is nullable (`tryFrom` semantics)
+rather than throwing.
