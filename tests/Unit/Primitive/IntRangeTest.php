@@ -43,6 +43,9 @@ final class IntRangeTest extends TestCase
     {
         self::assertSame(5, new IntRange(1, 5)->length());
         self::assertSame(1, new IntRange(3, 3)->length());
+        // Negative min with a valid (non-overflowing) span must not trip the guard.
+        self::assertSame(11, new IntRange(-5, 5)->length());
+        self::assertSame(6, new IntRange(-5, 0)->length());
     }
 
     public function testLengthOverflowThrows(): void

@@ -9,13 +9,24 @@
         ]
     },
     "timeout": 10,
+    // Floor below the current level (MSI ~72% / covered ~86%) to catch
+    // regressions while tolerating run-to-run mutant-timing variance.
+    "minMsi": 70,
+    "minCoveredMsi": 84,
     "logs": {
         "text": "var/infection/infection.log",
         "json": "var/infection/infection.json",
         "github": true
     },
     "mutators": {
-        "@default": true
+        "@default": true,
+        // Equivalent mutants on the overflow guard: the `=== PHP_INT_MAX`
+        // fallback makes the `< 0` / `>` boundary indistinguishable, and the
+        // `max(1, …)` clamp absorbs the +1 decrement. Behavior is pinned by
+        // IntRangeTest overflow/negative-min cases; these cannot be killed.
+        "GreaterThan": { "ignore": ["MSSTC4PHP\\ValueObject\\Primitive\\IntRange::length"] },
+        "LessThan": { "ignore": ["MSSTC4PHP\\ValueObject\\Primitive\\IntRange::length"] },
+        "DecrementInteger": { "ignore": ["MSSTC4PHP\\ValueObject\\Primitive\\IntRange::length"] }
     },
     "testFramework": "phpunit",
     "testFrameworkOptions": "--testsuite=Unit"

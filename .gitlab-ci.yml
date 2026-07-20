@@ -67,6 +67,19 @@ phpunit:
   script:
     - vendor/bin/phpunit
 
+# Mutation testing: enforces the minMsi/minCoveredMsi floor from infection.json5.
+infection:
+  stage: test
+  before_script:
+    - apt-get update -yqq && apt-get install -yqq git unzip libicu-dev $PHPIZE_DEPS
+    - docker-php-ext-install intl
+    - pecl install mongodb && docker-php-ext-enable mongodb
+    - pecl install pcov && docker-php-ext-enable pcov
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    - composer install --no-interaction --no-progress --prefer-dist
+  script:
+    - vendor/bin/infection --threads=max --no-progress --no-interaction
+
 # Proves the core loads and runs with zero framework dependencies installed.
 core-only:
   stage: test
