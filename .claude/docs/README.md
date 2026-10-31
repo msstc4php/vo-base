@@ -1,4 +1,4 @@
-# Project knowledge base — msstc4php/value-objects
+# Project knowledge base — msstc4php/vo-base
 
 Engineer notes for staying oriented across sessions. Not user-facing docs.
 

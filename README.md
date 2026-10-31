@@ -1,4 +1,4 @@
-# msstc4php/value-objects
+# msstc4php/vo-base
 
 Immutable, self-validating value objects for **PHP 8.4+** with **zero runtime
 dependencies**. Framework integration lives in separate packages, so this one
@@ -7,7 +7,7 @@ stays a plain library.
 ## Install
 
 ```bash
-composer require msstc4php/value-objects
+composer require msstc4php/vo-base
 ```
 
 Optional, for arithmetic on `Decimal` and `Percentage`:

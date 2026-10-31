@@ -96,3 +96,9 @@
   `max(1, …)` clamp make them unkillable). Do NOT chase 100% MSI; the many
   remaining escaped mutants are equivalent (e.g. `(int) substr($v,0,2)` on a
   canonical `HH:MM:SS`, unreachable `inet_pton(...) === false` guards).
+
+## `composer update` refuses to resolve on PHP older than 8.4.27
+
+`roave/security-advisories` `dev-latest` conflicts with PHP `>=8.4,<8.4.27`, so a
+full resolve fails on such a runtime. A hash-only refresh still works and changes
+nothing else: `composer update --lock --ignore-platform-req=php`.

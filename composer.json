@@ -1,5 +1,5 @@
 {
-    "name": "msstc4php/value-objects",
+    "name": "msstc4php/vo-base",
     "description": "Immutable value objects for PHP 8.4+, with no framework dependencies.",
     "type": "library",
     "license": "MIT",
