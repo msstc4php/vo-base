@@ -7,7 +7,8 @@ Two layers, enforced by `deptrac.yaml`:
 - **Core** — everything under `src/` except `src/Bridge/`. Zero runtime
   dependencies (composer `require` is only `php >=8.4`).
 - **Bridge** — `src/Bridge/`. May depend on Core and on the optional frameworks
-  (Doctrine, Symfony), which live in `require-dev` + `suggest` only.
+  Framework packages are gone entirely; deptrac fails the build if a class
+  under `src/` touches `Doctrine\` or `Symfony\`.
 
 **Core must never reference a Bridge class.** This is the autoload-safety
 invariant: bridge classes `extends` framework base classes, so they fatal if
@@ -40,6 +41,6 @@ bespoke `final readonly` classes implementing `Contract\ValueObject` directly.
 - `ValueObject` — `equals()` + `JsonSerializable`.
 - `Comparable` — `compareTo()`; implemented by the numeric bases and `SemVer`.
 - `StringConvertible` — `extends Stringable` + static `from(string): static`.
-  This is the seam the Doctrine/ODM bridges use to map ANY string-backed VO
+  This is the seam the Doctrine bridge package uses to map ANY string-backed VO
   generically (one abstract Type covers all of them). Implemented by
   `AbstractStringValueObject`, `Uuid`, and `ClassString`.

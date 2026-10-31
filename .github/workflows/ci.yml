@@ -6,14 +6,14 @@ on:
 
 jobs:
   full:
-    name: Full toolchain (with bridges)
+    name: Full toolchain
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: intl, mongodb, mbstring, bcmath
+          extensions: intl, mbstring, bcmath
           coverage: none
       - run: composer install --no-interaction --no-progress
       - run: make check
@@ -35,4 +35,4 @@ jobs:
           php -r "require 'vendor/autoload.php';
           use MSSTC4PHP\ValueObject\Network\Ipv4Address;
           use MSSTC4PHP\ValueObject\I18n\CurrencyCode;
-          exit(Ipv4Address::isValid('1.2.3.4') && CurrencyCode::from('USD')->minorUnits() === 2 ? 0 : 1);"
+          exit(Ipv4Address::isValid('1.2.3.4') && CurrencyCode::from('USD')->isoMinorUnits() === 2 ? 0 : 1);"

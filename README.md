@@ -1,9 +1,8 @@
 # msstc4php/value-objects
 
-Immutable, self-validating value objects for **PHP 8.4+**, with optional
-bridges for **Doctrine ORM**, **Doctrine MongoDB ODM**, and **Symfony
-Validator**. The core has **zero runtime dependencies** — the bridges load only
-when their framework is installed.
+Immutable, self-validating value objects for **PHP 8.4+** with **zero runtime
+dependencies**. Framework integration lives in separate packages, so this one
+stays a plain library.
 
 ## Install
 
@@ -11,21 +10,21 @@ when their framework is installed.
 composer require msstc4php/value-objects
 ```
 
-Optional bridges (install the frameworks you use):
+Optional, for arithmetic on `Decimal` and `Percentage`:
 
 ```bash
-composer require doctrine/orm          # or doctrine/dbal
-composer require doctrine/mongodb-odm
-composer require symfony/validator
-composer require brick/math            # arithmetic on Decimal and Percentage
+composer require brick/math
 ```
+
+Without it those methods throw `MissingDependencyException`; construction and
+comparison still work.
 
 ## Design
 
 Every value object is a `final readonly` class that validates in its
 constructor and throws a typed exception on invalid input — there is no
-partially-valid state. Validation lives in **one place** per type and is reused
-by the Symfony bridge, so a value object and its constraint can never disagree.
+partially-valid state. Validation lives in **one place** per type, so anything built on top — a
+Doctrine type, a form constraint — reuses it rather than restating it.
 
 ```php
 use MSSTC4PHP\ValueObject\Network\Ipv4Address;
@@ -80,81 +79,30 @@ dependency-free.
 | Format | `Slug`, `HexColor`, `Base64String`, `JsonString`, `PhoneNumber`, `SemVer`, `ClassString` |
 
 Full money handling is delegated to `brick/money`: pair `CurrencyCode` with
-`Brick\Money\Money`, and use the bundled `BrickMoneyType` to persist it with
-Doctrine.
+`Brick\Money\Money`. `CurrencyCode::isoMinorUnits()` is the value monetary
+arithmetic needs; `displayFractionDigits()` is CLDR formatting and the two
+disagree for 16 currencies.
 
 `CountryCode`, `CurrencyCode`, and `LanguageCode` are `string`-backed enums
-generated from `symfony/intl` and committed, so they carry no runtime
-dependency. Regenerate after an intl update:
+generated at build time and committed, so they carry no runtime dependency.
+Regenerate after a data update:
 
 ```bash
 php tools/generate-iso-enums.php
 ```
 
-## Doctrine ORM
+## Framework integration
 
-Register the bundled DBAL types once at bootstrap (bare Doctrine):
+The core carries no framework dependency, and `deptrac` fails the build if one
+appears. Integration lives in two separate packages:
 
-```php
-use MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\TypeRegistrar;
+| Package | What it gives you |
+|---|---|
+| [`msstc4php/vo-base-doctrine-bridge`](../vo-base-doctrine-bridge) | 37 Doctrine field types per branch (ORM and MongoDB ODM), plus money embeddables that aggregate in SQL |
+| [`msstc4symfony/vo-base-bridge`](../../msstc4symfony/vo-base-bridge-symfony) | Symfony Validator constraints and a bundle that registers both them and the Doctrine types from one line in `bundles.php` |
 
-TypeRegistrar::registerAll(); // idempotent
-```
-
-Under Symfony, map them declaratively instead:
-
-```yaml
-# config/packages/doctrine.yaml
-doctrine:
-    dbal:
-        types:
-            vo_email_address: MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\EmailAddressType
-            vo_uuid: MSSTC4PHP\ValueObject\Bridge\Doctrine\Orm\UuidType
-            # ... see TypeRegistrar::types() for the full map
-```
-
-```php
-#[ORM\Column(type: 'vo_email_address')]
-private EmailAddress $email;
-```
-
-`CountryCode`/`CurrencyCode`/`LanguageCode` are backed enums — map them with
-Doctrine's native `enumType`, no custom type needed.
-
-## Doctrine MongoDB ODM
-
-```php
-use MSSTC4PHP\ValueObject\Bridge\Doctrine\Odm\TypeRegistrar;
-
-TypeRegistrar::registerAll();
-```
-
-```php
-#[ODM\Field(type: 'vo_email_address')]
-private EmailAddress $email;
-```
-
-## Symfony Validator
-
-Validate raw input against a value object's rules without constructing it.
-Works inside Symfony and standalone:
-
-```php
-use MSSTC4PHP\ValueObject\Bridge\Symfony\Validator\AssertEmailAddress;
-use Symfony\Component\Validator\Validation;
-
-$validator = Validation::createValidator();
-$violations = $validator->validate($_POST['email'], new AssertEmailAddress());
-```
-
-Or the generic constraint for any string value object:
-
-```php
-use MSSTC4PHP\ValueObject\Bridge\Symfony\Validator\ValidValueObject;
-use MSSTC4PHP\ValueObject\Network\Ipv4Address;
-
-new ValidValueObject(Ipv4Address::class);
-```
+Install whichever you need; neither is required by this package, and each pulls
+in only the stack it actually bridges.
 
 ## Development
 

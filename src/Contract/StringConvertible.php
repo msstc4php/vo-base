@@ -9,7 +9,7 @@ use Stringable;
 /**
  * A value object with a lossless string representation: constructible from a
  * string via {@see from()} and rendered back via {@see __toString()}. This is
- * the contract the Doctrine and ODM bridges rely on to map any string-backed
+ * the contract a persistence bridge relies on to map any string-backed
  * value object generically.
  */
 interface StringConvertible extends Stringable

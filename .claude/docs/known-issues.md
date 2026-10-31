@@ -3,7 +3,7 @@
 ## Framework quirks
 
 - **DBAL 4 migration diff-noise.** DBAL 4 removed the `(DC2Type:…)` column-comment
-  mechanism, so `doctrine/migrations` can no longer distinguish custom-typed
+  mechanism, so a migrations tool can no longer distinguish custom-typed
   columns that share a SQL declaration — it may emit repeated no-op migrations
   for VO columns. Cannot be fixed in-library; give a VO column a distinctive
   declaration where it matters, or ignore the diff noise. (dbal #6257/#7327,
@@ -20,18 +20,18 @@
   cases include `DO`, `AS`, `OR` (Dominican Republic, American Samoa, Odia).
   PHP 8.4 accepts reserved keywords as enum case names, so this is fine.
 - **`GeoCoordinates` persistence** is a single JSON column (ORM) / embedded array
-  (ODM), **not** a Doctrine embeddable. An embeddable would need ORM mapping
-  metadata on the class, which would couple Core to Doctrine and break the
+  (ODM), **not** a mapped embeddable. An embeddable would need ORM metadata
+  on the class, which would couple the core to Doctrine and break the
   autoload-safety rule. Map it as an embeddable in the consuming app if
   sub-field querying is needed. (Deviation from the plan's R10.)
 
 ## Adding more coverage
 
-- **A new string VO Doctrine type** is one thin subclass of `AbstractStringVoType`
+- **A new string VO field type** is one thin subclass of the bridge's `AbstractStringVoType`
   (ORM) / the ODM base, plus a line in the respective `TypeRegistrar`. Large
   text VOs extend `AbstractTextVoType` (ORM, CLOB) instead. Composite VOs mirror
   `GeoCoordinatesType`/`DateRangeType` (JSON column / BSON array).
-- **A dedicated Symfony `Assert*`** is a ctor-arg-free `final class extends
+- **A dedicated `Assert*` constraint** (in the Symfony bridge) is a ctor-arg-free `final class extends
   ValidValueObject`. Any VO also works out of the box via the generic
   `ValidValueObject(<VoClass>::class)`.
 

@@ -2,21 +2,22 @@ deptrac:
   paths:
     - ./src
   layers:
-    - name: Bridge
-      collectors:
-        - type: directory
-          value: src/Bridge/.*
     - name: Core
       collectors:
-        - type: bool
-          must:
-            - type: directory
-              value: src/.*
-          must_not:
-            - type: directory
-              value: src/Bridge/.*
+        - type: directory
+          value: src/.*
+    # These two layers exist only to be forbidden. The bridges that used to live
+    # here are separate packages now; this rule is what stops them coming back,
+    # and unlike a convention it outlives the code that prompted it.
+    - name: Doctrine
+      collectors:
+        - type: classNameRegex
+          value: '#^Doctrine\\#'
+    - name: Symfony
+      collectors:
+        - type: classNameRegex
+          value: '#^Symfony\\#'
   ruleset:
-    # Core is dependency-free: it must never reference a bridge (autoload safety, KTD2).
     Core: ~
-    Bridge:
-      - Core
+    Doctrine: ~
+    Symfony: ~

@@ -107,11 +107,22 @@ final class IsoEnumGenerator
 
     public function currencyCode(): string
     {
+        // ISO 4217 minor units come from brick/money's generated table; symfony/intl
+        // reports CLDR display digits, which differ for 16 currencies (HUF, IDR, IQD, ...).
+        // Mixing the two shifts stored amounts by orders of magnitude.
+        $isoTable = require \dirname(__DIR__, 2) . '/vendor/brick/money/data/iso-currencies.php';
+
         $cases = '';
-        $minorArms = '';
+        $displayArms = '';
+        $isoArms = '';
         foreach (Currencies::getCurrencyCodes() as $code) {
             $cases .= \sprintf("    case %s = '%s';\n", $code, $code);
-            $minorArms .= \sprintf("            self::%s => %d,\n", $code, Currencies::getFractionDigits($code));
+            $displayArms .= \sprintf("            self::%s => %d,\n", $code, Currencies::getFractionDigits($code));
+            $isoArms .= \sprintf(
+                "            self::%s => %s,\n",
+                $code,
+                isset($isoTable[$code]) ? (string) $isoTable[$code][3] : 'null',
+            );
         }
 
         return <<<PHP
@@ -122,18 +133,43 @@ final class IsoEnumGenerator
             namespace MSSTC4PHP\\ValueObject\\I18n;
 
             /**
-             * ISO 4217 currency code. Generated from symfony/intl — do not edit by hand.
+             * ISO 4217 currency code. Generated from symfony/intl and the ISO 4217 table
+             * shipped by brick/money — do not edit by hand.
              *
              * @see tools/generate-iso-enums.php
              */
             enum CurrencyCode: string
             {
             {$cases}
-                /** @return int<0, max> number of minor-unit digits (e.g. 2 for USD, 0 for JPY) */
-                public function minorUnits(): int
+                /**
+                 * CLDR display fraction digits — how many decimals this currency is
+                 * conventionally *formatted* with. Not the same as ISO 4217 minor units:
+                 * CLDR reports 0 for HUF, IDR and IQD where ISO says 2, 2 and 3.
+                 * For monetary arithmetic use {@see self::isoMinorUnits()} instead.
+                 *
+                 * @return int<0, max>
+                 */
+                public function displayFractionDigits(): int
                 {
                     return match (\$this) {
-            {$minorArms}        };
+            {$displayArms}        };
+                }
+
+                /**
+                 * ISO 4217 minor units — the exponent relating this currency to its minor
+                 * unit (2 for USD, 0 for JPY, 3 for IQD). This is the value monetary
+                 * arithmetic and money persistence must use.
+                 *
+                 * Returns null for codes outside the current ISO 4217 register, which is
+                 * every historic code this enum still carries (ADP, BEF, ATS, ...): ISO
+                 * defines no minor-unit value for them, so none is invented here.
+                 *
+                 * @return int<0, max>|null
+                 */
+                public function isoMinorUnits(): ?int
+                {
+                    return match (\$this) {
+            {$isoArms}        };
                 }
             }
 

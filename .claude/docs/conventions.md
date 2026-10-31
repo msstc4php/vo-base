@@ -5,7 +5,7 @@
   bases provide these; bespoke VOs replicate them.
 - **`isValid()`/`tryFrom()` are typed, not `mixed`.** The plan suggested
   `mixed` signatures; we use the concrete scalar type (`string`/`int`) to keep
-  PHPStan max clean. The Symfony validator does the `is_string` guard before
+  PHPStan max clean. The bridge's validator does the `is_string` guard before
   delegating. (Deviation from the plan, on purpose.)
 - **`StringConvertible::from()` must return `: static`, not `: self`.** An
   interface method returning `static` cannot be satisfied by a `: self`
@@ -25,15 +25,15 @@
 ## Tooling (aligned with msstc4php/healthcheck-bundle)
 
 - **PHPStan level 9**, not `max`, plus the extension-installer stack
-  (strict-rules, symfony, doctrine, phpunit, beberlei-assert, disallowed-calls).
+  (strict-rules, phpunit, disallowed-calls).
   Config is `phpstan.dist.neon` (not auto-detected — always pass `-c`);
   `phpstan-ci.neon` sets `reportUnmatchedIgnoredErrors: false`; the baseline is
   empty. `treatPhpDocTypesAsCertain: false`.
 - **PHP-CS-Fixer `@Symfony`** ruleset (+ `declare_strict_types`, left-aligned
   phpdoc, one-space concat, post-increment, no Yoda). Run `vendor/bin/php-cs-fixer
   check` (the Makefile `check` target does).
-- **Rector** uses the bundle's prepared sets + skip list, but Symfony-app-only
-  rules and `rector-symfony`/`doctrine` code-quality sets are dropped (we are a
+- **Rector** uses the prepared sets + skip list, but framework-app-only
+  rules and framework code-quality sets are dropped (we are a
   library, not an app). `AddSeeTestAnnotationRector` is skipped (noise).
 - **`beStrictAboutCoverageMetadata` is OFF.** A VO library's tests legitimately
   construct collaborator VOs as inputs, which the strict flag reports as risky
@@ -42,7 +42,7 @@
   helpers (e.g. `IsoEnumsUpToDateTest`) use `#[CoversNothing]`.
 - **CI:** `.gitlab-ci.yml` (primary) mirrors `make check` + phpunit + a
   core-only leg; `.github/workflows/ci.yml` also present. Rename/relocate the
-  Symfony-app-shaped bits when copying more from the bundle.
+  framework-app-shaped bits when copying more from upstream presets.
 - Toolchain gate: `make check` = php -l + PHPStan (lvl 9) + PHP-CS-Fixer +
   composer validate/audit + Rector + deptrac; `make test` runs PHPUnit. Run both
   before considering a change done.
@@ -89,3 +89,19 @@ rather than throwing.
   — Xdebug locally, pcov in CI). The floor lives in `infection.json5`
   (`minMsi`/`minCoveredMsi`), so every run enforces it. See `known-issues.md`
   for the equivalent-mutant ignore policy.
+
+## Generator-only dev dependencies are not framework dependencies
+
+`symfony/intl` and `brick/money` sit in `require-dev` purely as inputs to
+`tests/Support/IsoEnumGenerator.php`. Their data is baked into the committed
+`src/I18n/*.php` enums, so nothing reaches the runtime. The rule forbidding
+framework dependencies in the core (deptrac, and the grep in the bridge-split
+plan) does not extend to them.
+
+The split of currency digits matters: `symfony/intl` supplies CLDR *display*
+digits (`displayFractionDigits()`), `brick/money`'s ISO 4217 table supplies
+*minor units* (`isoMinorUnits()`). They disagree for 16 currencies — HUF, IDR
+and COP report 0 in CLDR against 2 in ISO, IQD 0 against 3. Monetary arithmetic
+and money persistence must use `isoMinorUnits()`; using the display value shifts
+stored amounts by orders of magnitude. `tests/Unit/I18n/iso-minor-units.snapshot.json`
+pins the full map so a coordinated dependency bump cannot change it silently.
