@@ -14,8 +14,8 @@
         "php": ">=8.4"
     },
     "require-dev": {
-        "brick/math": "^0.14.2",
-        "brick/money": "^0.10.3",
+        "brick/math": "^0.15 || ^0.16 || ^0.17 || ^0.18 || ^0.19 || ^0.20 || ^1.0",
+        "brick/money": "0.15.2",
         "deptrac/deptrac": "^4.6",
         "friendsofphp/php-cs-fixer": "^3.76",
         "infection/infection": "^0.32",

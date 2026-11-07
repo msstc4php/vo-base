@@ -11,7 +11,7 @@ use Symfony\Component\Intl\Exception\MissingResourceException;
 use Symfony\Component\Intl\Languages;
 
 /**
- * Renders the ISO backed-enum source files from symfony/intl. The generated
+ * Renders the ISO backed-enum source files from symfony/intl and brick/money's ISO 4217 table. The generated
  * output is committed so the runtime never depends on symfony/intl; this class
  * is used both by tools/generate-iso-enums.php and by the up-to-date guard test.
  */
@@ -109,16 +109,25 @@ final class IsoEnumGenerator
     public function currencyCode(): string
     {
         // ISO 4217 minor units come from brick/money's generated table; symfony/intl
-        // reports CLDR display digits, which differ for 15 currencies (HUF, IDR, IQD, ...).
+        // reports CLDR display digits, which differ for 25 codes (HUF, IDR, IQD, ...).
         // Mixing the two shifts stored amounts by orders of magnitude.
         $isoMinorUnits = $this->isoMinorUnitsByCode();
+
+        // ISO registers codes before CLDR picks them up (XAD), so the case set is the union of both sources.
+        $cldrCodes = \array_flip(Currencies::getCurrencyCodes());
+        $codes = \array_values(\array_unique([...\array_keys($cldrCodes), ...\array_keys($isoMinorUnits)]));
+        \sort($codes);
 
         $cases = '';
         $displayArms = '';
         $isoArms = '';
-        foreach (Currencies::getCurrencyCodes() as $code) {
+        foreach ($codes as $code) {
             $cases .= \sprintf("    case %s = '%s';\n", $code, $code);
-            $displayArms .= \sprintf("            self::%s => %d,\n", $code, Currencies::getFractionDigits($code));
+            $displayArms .= \sprintf(
+                "            self::%s => %d,\n",
+                $code,
+                isset($cldrCodes[$code]) ? Currencies::getFractionDigits($code) : $isoMinorUnits[$code],
+            );
             $isoArms .= \sprintf(
                 "            self::%s => %s,\n",
                 $code,
@@ -146,6 +155,7 @@ final class IsoEnumGenerator
                  * CLDR display fraction digits — how many decimals this currency is
                  * conventionally *formatted* with. Not the same as ISO 4217 minor units:
                  * CLDR reports 0 for HUF, IDR and IQD where ISO says 2, 2 and 3.
+                 * Codes CLDR does not know yet fall back to their ISO 4217 minor units.
                  * For monetary arithmetic use {@see self::isoMinorUnits()} instead.
                  *
                  * @return int<0, max>
@@ -161,9 +171,10 @@ final class IsoEnumGenerator
                  * unit (2 for USD, 0 for JPY, 3 for IQD). This is the value monetary
                  * arithmetic and money persistence must use.
                  *
-                 * Returns null for codes outside the current ISO 4217 register, which is
-                 * every historic code this enum still carries (ADP, BEF, ATS, ...): ISO
-                 * defines no minor-unit value for them, so none is invented here.
+                 * Withdrawn codes (ADP, BEF, ATS, ...) carry the minor units ISO 4217
+                 * recorded for them. Returns null when the ISO data holds no minor-unit
+                 * value: codes outside ISO (CNH) and withdrawn codes published without
+                 * one (XEU). No value is invented for them.
                  *
                  * @return int<0, max>|null
                  */
@@ -210,7 +221,7 @@ final class IsoEnumGenerator
     /**
      * Fails on an unknown table format: tolerating one would regenerate every currency with null minor units.
      *
-     * @return array<string, int>
+     * @return array<non-empty-string, int<0, max>>
      */
     private function isoMinorUnitsByCode(): array
     {
@@ -221,7 +232,13 @@ final class IsoEnumGenerator
 
         $minorUnits = [];
         foreach ($table as $code => $entry) {
-            if (!\is_string($code) || !\is_array($entry) || !\is_int($entry[3] ?? null)) {
+            if (
+                !\is_string($code)
+                || \preg_match('/^[A-Z]{3}$/', $code) !== 1
+                || !\is_array($entry)
+                || !\is_int($entry[3] ?? null)
+                || $entry[3] < 0
+            ) {
                 throw new RuntimeException(\sprintf('Unexpected brick/money ISO table entry "%s".', $code));
             }
 

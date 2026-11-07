@@ -27,8 +27,8 @@ All value objects are immutable and validate at construction. `from()` throws,
   `LanguageCode` (ISO 639-1) — **backed enums generated from `symfony/intl`**.
   `CountryCode::alpha3()/numeric()/fromAlpha3()/fromNumeric()`,
   `CurrencyCode::displayFractionDigits()` (CLDR formatting digits) and
-  `CurrencyCode::isoMinorUnits()` (ISO 4217 minor units, `null` for historic codes —
-  use this one for monetary arithmetic; the two disagree for 15 currencies). Native `from()` throws `\ValueError` on unknown
+  `CurrencyCode::isoMinorUnits()` (ISO 4217 minor units, `null` when the ISO data has no minor-unit value, e.g. `CNH`, `XEU` —
+  use this one for monetary arithmetic; the two disagree for 25 codes (15 of them in current use)). Native `from()` throws `\ValueError` on unknown
   codes; `fromAlpha3/fromNumeric` throw `InvalidCountryCodeException`.
 - `Locale` — BCP 47 `lang[-REGION]`; composes `LanguageCode` + optional
   `CountryCode`; `language()`/`region()`.

@@ -24,7 +24,8 @@
         "roave/security-advisories": "dev-latest"
     },
     "conflict": {
-        "brick/math": "<0.14.2"
+        "brick/math": "<0.15",
+        "brick/money": "<0.15"
     },
     "suggest": {
         "brick/math": "Enables arithmetic on Decimal and Percentage (add, divide, round, ...).",

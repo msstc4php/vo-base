@@ -8,6 +8,7 @@ use MSSTC4PHP\ValueObject\I18n\CurrencyCode;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Intl\Currencies;
 use ValueError;
 
 #[CoversClass(CurrencyCode::class)]
@@ -68,19 +69,47 @@ final class CurrencyCodeTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string}>
+     * @return iterable<string, array{string, int<0, max>}>
      */
-    public static function historicCodeProvider(): iterable
+    public static function withdrawnCodeProvider(): iterable
     {
-        yield 'ADP' => ['ADP'];
-        yield 'BEF' => ['BEF'];
-        yield 'ATS' => ['ATS'];
+        yield 'ADP' => ['ADP', 0];
+        yield 'BEF' => ['BEF', 0];
+        yield 'ATS' => ['ATS', 2];
     }
 
-    #[DataProvider('historicCodeProvider')]
-    public function testHistoricCodesHaveNoIsoMinorUnits(string $code): void
+    /**
+     * @param int<0, max> $expected
+     */
+    #[DataProvider('withdrawnCodeProvider')]
+    public function testWithdrawnCodesKeepTheirIsoMinorUnits(string $code, int $expected): void
+    {
+        self::assertSame($expected, CurrencyCode::from($code)->isoMinorUnits());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function codeWithoutIsoMinorUnitsProvider(): iterable
+    {
+        yield 'CNH' => ['CNH'];
+        yield 'XEU' => ['XEU'];
+    }
+
+    #[DataProvider('codeWithoutIsoMinorUnitsProvider')]
+    public function testCodeWithoutIsoMinorUnitsReturnsNull(string $code): void
     {
         self::assertNull(CurrencyCode::from($code)->isoMinorUnits());
+    }
+
+    public function testCodeUnknownToCldrFallsBackToIsoMinorUnitsForDisplay(): void
+    {
+        if (\class_exists(Currencies::class)) {
+            self::assertFalse(Currencies::exists('XAD'), 'CLDR knows XAD now: pick another ISO-only code for this test.');
+        }
+
+        self::assertSame(2, CurrencyCode::XAD->displayFractionDigits());
+        self::assertSame(2, CurrencyCode::XAD->isoMinorUnits());
     }
 
     public function testEveryCaseAnswersBothMethodsAndRoundTrips(): void
