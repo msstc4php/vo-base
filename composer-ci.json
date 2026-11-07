@@ -27,7 +27,7 @@
         "rector/rector": "^2.1",
         "roave/backward-compatibility-check": "^8.20",
         "roave/security-advisories": "dev-latest",
-        "symfony/intl": "7.4.17"
+        "symfony/intl": "7.4.22"
     },
     "suggest": {
         "brick/math": "Enables arithmetic on Decimal and Percentage (add, divide, round, ...).",

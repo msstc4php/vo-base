@@ -105,7 +105,8 @@ nothing else: `composer update --lock --ignore-platform-req=php`.
 
 ## `symfony/intl` is pinned to an exact version in `composer-ci.json`
 
-Later releases change the generated data (7.4.22 adds `CNX` and reports 0 display digits for `PKR`), and
+Pinned at 7.4.22. Moving from 7.4.17 dropped `CNX` (a public enum case) and changed `PKR` display digits from
+0 to 2; 8.1.10 generates the same data. Any bump can do the same, and
 `IsoEnumsUpToDateTest` fails on any such change. Bump the pin only together with
 `php tools/generate-iso-enums.php` and a look at `iso-minor-units.snapshot.json`.
 

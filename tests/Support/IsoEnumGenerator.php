@@ -109,7 +109,7 @@ final class IsoEnumGenerator
     public function currencyCode(): string
     {
         // ISO 4217 minor units come from brick/money's generated table; symfony/intl
-        // reports CLDR display digits, which differ for 16 currencies (HUF, IDR, IQD, ...).
+        // reports CLDR display digits, which differ for 15 currencies (HUF, IDR, IQD, ...).
         // Mixing the two shifts stored amounts by orders of magnitude.
         $isoMinorUnits = $this->isoMinorUnitsByCode();
 

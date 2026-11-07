@@ -78,7 +78,6 @@ enum CurrencyCode: string
     case CLF = 'CLF';
     case CLP = 'CLP';
     case CNH = 'CNH';
-    case CNX = 'CNX';
     case CNY = 'CNY';
     case COP = 'COP';
     case COU = 'COU';
@@ -384,7 +383,6 @@ enum CurrencyCode: string
             self::CLF => 4,
             self::CLP => 0,
             self::CNH => 2,
-            self::CNX => 2,
             self::CNY => 2,
             self::COP => 0,
             self::COU => 2,
@@ -518,7 +516,7 @@ enum CurrencyCode: string
             self::PES => 2,
             self::PGK => 2,
             self::PHP => 2,
-            self::PKR => 0,
+            self::PKR => 2,
             self::PLN => 2,
             self::PLZ => 2,
             self::PTE => 2,
@@ -695,7 +693,6 @@ enum CurrencyCode: string
             self::CLF => 4,
             self::CLP => 0,
             self::CNH => null,
-            self::CNX => null,
             self::CNY => 2,
             self::COP => 2,
             self::COU => 2,

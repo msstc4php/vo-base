@@ -85,7 +85,7 @@ plan) does not extend to them.
 
 The split of currency digits matters: `symfony/intl` supplies CLDR *display*
 digits (`displayFractionDigits()`), `brick/money`'s ISO 4217 table supplies
-*minor units* (`isoMinorUnits()`). They disagree for 16 currencies — HUF, IDR
+*minor units* (`isoMinorUnits()`). They disagree for 15 currencies — HUF, IDR
 and COP report 0 in CLDR against 2 in ISO, IQD 0 against 3. Monetary arithmetic
 and money persistence must use `isoMinorUnits()`; using the display value shifts
 stored amounts by orders of magnitude. `tests/Unit/I18n/iso-minor-units.snapshot.json`

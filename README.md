@@ -81,7 +81,7 @@ dependency-free.
 Full money handling is delegated to `brick/money`: pair `CurrencyCode` with
 `Brick\Money\Money`. `CurrencyCode::isoMinorUnits()` is the value monetary
 arithmetic needs; `displayFractionDigits()` is CLDR formatting and the two
-disagree for 16 currencies.
+disagree for 15 currencies.
 
 `CountryCode`, `CurrencyCode`, and `LanguageCode` are `string`-backed enums
 generated at build time and committed, so they carry no runtime dependency.

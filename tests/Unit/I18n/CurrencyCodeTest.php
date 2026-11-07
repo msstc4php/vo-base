@@ -32,10 +32,10 @@ final class CurrencyCodeTest extends TestCase
     {
         yield 'USD' => ['USD', 2];
         yield 'JPY' => ['JPY', 0];
-        // The four cases below are exactly where CLDR display digits and ISO 4217
-        // minor units disagree; picking USD/JPY alone hides the whole class.
-        yield 'IQD' => ['IQD', 3];
         yield 'CLF' => ['CLF', 4];
+        // IQD, HUF, IDR and COP are where CLDR display digits and ISO 4217 minor
+        // units disagree; picking USD/JPY alone hides the whole class.
+        yield 'IQD' => ['IQD', 3];
         yield 'HUF' => ['HUF', 2];
         yield 'IDR' => ['IDR', 2];
         yield 'COP' => ['COP', 2];
@@ -57,6 +57,8 @@ final class CurrencyCodeTest extends TestCase
         yield 'HUF' => ['HUF', 0];
         yield 'IQD' => ['IQD', 0];
         yield 'CLF' => ['CLF', 4];
+        // Pins the CLDR change that came with symfony/intl 7.4.22 (0 before).
+        yield 'PKR' => ['PKR', 2];
     }
 
     #[DataProvider('displayFractionDigitsProvider')]
