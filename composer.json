@@ -23,6 +23,9 @@
         "rector/rector": "^2.1",
         "roave/security-advisories": "dev-latest"
     },
+    "conflict": {
+        "brick/math": "<0.14.2"
+    },
     "suggest": {
         "brick/math": "Enables arithmetic on Decimal and Percentage (add, divide, round, ...).",
         "brick/money": "Pairs with CurrencyCode for full money handling (arithmetic, rounding).",

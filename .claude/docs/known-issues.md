@@ -117,3 +117,10 @@ The shared templates cannot exclude paths, so the generator's output must stay c
 
 `make test` can be green while `make infection` reports 0 mutants: the initial run hits a risky test. A test touching
 another class needs `#[UsesClass]`. Check with `XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-text=/dev/null`.
+
+## `brick/math` floor is 0.14.2, not 0.12
+
+`Decimal` uses the PascalCase `RoundingMode::HalfUp`, which first exists in brick/math 0.14.2 (0.14.0/0.14.1 only
+have `HALF_UP`). The old `^0.12 || ^0.13 || ^0.14` range was never true and surfaced only in the `lowest` CI job.
+brick/math is suggest-only, so `composer.json` carries `conflict: brick/math <0.14.2` to protect consumers. The
+upper bound (0.14) lags upstream: brick/math is at 1.0 and brick/money at 0.15.
