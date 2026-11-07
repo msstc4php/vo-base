@@ -18,14 +18,14 @@ use Override;
  */
 final readonly class Uuid implements StringConvertible, ValueObject
 {
-    private const string CANONICAL_PATTERN = '/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/';
+    private const string CANONICAL_PATTERN = '/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/D';
 
     public string $value;
 
     public function __construct(string $value)
     {
         if (\preg_match(self::CANONICAL_PATTERN, $value) !== 1) {
-            throw new InvalidUuidException(\sprintf('Value "%s" is not a canonical UUID.', $value));
+            throw new InvalidUuidException(\sprintf('Value "%s" is not a canonical UUID.', InvalidUuidException::excerpt($value)));
         }
 
         $this->value = \strtolower($value);

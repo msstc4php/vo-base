@@ -182,23 +182,23 @@ final class IpRange extends AbstractStringValueObject
     {
         $parts = \explode('-', $value);
         if (\count($parts) !== 2) {
-            throw new InvalidIpRangeException(\sprintf('Value "%s" is not a valid IP range "first-last".', $value));
+            throw new InvalidIpRangeException(\sprintf('Value "%s" is not a valid IP range "first-last".', InvalidIpRangeException::excerpt($value)));
         }
 
         [$first, $last] = $parts;
         if (\filter_var($first, \FILTER_VALIDATE_IP) === false || \filter_var($last, \FILTER_VALIDATE_IP) === false) {
-            throw new InvalidIpRangeException(\sprintf('IP range "%s" has an invalid bound.', $value));
+            throw new InvalidIpRangeException(\sprintf('IP range "%s" has an invalid bound.', InvalidIpRangeException::excerpt($value)));
         }
 
         $packedFirst = PackedAddress::pack($first);
         $packedLast = PackedAddress::pack($last);
 
         if (\strlen($packedFirst) !== \strlen($packedLast)) {
-            throw new InvalidIpRangeException(\sprintf('IP range "%s" mixes IPv4 and IPv6.', $value));
+            throw new InvalidIpRangeException(\sprintf('IP range "%s" mixes IPv4 and IPv6.', InvalidIpRangeException::excerpt($value)));
         }
 
         if (\strcmp($packedFirst, $packedLast) > 0) {
-            throw new InvalidIpRangeException(\sprintf('IP range "%s" starts after it ends.', $value));
+            throw new InvalidIpRangeException(\sprintf('IP range "%s" starts after it ends.', InvalidIpRangeException::excerpt($value)));
         }
 
         return PackedAddress::unpack($packedFirst) . '-' . PackedAddress::unpack($packedLast);

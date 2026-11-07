@@ -8,12 +8,15 @@ use Exception;
 use JsonSerializable;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidClassStringException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Format\ClassString;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use stdClass;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(ClassString::class)]
 final class ClassStringTest extends TestCase
 {

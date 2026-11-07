@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidMacAddressException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Network\MacAddress;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(MacAddress::class)]
 final class MacAddressTest extends TestCase
 {

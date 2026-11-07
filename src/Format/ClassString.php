@@ -28,7 +28,7 @@ final readonly class ClassString implements StringConvertible, ValueObject
             && !\trait_exists($value)
             && !\enum_exists($value)
         ) {
-            throw new InvalidClassStringException(\sprintf('Unknown class, interface, trait or enum: "%s".', $value));
+            throw new InvalidClassStringException(\sprintf('Unknown class, interface, trait or enum: "%s".', InvalidClassStringException::excerpt($value)));
         }
 
         $this->value = $value;

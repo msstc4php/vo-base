@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidUrlSchemeException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Network\UrlScheme;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(UrlScheme::class)]
 final class UrlSchemeTest extends TestCase
 {

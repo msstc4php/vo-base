@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Primitive;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidNonNegativeIntException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Primitive\NonNegativeInt;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(NonNegativeInt::class)]
 final class NonNegativeIntTest extends TestCase
 {

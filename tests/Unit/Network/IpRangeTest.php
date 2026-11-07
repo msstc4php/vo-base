@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIpRangeException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Network\Cidr;
 use MSSTC4PHP\ValueObject\Network\IpAddress;
 use MSSTC4PHP\ValueObject\Network\IpRange;
@@ -14,6 +15,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(IpRange::class)]
 #[CoversClass(PackedAddress::class)]
 #[UsesClass(IpAddress::class)]

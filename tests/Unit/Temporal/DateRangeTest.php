@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Temporal;
 
 use DateTimeImmutable;
 use MSSTC4PHP\ValueObject\Exception\InvalidDateRangeException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
 use MSSTC4PHP\ValueObject\Temporal\DateRange;
 use MSSTC4PHP\ValueObject\Temporal\Duration;
@@ -13,6 +14,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(DateRange::class)]
 #[UsesClass(AbstractStringValueObject::class)]
 #[UsesClass(Duration::class)]

@@ -17,6 +17,18 @@ no always-loaded path) touches them — they are reached exclusively from
 consumer bootstrap after the consumer installs the framework. `deptrac`
 (`make check`) fails the build if Core → Bridge appears.
 
+## `Support/` is not a leaf
+
+Besides the generic bases, `Support/` holds helpers owned by one family: `PackedAddress` (network arithmetic,
+`@internal`) and the `UriComponents` trait (it also owns the private forbidden-character set shared by `Url` and
+`Uri`), which imports `Network\QueryString`. That makes `Support` and
+`Network` depend on each other; deptrac has a single `Core` layer and allows it. Moving the trait to `Network/`
+would rename a public type, so it stays until a release that breaks anyway.
+
+`Testing/RandomValueObjects` is public API for consumers' tests: seeded, dependency-free generators of valid
+instances, experimental until 1.0. Library code never calls it; it is excluded from mutation testing, and
+`testTheGeneratorSetIsDeliberate` plus a seed-42 golden test pin its surface and draw order.
+
 ## The value object base machinery
 
 `src/Support/Abstract{String,Int,Float}ValueObject.php` implement the whole

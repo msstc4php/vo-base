@@ -1027,7 +1027,7 @@ enum CountryCode: string
             'ZAF' => self::ZA,
             'ZMB' => self::ZM,
             'ZWE' => self::ZW,
-            default => throw new InvalidCountryCodeException(sprintf('Unknown ISO 3166-1 alpha-3 code "%s".', $alpha3)),
+            default => throw new InvalidCountryCodeException(sprintf('Unknown ISO 3166-1 alpha-3 code "%s".', InvalidCountryCodeException::excerpt($alpha3))),
         };
     }
 
@@ -1283,7 +1283,7 @@ enum CountryCode: string
             '710' => self::ZA,
             '894' => self::ZM,
             '716' => self::ZW,
-            default => throw new InvalidCountryCodeException(sprintf('Unknown ISO 3166-1 numeric code "%s".', $numeric)),
+            default => throw new InvalidCountryCodeException(sprintf('Unknown ISO 3166-1 numeric code "%s".', InvalidCountryCodeException::excerpt($numeric))),
         };
     }
 }

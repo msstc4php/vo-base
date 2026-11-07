@@ -152,3 +152,36 @@ nothing else between the red commit and its tag.
 
 PHPUnit runs with `failOnDeprecation`, so the PHP 8.5 job fails on `chr(-1)` even though PHP 8.4 silently wraps it.
 Mask byte values explicitly (`chr($value & 0xFF)`); there is no local 8.5 runtime, only CI catches this.
+
+## `QueryString` decodes `+` as a space
+
+Decoding follows application/x-www-form-urlencoded, so a literal `+` in a non-form query (`mailto:?to=a+b@x`)
+comes back as a space from `get()`; the raw segment itself is never rewritten by `with*()`. There is deliberately no
+Doctrine type or Symfony constraint for `QueryString`: queries are rarely stored on their own.
+
+## Validate by scanning for a forbidden character, anchor with `\z` or `D`
+
+A whole-value pattern like `^(?:[...]|%XX)*$` returns `false` once PCRE's JIT stack (`pcre.jit=1` is the default)
+or recursion limit is hit on long input, and `$` without `D` accepts a trailing newline. `QueryString` and `UrlPath`
+scan for one forbidden character instead (`testLongQueriesStayClearOfPcreLimits`); every other `$`-anchored pattern
+uses `D`. `ControlCharacterRejectionTest` lists each string type explicitly and checks control characters as prefix,
+suffix and infix.
+
+## Exception messages go through `excerpt()`
+
+Messages that quote the rejected input use `InvalidXException::excerpt($value)` (inherited from
+`InvalidValueObjectException`): control characters escaped, long input cut at a UTF-8 boundary. Numeric types pass
+their number directly.
+
+`excerpt()` also escapes backslashes (a literal `\n` stays distinguishable from a newline), renders only bytes that are
+not valid UTF-8 as `\xNN`, and steps back at most three bytes to cut on a character boundary. Two types never quote
+their input: `CreditCardNumber` reports only the length (a failed number is often a real PAN, and raw input may end
+in a CVV that still looks like digits; PCI DSS), `Iban` keeps country and last four of IBAN-shaped input (15-34 chars,
+`CC99...`) and only the length for anything else (personal data; may be any value typed into the wrong field).
+
+`QueryString::fromLoose()` is public only so `UriComponents` can reach it; it is `@internal`, not API.
+
+## Pending for the next breaking release
+
+- Move the `UriComponents` trait from `Support/` to `Network/`; it is network-specific and closes the
+  `Support` <-> `Network` cycle, but renaming it breaks anyone who used the trait directly.

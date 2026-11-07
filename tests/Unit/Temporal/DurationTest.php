@@ -6,11 +6,14 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Temporal;
 
 use DateTimeImmutable;
 use MSSTC4PHP\ValueObject\Exception\InvalidDurationException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Temporal\Duration;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(Duration::class)]
 final class DurationTest extends TestCase
 {

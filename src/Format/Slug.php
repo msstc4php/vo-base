@@ -16,8 +16,8 @@ final class Slug extends AbstractStringValueObject
     #[Override]
     protected function parse(string $value): string
     {
-        if (\preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $value) !== 1) {
-            throw new InvalidSlugException(\sprintf('Invalid slug: "%s".', $value));
+        if (\preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D', $value) !== 1) {
+            throw new InvalidSlugException(\sprintf('Invalid slug: "%s".', InvalidSlugException::excerpt($value)));
         }
 
         return $value;

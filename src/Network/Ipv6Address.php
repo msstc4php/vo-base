@@ -74,7 +74,7 @@ final class Ipv6Address extends AbstractStringValueObject
     protected function parse(string $value): string
     {
         if (\filter_var($value, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6) === false) {
-            throw new InvalidIpv6Exception(\sprintf('Value "%s" is not a valid IPv6 address.', $value));
+            throw new InvalidIpv6Exception(\sprintf('Value "%s" is not a valid IPv6 address.', InvalidIpv6Exception::excerpt($value)));
         }
 
         return $value;

@@ -14,7 +14,7 @@ use Override;
  */
 final class Iban extends AbstractStringValueObject
 {
-    private const string PATTERN = '/^[A-Z]{2}\d{2}[A-Z0-9]{1,30}$/';
+    private const string PATTERN = '/^[A-Z]{2}\d{2}[A-Z0-9]{1,30}$/D';
 
     public function countryCode(): string
     {
@@ -33,11 +33,11 @@ final class Iban extends AbstractStringValueObject
 
         $length = \strlen($compact);
         if ($length < 15 || $length > 34 || \preg_match(self::PATTERN, $compact) !== 1) {
-            throw new InvalidIbanException(\sprintf('Invalid IBAN: "%s".', $value));
+            throw new InvalidIbanException(\sprintf('Invalid IBAN (%s).', $this->masked($value)));
         }
 
         if ($this->mod97($compact) !== '1') {
-            throw new InvalidIbanException(\sprintf('IBAN "%s" fails the ISO 7064 checksum.', $value));
+            throw new InvalidIbanException(\sprintf('IBAN %s fails the ISO 7064 checksum.', $this->masked($value)));
         }
 
         return $compact;
@@ -62,5 +62,20 @@ final class Iban extends AbstractStringValueObject
         \assert(\is_numeric($numeric));
 
         return \bcmod($numeric, '97');
+    }
+
+    /**
+     * An account number is personal data: messages keep only the country and the last four characters, and
+     * nothing of input that is not IBAN-shaped (it may be any value typed into the wrong field, a card number
+     * included).
+     */
+    private function masked(string $value): string
+    {
+        $compact = \strtoupper(\str_replace(' ', '', $value));
+        if (\strlen($compact) < 15 || \strlen($compact) > 34 || \preg_match('/^[A-Z]{2}\d{2}[A-Z0-9]+$/D', $compact) !== 1) {
+            return \sprintf('%d characters', \strlen($value));
+        }
+
+        return \substr($compact, 0, 2) . \str_repeat('*', \strlen($compact) - 6) . \substr($compact, -4);
     }
 }

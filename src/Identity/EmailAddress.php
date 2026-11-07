@@ -44,7 +44,7 @@ final class EmailAddress extends AbstractStringValueObject
     protected function parse(string $value): string
     {
         if (\filter_var($value, \FILTER_VALIDATE_EMAIL) === false) {
-            throw new InvalidEmailAddressException(\sprintf('Value "%s" is not a valid e-mail address.', $value));
+            throw new InvalidEmailAddressException(\sprintf('Value "%s" is not a valid e-mail address.', InvalidEmailAddressException::excerpt($value)));
         }
 
         return $value;

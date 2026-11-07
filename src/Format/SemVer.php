@@ -27,7 +27,7 @@ final class SemVer extends AbstractStringValueObject implements Comparable
 
     private const string PATTERN = '/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)'
         . '(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?'
-        . '(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/';
+        . '(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/D';
 
     public function major(): int
     {
@@ -121,7 +121,7 @@ final class SemVer extends AbstractStringValueObject implements Comparable
     protected function parse(string $value): string
     {
         if (\preg_match(self::PATTERN, $value) !== 1) {
-            throw new InvalidSemVerException(\sprintf('Invalid semantic version: "%s".', $value));
+            throw new InvalidSemVerException(\sprintf('Invalid semantic version: "%s".', InvalidSemVerException::excerpt($value)));
         }
 
         return $value;

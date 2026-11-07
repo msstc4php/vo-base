@@ -77,7 +77,7 @@ final class Ipv4Address extends AbstractStringValueObject
     protected function parse(string $value): string
     {
         if (\filter_var($value, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV4) === false) {
-            throw new InvalidIpv4Exception(\sprintf('Value "%s" is not a valid IPv4 address.', $value));
+            throw new InvalidIpv4Exception(\sprintf('Value "%s" is not a valid IPv4 address.', InvalidIpv4Exception::excerpt($value)));
         }
 
         return $value;

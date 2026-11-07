@@ -110,3 +110,16 @@ Value objects gained domain operations (additive, semver-minor). Highlights:
   (guarded by `class_exists`, throws `MissingDependencyException` when absent).
   `Decimal`: `add/subtract/multiply/divide/round/abs/negated/sign` (default
   rounding `RoundingMode::HalfUp`). `Percentage`: `applyTo/of/fromRatio`.
+
+## Query strings (`src/Network/`)
+- `QueryString` — query without `?`; RFC 3986 query characters plus raw `[`/`]` (WHATWG-style, so PHP form
+  queries pass). Canonical form: percent-encoding hex upper-cased, encoded unreserved characters decoded
+  (`%7E` -> `~`); `equals()` is string-based (`a=x+y` != `a=x%20y` although their `parameters()` match).
+  Decoding is form-style (`+` is a space). `with()`/`withAdded()`/`without()` copy untouched segments byte for
+  byte and `rawurlencode()` only the pairs they add; `with()` replaces the first occurrence and drops the rest.
+  `get()`, `getAll()`, `has()`, `names()`; names are case-sensitive. No per-instance cache: hidden state would
+  break `==`, `assertEquals()` and `serialize()`. `without()` of an absent name returns `$this`.
+- `QueryParameter` — `final readonly` name/value pair; a bare flag has value `''`, `=x` has name `''`.
+- `UriComponents::queryString()` is null without `?`, an empty `QueryString` for a bare `?`, and percent-encodes
+  what a `QueryString` cannot hold (non-ASCII, `{`, stray `%`), so it is total for a valid `Url`/`Uri`; the older
+  `queryParameters()` keeps `parse_str()`.

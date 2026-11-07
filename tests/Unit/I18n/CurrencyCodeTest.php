@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Tests\Unit\I18n;
 
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\I18n\CurrencyCode;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Intl\Currencies;
 use ValueError;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(CurrencyCode::class)]
 final class CurrencyCodeTest extends TestCase
 {

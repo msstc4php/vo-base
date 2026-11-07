@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.4.0 - 2026-11-07
+
+**Changed (BC):** validation is stricter. Stored values that used to pass may now fail on hydration; find them with
+`tryFrom()` and clean them before upgrading.
+
+- Every pattern anchored with `$` now uses the `D` modifier, so a trailing newline is rejected (`Slug`, `Uuid`, `Iban`,
+  `Bic`, `HexColor`, `SemVer`, `TimeOfDay`, `Duration`, `UrlScheme`, `MacAddress`, `Hostname`,
+  `DomainName`, `PhoneNumber`, `Decimal`, `CreditCardNumber`).
+- `Url` and `Uri` reject spaces, control characters and DEL, which `parse_url()` let through: a value such as
+  `"https://a.example/\r\nSet-Cookie: x"` was accepted. Loose values like `data:text/plain,hello world` must now
+  percent-encode the space.
+- Exception messages escape control characters and cut input longer than 200 bytes at a UTF-8 boundary
+  (`InvalidValueObjectException::excerpt()`), so a rejected value cannot inject lines into logs. Card numbers are
+  reduced to their length and last four characters, IBANs to country and last four.
+- `UrlPath` validates by scanning for a forbidden character, so long paths no longer trip PCRE limits.
+
+**Added:**
+
+- `QueryString` and `QueryParameter`: a query component that keeps pair order and duplicates and never rewrites
+  names the way `parse_str()` does (`a.b`, `a[]`); `get()`, `getAll()`, `has()`, `names()`, `with()`, `withAdded()`,
+  `without()`, `fromParameters()`. RFC 3986 characters plus raw `[`/`]`; edits keep untouched segments verbatim.
+- `Uri::queryString()` / `Url::queryString()` and `withQueryString()`. `queryString()` percent-encodes what a
+  `QueryString` cannot hold (non-ASCII, `{`, a stray `%`), so it never fails on a valid URI.
+- `Testing\RandomValueObjects` (experimental until 1.0): seeded, dependency-free generators of valid value objects
+  for consumers' tests. Seeded sequences are stable within one library version.
+
 ## 0.3.0 - 2026-11-07
 
 - `IpRange`: an inclusive first-last address range with containment, overlap, `intersect()`, `isAdjacentTo()`,

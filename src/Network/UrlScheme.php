@@ -16,8 +16,8 @@ final class UrlScheme extends AbstractStringValueObject
     #[Override]
     protected function parse(string $value): string
     {
-        if (\preg_match('/^[a-zA-Z][a-zA-Z0-9+.-]*$/', $value) !== 1) {
-            throw new InvalidUrlSchemeException(\sprintf('Value "%s" is not a valid URL scheme.', $value));
+        if (\preg_match('/^[a-zA-Z][a-zA-Z0-9+.-]*$/D', $value) !== 1) {
+            throw new InvalidUrlSchemeException(\sprintf('Value "%s" is not a valid URL scheme.', InvalidUrlSchemeException::excerpt($value)));
         }
 
         return \strtolower($value);

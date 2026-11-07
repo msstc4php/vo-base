@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Primitive;
 use Brick\Math\BigDecimal;
 use MSSTC4PHP\ValueObject\Exception\InvalidDecimalException;
 use MSSTC4PHP\ValueObject\Exception\InvalidPercentageException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Finance\Decimal;
 use MSSTC4PHP\ValueObject\Primitive\Percentage;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
@@ -15,6 +16,7 @@ use PHPUnit\Framework\Attributes\RequiresMethod;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(Percentage::class)]
 #[UsesClass(Decimal::class)]
 #[UsesClass(AbstractStringValueObject::class)]

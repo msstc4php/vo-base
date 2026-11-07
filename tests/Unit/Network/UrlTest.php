@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidUrlException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Network\Hostname;
 use MSSTC4PHP\ValueObject\Network\Url;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(Url::class)]
 #[UsesClass(Hostname::class)]
 final class UrlTest extends TestCase

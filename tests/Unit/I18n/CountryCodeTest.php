@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\I18n;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidCountryCodeException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\I18n\CountryCode;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use ValueError;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(CountryCode::class)]
 final class CountryCodeTest extends TestCase
 {

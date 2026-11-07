@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Primitive;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIntRangeException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Primitive\IntRange;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use RangeException;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(IntRange::class)]
 final class IntRangeTest extends TestCase
 {

@@ -14,7 +14,7 @@ use Override;
  */
 final class Bic extends AbstractStringValueObject
 {
-    private const string PATTERN = '/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/';
+    private const string PATTERN = '/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/D';
 
     public function bankCode(): string
     {
@@ -42,7 +42,7 @@ final class Bic extends AbstractStringValueObject
         $upper = \strtoupper($value);
 
         if (\preg_match(self::PATTERN, $upper) !== 1) {
-            throw new InvalidBicException(\sprintf('Invalid BIC: "%s".', $value));
+            throw new InvalidBicException(\sprintf('Invalid BIC: "%s".', InvalidBicException::excerpt($value)));
         }
 
         return $upper;

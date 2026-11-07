@@ -15,11 +15,11 @@ use Override;
  */
 final class MacAddress extends AbstractStringValueObject
 {
-    private const string COLON = '/^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){5}$/';
+    private const string COLON = '/^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){5}$/D';
 
-    private const string HYPHEN = '/^[0-9A-Fa-f]{2}(-[0-9A-Fa-f]{2}){5}$/';
+    private const string HYPHEN = '/^[0-9A-Fa-f]{2}(-[0-9A-Fa-f]{2}){5}$/D';
 
-    private const string DOTTED = '/^[0-9A-Fa-f]{4}(\.[0-9A-Fa-f]{4}){2}$/';
+    private const string DOTTED = '/^[0-9A-Fa-f]{4}(\.[0-9A-Fa-f]{4}){2}$/D';
 
     #[Override]
     protected function parse(string $value): string
@@ -29,7 +29,7 @@ final class MacAddress extends AbstractStringValueObject
             || \preg_match(self::DOTTED, $value) === 1;
 
         if (!$matchesNotation) {
-            throw new InvalidMacAddressException(\sprintf('Value "%s" is not a valid MAC address.', $value));
+            throw new InvalidMacAddressException(\sprintf('Value "%s" is not a valid MAC address.', InvalidMacAddressException::excerpt($value)));
         }
 
         $hex = \strtolower(\str_replace([':', '-', '.'], '', $value));

@@ -43,18 +43,19 @@ final class Url extends AbstractStringValueObject
     #[Override]
     protected function parse(string $value): string
     {
-        $parts = \parse_url($value);
+        // parse_url() lets spaces and control characters through; a URL never contains them (RFC 3986 section 2).
+        $parts = self::hasForbiddenCharacter($value) ? false : \parse_url($value);
         if ($parts === false) {
-            throw new InvalidUrlException(\sprintf('Value "%s" is not a valid URL.', $value));
+            throw new InvalidUrlException(\sprintf('Value "%s" is not a valid URL.', InvalidUrlException::excerpt($value)));
         }
 
         $scheme = isset($parts['scheme']) ? \strtolower($parts['scheme']) : '';
         if ($scheme !== 'http' && $scheme !== 'https') {
-            throw new InvalidUrlException(\sprintf('Value "%s" is not a valid URL.', $value));
+            throw new InvalidUrlException(\sprintf('Value "%s" is not a valid URL.', InvalidUrlException::excerpt($value)));
         }
 
         if (!isset($parts['host']) || $parts['host'] === '') {
-            throw new InvalidUrlException(\sprintf('Value "%s" is not a valid URL.', $value));
+            throw new InvalidUrlException(\sprintf('Value "%s" is not a valid URL.', InvalidUrlException::excerpt($value)));
         }
 
         return $value;

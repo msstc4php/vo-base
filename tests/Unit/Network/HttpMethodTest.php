@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Network;
 
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Network\HttpMethod;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use ValueError;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(HttpMethod::class)]
 final class HttpMethodTest extends TestCase
 {

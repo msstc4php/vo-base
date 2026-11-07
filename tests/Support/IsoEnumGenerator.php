@@ -91,14 +91,14 @@ final class IsoEnumGenerator
                 public static function fromAlpha3(string \$alpha3): self
                 {
                     return match (strtoupper(\$alpha3)) {
-            {$fromAlpha3Arms}            default => throw new InvalidCountryCodeException(sprintf('Unknown ISO 3166-1 alpha-3 code "%s".', \$alpha3)),
+            {$fromAlpha3Arms}            default => throw new InvalidCountryCodeException(sprintf('Unknown ISO 3166-1 alpha-3 code "%s".', InvalidCountryCodeException::excerpt(\$alpha3))),
                     };
                 }
 
                 public static function fromNumeric(string \$numeric): self
                 {
                     return match (str_pad(\$numeric, 3, '0', STR_PAD_LEFT)) {
-            {$fromNumericArms}            default => throw new InvalidCountryCodeException(sprintf('Unknown ISO 3166-1 numeric code "%s".', \$numeric)),
+            {$fromNumericArms}            default => throw new InvalidCountryCodeException(sprintf('Unknown ISO 3166-1 numeric code "%s".', InvalidCountryCodeException::excerpt(\$numeric))),
                     };
                 }
             }

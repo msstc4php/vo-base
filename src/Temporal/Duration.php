@@ -106,14 +106,14 @@ final class Duration extends AbstractStringValueObject
     {
         $normalized = \strtoupper($value);
 
-        if (\preg_match('/^P(?!$)(\d+Y)?(\d+M)?(\d+W)?(\d+D)?(T(?!$)(\d+H)?(\d+M)?(\d+S)?)?$/', $normalized) !== 1) {
-            throw new InvalidDurationException(\sprintf('Invalid ISO 8601 duration: "%s".', $value));
+        if (\preg_match('/^P(?!$)(\d+Y)?(\d+M)?(\d+W)?(\d+D)?(T(?!$)(\d+H)?(\d+M)?(\d+S)?)?$/D', $normalized) !== 1) {
+            throw new InvalidDurationException(\sprintf('Invalid ISO 8601 duration: "%s".', InvalidDurationException::excerpt($value)));
         }
 
         try {
             new DateInterval($normalized);
         } catch (Exception $exception) {
-            throw new InvalidDurationException(\sprintf('Invalid ISO 8601 duration: "%s".', $value), 0, $exception);
+            throw new InvalidDurationException(\sprintf('Invalid ISO 8601 duration: "%s".', InvalidDurationException::excerpt($value)), 0, $exception);
         }
 
         return $normalized;

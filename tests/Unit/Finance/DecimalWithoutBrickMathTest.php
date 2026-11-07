@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Finance;
 
 use Brick\Math\BigDecimal;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Exception\MissingDependencyException;
 use MSSTC4PHP\ValueObject\Finance\Decimal;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -17,6 +19,7 @@ use PHPUnit\Framework\TestCase;
  * The full suite ships brick/math, so this skips there; it runs for real in the
  * "core-only" CI leg (composer install --no-dev), which excludes brick/math.
  */
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(Decimal::class)]
 final class DecimalWithoutBrickMathTest extends TestCase
 {

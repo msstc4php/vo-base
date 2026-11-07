@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Finance;
 use Brick\Math\BigDecimal;
 use Brick\Math\RoundingMode;
 use MSSTC4PHP\ValueObject\Exception\InvalidDecimalException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Finance\Decimal;
 use MSSTC4PHP\ValueObject\Format\SemVer;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -15,6 +16,7 @@ use PHPUnit\Framework\Attributes\RequiresMethod;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(Decimal::class)]
 #[UsesClass(SemVer::class)]
 final class DecimalTest extends TestCase

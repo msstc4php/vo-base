@@ -8,8 +8,10 @@ use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
 use MSSTC4PHP\ValueObject\Tests\Fixtures\LowercaseWord;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(AbstractStringValueObject::class)]
 final class AbstractStringValueObjectTest extends TestCase
 {

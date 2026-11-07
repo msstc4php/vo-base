@@ -22,7 +22,7 @@ final class Decimal extends AbstractStringValueObject implements Comparable
 {
     use ComparableHelpers;
 
-    private const string PATTERN = '/^[+-]?\d+(\.\d+)?$/';
+    private const string PATTERN = '/^[+-]?\d+(\.\d+)?$/D';
 
     #[Override]
     public function compareTo(Comparable $other): int
@@ -129,7 +129,7 @@ final class Decimal extends AbstractStringValueObject implements Comparable
     protected function parse(string $value): string
     {
         if (\preg_match(self::PATTERN, $value) !== 1) {
-            throw new InvalidDecimalException(\sprintf('Invalid decimal: "%s".', $value));
+            throw new InvalidDecimalException(\sprintf('Invalid decimal: "%s".', InvalidDecimalException::excerpt($value)));
         }
 
         $negative = $value[0] === '-';

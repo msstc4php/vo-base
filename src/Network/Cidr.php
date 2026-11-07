@@ -181,7 +181,7 @@ final class Cidr extends AbstractStringValueObject
     {
         $parts = explode('/', $value);
         if (\count($parts) !== 2) {
-            throw new InvalidCidrException(sprintf('Value "%s" is not a valid CIDR block.', $value));
+            throw new InvalidCidrException(sprintf('Value "%s" is not a valid CIDR block.', InvalidCidrException::excerpt($value)));
         }
 
         [$address, $prefix] = $parts;
@@ -189,17 +189,17 @@ final class Cidr extends AbstractStringValueObject
         $isIpv4 = filter_var($address, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV4) !== false;
         $isIpv6 = filter_var($address, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6) !== false;
         if (!$isIpv4 && !$isIpv6) {
-            throw new InvalidCidrException(sprintf('CIDR "%s" has an invalid network address.', $value));
+            throw new InvalidCidrException(sprintf('CIDR "%s" has an invalid network address.', InvalidCidrException::excerpt($value)));
         }
 
         if ($prefix === '' || (string) (int) $prefix !== $prefix) {
-            throw new InvalidCidrException(sprintf('CIDR "%s" has a non-integer prefix.', $value));
+            throw new InvalidCidrException(sprintf('CIDR "%s" has a non-integer prefix.', InvalidCidrException::excerpt($value)));
         }
 
         $prefixLength = (int) $prefix;
         $maxPrefix = $isIpv4 ? 32 : 128;
         if ($prefixLength < 0 || $prefixLength > $maxPrefix) {
-            throw new InvalidCidrException(sprintf('CIDR "%s" prefix is out of the 0..%d range.', $value, $maxPrefix));
+            throw new InvalidCidrException(sprintf('CIDR "%s" prefix is out of the 0..%d range.', InvalidCidrException::excerpt($value), $maxPrefix));
         }
 
         return sprintf('%s/%d', $address, $prefixLength);

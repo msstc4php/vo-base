@@ -12,6 +12,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(AbstractFloatValueObject::class)]
 #[UsesClass(Percentage::class)]
 final class AbstractFloatValueObjectTest extends TestCase

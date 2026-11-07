@@ -8,8 +8,10 @@ use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
 use MSSTC4PHP\ValueObject\Tests\Fixtures\BoundedNumber;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(AbstractIntValueObject::class)]
 final class AbstractIntValueObjectTest extends TestCase
 {

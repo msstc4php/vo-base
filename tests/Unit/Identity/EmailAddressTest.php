@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Identity;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidEmailAddressException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Identity\EmailAddress;
 use MSSTC4PHP\ValueObject\Network\DomainName;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -12,6 +13,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(EmailAddress::class)]
 #[UsesClass(DomainName::class)]
 final class EmailAddressTest extends TestCase

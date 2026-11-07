@@ -38,8 +38,10 @@ final class CreditCardNumber extends AbstractStringValueObject
     {
         $digits = \str_replace([' ', '-'], '', $value);
 
-        if (\preg_match('/^\d{12,19}$/', $digits) !== 1 || !$this->hasValidLuhn($digits)) {
-            throw new InvalidCreditCardNumberException(\sprintf('Invalid credit card number: "%s".', $value));
+        if (\preg_match('/^\d{12,19}$/D', $digits) !== 1 || !$this->hasValidLuhn($digits)) {
+            // A number failing Luhn is often a real card number with a typo, and raw input may end in a CVV that still
+            // looks like part of the number: no digit of it ever goes into a message (PCI DSS).
+            throw new InvalidCreditCardNumberException(\sprintf('Invalid credit card number (%d characters).', \strlen($value)));
         }
 
         return $digits;

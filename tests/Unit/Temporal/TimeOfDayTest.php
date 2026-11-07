@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Temporal;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidTimeOfDayException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Network\Port;
 use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
 use MSSTC4PHP\ValueObject\Temporal\Duration;
@@ -14,6 +15,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(TimeOfDay::class)]
 #[UsesClass(Port::class)]
 #[UsesClass(AbstractIntValueObject::class)]

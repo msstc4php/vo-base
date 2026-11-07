@@ -16,8 +16,8 @@ final class PhoneNumber extends AbstractStringValueObject
     #[Override]
     protected function parse(string $value): string
     {
-        if (\preg_match('/^\+[1-9]\d{1,14}$/', $value) !== 1) {
-            throw new InvalidPhoneNumberException(\sprintf('Invalid E.164 phone number: "%s".', $value));
+        if (\preg_match('/^\+[1-9]\d{1,14}$/D', $value) !== 1) {
+            throw new InvalidPhoneNumberException(\sprintf('Invalid E.164 phone number: "%s".', InvalidPhoneNumberException::excerpt($value)));
         }
 
         return $value;

@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Support;
 
 use LogicException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Support\PackedAddress;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Random\Engine\Xoshiro256StarStar;
 use Random\Randomizer;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(PackedAddress::class)]
 final class PackedAddressTest extends TestCase
 {

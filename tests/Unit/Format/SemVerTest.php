@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Format;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidSemVerException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Format\SemVer;
 use MSSTC4PHP\ValueObject\Primitive\Percentage;
 use MSSTC4PHP\ValueObject\Support\AbstractFloatValueObject;
@@ -13,6 +14,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(SemVer::class)]
 #[UsesClass(Percentage::class)]
 #[UsesClass(AbstractFloatValueObject::class)]

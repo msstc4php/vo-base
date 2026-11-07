@@ -72,8 +72,8 @@ final class TimeOfDay extends AbstractStringValueObject implements Comparable
     #[Override]
     protected function parse(string $value): string
     {
-        if (\preg_match('/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/', $value) !== 1) {
-            throw new InvalidTimeOfDayException(\sprintf('Invalid time of day: "%s".', $value));
+        if (\preg_match('/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/D', $value) !== 1) {
+            throw new InvalidTimeOfDayException(\sprintf('Invalid time of day: "%s".', InvalidTimeOfDayException::excerpt($value)));
         }
 
         return \strlen($value) === 5 ? $value . ':00' : $value;

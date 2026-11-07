@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIpv4Exception;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Network\Cidr;
 use MSSTC4PHP\ValueObject\Network\IpAddress;
 use MSSTC4PHP\ValueObject\Network\Ipv4Address;
@@ -13,6 +14,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(Ipv4Address::class)]
 #[UsesClass(Cidr::class)]
 #[UsesClass(IpAddress::class)]

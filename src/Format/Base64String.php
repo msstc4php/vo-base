@@ -28,7 +28,7 @@ final class Base64String extends AbstractStringValueObject
         $decoded = \base64_decode($value, true);
 
         if ($decoded === false || \base64_encode($decoded) !== $value) {
-            throw new InvalidBase64StringException(\sprintf('Invalid base64 string: "%s".', $value));
+            throw new InvalidBase64StringException(\sprintf('Invalid base64 string: "%s".', InvalidBase64StringException::excerpt($value)));
         }
 
         return $value;

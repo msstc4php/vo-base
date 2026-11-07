@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Support;
 
+use MSSTC4PHP\ValueObject\Network\QueryString;
+
 /**
  * Immutable component mutators and query parsing for string-backed URL/URI
  * value objects. Every {@see with*()} rebuilds the string form and passes it
@@ -12,6 +14,10 @@ namespace MSSTC4PHP\ValueObject\Support;
  */
 trait UriComponents
 {
+    // Space, the C0 controls and DEL: never part of a URI (RFC 3986 section 2), yet parse_url() accepts them.
+    private const string FORBIDDEN_CHARACTERS = " \x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F"
+        . "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F\x7F";
+
     public function withScheme(string $scheme): static
     {
         return $this->withComponent('scheme', $scheme);
@@ -43,6 +49,29 @@ trait UriComponents
     }
 
     /**
+     * The query as a {@see QueryString}, or null when there is no "?". A bare
+     * "?" yields an empty QueryString; writing an empty one back drops the "?".
+     *
+     * The URI may carry characters a QueryString does not (non-ASCII, "{", "|",
+     * a "%" without two hex digits, ...); they are percent-encoded on the way,
+     * so withQueryString($uri->queryString()) need not return the same string.
+     */
+    public function queryString(): ?QueryString
+    {
+        $query = $this->rawQuery();
+        if ($query === null) {
+            return null;
+        }
+
+        return QueryString::fromLoose($query);
+    }
+
+    public function withQueryString(QueryString $query): static
+    {
+        return $this->withQuery($query->value);
+    }
+
+    /**
      * The decoded query parameters. Array-style keys (e.g. "a[]=1&a[]=2")
      * decode to nested arrays, matching {@see parse_str()}.
      *
@@ -50,8 +79,7 @@ trait UriComponents
      */
     public function queryParameters(): array
     {
-        $parts = parse_url($this->value);
-        $query = $parts === false ? null : ($parts['query'] ?? null);
+        $query = $this->rawQuery();
         if ($query === null || $query === '') {
             return [];
         }
@@ -59,6 +87,18 @@ trait UriComponents
         parse_str($query, $result);
 
         return $result;
+    }
+
+    private static function hasForbiddenCharacter(string $value): bool
+    {
+        return \strpbrk($value, self::FORBIDDEN_CHARACTERS) !== false;
+    }
+
+    private function rawQuery(): ?string
+    {
+        $parts = parse_url($this->value);
+
+        return $parts === false ? null : ($parts['query'] ?? null);
     }
 
     /**

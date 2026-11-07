@@ -16,8 +16,9 @@ final class UrlPath extends AbstractStringValueObject
     #[Override]
     protected function parse(string $value): string
     {
-        if (\preg_match('/^(?:[A-Za-z0-9\-._~!$&\'()*+,;=:@\/]|%[0-9A-Fa-f]{2})*$/', $value) !== 1) {
-            throw new InvalidUrlPathException(\sprintf('Value "%s" is not a valid URL path.', $value));
+        // Scan for one forbidden character: matching the whole value hits PCRE's JIT stack limit on long paths.
+        if (\preg_match('~[^A-Za-z0-9\-._\~!$&\'()*+,;=:@/%]|%(?![0-9A-Fa-f]{2})~', $value) !== 0) {
+            throw new InvalidUrlPathException(\sprintf('Value "%s" is not a valid URL path.', InvalidUrlPathException::excerpt($value)));
         }
 
         return $value;

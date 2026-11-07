@@ -67,7 +67,7 @@ final class IpAddress extends AbstractStringValueObject
     protected function parse(string $value): string
     {
         if (\filter_var($value, \FILTER_VALIDATE_IP) === false) {
-            throw new InvalidIpAddressException(\sprintf('Value "%s" is not a valid IP address.', $value));
+            throw new InvalidIpAddressException(\sprintf('Value "%s" is not a valid IP address.', InvalidIpAddressException::excerpt($value)));
         }
 
         return $value;

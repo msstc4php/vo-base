@@ -59,9 +59,10 @@ final class Uri extends AbstractStringValueObject
     #[Override]
     protected function parse(string $value): string
     {
-        $parts = \parse_url($value);
+        // parse_url() lets spaces and control characters through; a URI never contains them (RFC 3986 section 2).
+        $parts = self::hasForbiddenCharacter($value) ? false : \parse_url($value);
         if ($parts === false || !isset($parts['scheme']) || $parts['scheme'] === '') {
-            throw new InvalidUriException(\sprintf('Value "%s" is not a valid URI.', $value));
+            throw new InvalidUriException(\sprintf('Value "%s" is not a valid URI.', InvalidUriException::excerpt($value)));
         }
 
         return $value;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIpAddressException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Network\Cidr;
 use MSSTC4PHP\ValueObject\Network\ClassifiesIpAddress;
 use MSSTC4PHP\ValueObject\Network\IpAddress;
@@ -15,6 +16,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\UsesTrait;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(IpAddress::class)]
 #[UsesClass(Cidr::class)]
 #[UsesTrait(ClassifiesIpAddress::class)]

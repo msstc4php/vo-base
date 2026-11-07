@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidCidrException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Network\Cidr;
 use MSSTC4PHP\ValueObject\Network\IpAddress;
 use MSSTC4PHP\ValueObject\Support\PackedAddress;
@@ -14,6 +15,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use RangeException;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(Cidr::class)]
 #[UsesClass(IpAddress::class)]
 #[UsesClass(PackedAddress::class)]

@@ -21,11 +21,11 @@ final class Hostname extends AbstractStringValueObject
     protected function parse(string $value): string
     {
         if ($value === '' || \strlen($value) > 253) {
-            throw new InvalidHostnameException(\sprintf('Value "%s" is not a valid hostname.', $value));
+            throw new InvalidHostnameException(\sprintf('Value "%s" is not a valid hostname.', InvalidHostnameException::excerpt($value)));
         }
 
-        if (\preg_match('/^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/', $value) !== 1) {
-            throw new InvalidHostnameException(\sprintf('Value "%s" is not a valid hostname.', $value));
+        if (\preg_match('/^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/D', $value) !== 1) {
+            throw new InvalidHostnameException(\sprintf('Value "%s" is not a valid hostname.', InvalidHostnameException::excerpt($value)));
         }
 
         return \strtolower($value);

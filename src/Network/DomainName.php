@@ -21,21 +21,21 @@ final class DomainName extends AbstractStringValueObject
     protected function parse(string $value): string
     {
         if ($value === '' || \strlen($value) > 253) {
-            throw new InvalidDomainNameException(\sprintf('Value "%s" is not a valid domain name.', $value));
+            throw new InvalidDomainNameException(\sprintf('Value "%s" is not a valid domain name.', InvalidDomainNameException::excerpt($value)));
         }
 
-        if (\preg_match('/^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/', $value) !== 1) {
-            throw new InvalidDomainNameException(\sprintf('Value "%s" is not a valid domain name.', $value));
+        if (\preg_match('/^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/D', $value) !== 1) {
+            throw new InvalidDomainNameException(\sprintf('Value "%s" is not a valid domain name.', InvalidDomainNameException::excerpt($value)));
         }
 
         $labels = \explode('.', $value);
         if (\count($labels) < 2) {
-            throw new InvalidDomainNameException(\sprintf('Value "%s" is not a valid domain name.', $value));
+            throw new InvalidDomainNameException(\sprintf('Value "%s" is not a valid domain name.', InvalidDomainNameException::excerpt($value)));
         }
 
         $tld = $labels[\count($labels) - 1];
-        if (\preg_match('/^[A-Za-z]{2,}$/', $tld) !== 1) {
-            throw new InvalidDomainNameException(\sprintf('Value "%s" is not a valid domain name.', $value));
+        if (\preg_match('/^[A-Za-z]{2,}$/D', $tld) !== 1) {
+            throw new InvalidDomainNameException(\sprintf('Value "%s" is not a valid domain name.', InvalidDomainNameException::excerpt($value)));
         }
 
         return \strtolower($value);

@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Finance;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIbanException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Finance\Iban;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(Iban::class)]
 final class IbanTest extends TestCase
 {

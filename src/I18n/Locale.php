@@ -33,7 +33,7 @@ final class Locale extends AbstractStringValueObject
         $language = LanguageCode::tryFrom(\strtolower($parts[0]));
 
         if ($language === null || \count($parts) > 2) {
-            throw new InvalidLocaleException(\sprintf('Invalid locale "%s".', $value));
+            throw new InvalidLocaleException(\sprintf('Invalid locale "%s".', InvalidLocaleException::excerpt($value)));
         }
 
         if (\count($parts) === 1) {
@@ -43,7 +43,7 @@ final class Locale extends AbstractStringValueObject
         $region = CountryCode::tryFrom(\strtoupper($parts[1]));
 
         if ($region === null) {
-            throw new InvalidLocaleException(\sprintf('Invalid locale "%s".', $value));
+            throw new InvalidLocaleException(\sprintf('Invalid locale "%s".', InvalidLocaleException::excerpt($value)));
         }
 
         return $language->value . '-' . $region->value;

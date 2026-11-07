@@ -73,11 +73,25 @@ dependency-free.
 > or wider (the count exceeds PHP's integer range); `Cidr::addressCount()` and
 > `IpRange::addressCount()` return the exact count as a decimal string.
 
+## Test data
+
+`Testing\RandomValueObjects` generates valid instances for your own tests and property-style checks; pass a seed
+to make a run reproducible:
+
+```php
+use MSSTC4PHP\ValueObject\Testing\RandomValueObjects;
+
+$random = new RandomValueObjects(seed: 42);
+$random->ipRange();        // e.g. 41.12.7.200-198.51.3.9
+$random->iban();           // a DE IBAN with a valid checksum
+$random->currencyCode();   // always one with ISO minor units
+```
+
 ## Catalogue
 
 | Group | Value objects |
 |---|---|
-| Network | `Ipv4Address`, `Ipv6Address`, `IpAddress`, `MacAddress`, `Hostname`, `DomainName`, `Port`, `UrlScheme`, `UrlPath`, `Uri`, `Url`, `Cidr`, `IpRange`, `HttpMethod` |
+| Network | `Ipv4Address`, `Ipv6Address`, `IpAddress`, `MacAddress`, `Hostname`, `DomainName`, `Port`, `UrlScheme`, `UrlPath`, `Uri`, `Url`, `QueryString`, `QueryParameter`, `Cidr`, `IpRange`, `HttpMethod` |
 | Identity | `EmailAddress`, `Uuid` (validate, version detect, `v4()`/`v7()`/`v7Now()`) |
 | i18n / geo | `CountryCode`, `CurrencyCode`, `LanguageCode` (ISO enums), `Locale`, `Latitude`, `Longitude`, `GeoCoordinates` |
 | Finance | `Iban`, `Bic`, `CreditCardNumber` (Luhn), `Decimal` (arbitrary precision) |
