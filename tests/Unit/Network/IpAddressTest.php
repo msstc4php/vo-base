@@ -6,11 +6,20 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIpAddressException;
 use MSSTC4PHP\ValueObject\Network\Cidr;
+use MSSTC4PHP\ValueObject\Network\ClassifiesIpAddress;
 use MSSTC4PHP\ValueObject\Network\IpAddress;
+use MSSTC4PHP\ValueObject\Network\Ipv4Address;
+use MSSTC4PHP\ValueObject\Network\Ipv6Address;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\Attributes\UsesTrait;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(IpAddress::class)]
+#[UsesClass(Cidr::class)]
+#[UsesTrait(ClassifiesIpAddress::class)]
+#[UsesClass(Ipv4Address::class)]
+#[UsesClass(Ipv6Address::class)]
 final class IpAddressTest extends TestCase
 {
     public function testDetectsVersionFour(): void

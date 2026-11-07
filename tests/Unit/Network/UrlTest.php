@@ -8,9 +8,11 @@ use MSSTC4PHP\ValueObject\Exception\InvalidUrlException;
 use MSSTC4PHP\ValueObject\Network\Hostname;
 use MSSTC4PHP\ValueObject\Network\Url;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Url::class)]
+#[UsesClass(Hostname::class)]
 final class UrlTest extends TestCase
 {
     public function testConstructsFromValidUrl(): void

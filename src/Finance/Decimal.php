@@ -12,6 +12,7 @@ use MSSTC4PHP\ValueObject\Exception\InvalidDecimalException;
 use MSSTC4PHP\ValueObject\Exception\MissingDependencyException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
 use MSSTC4PHP\ValueObject\Support\ComparableHelpers;
+use Override;
 
 /**
  * Arbitrary-precision decimal number stored as a normalized numeric string.
@@ -23,30 +24,7 @@ final class Decimal extends AbstractStringValueObject implements Comparable
 
     private const string PATTERN = '/^[+-]?\d+(\.\d+)?$/';
 
-    protected function parse(string $value): string
-    {
-        if (\preg_match(self::PATTERN, $value) !== 1) {
-            throw new InvalidDecimalException(\sprintf('Invalid decimal: "%s".', $value));
-        }
-
-        $negative = $value[0] === '-';
-        $unsigned = \ltrim($value, '+-');
-
-        [$integer, $fraction] = \str_contains($unsigned, '.')
-            ? \explode('.', $unsigned, 2)
-            : [$unsigned, ''];
-
-        $integer = \ltrim($integer, '0');
-        if ($integer === '') {
-            $integer = '0';
-        }
-
-        $fraction = \rtrim($fraction, '0');
-        $normalized = $fraction === '' ? $integer : $integer . '.' . $fraction;
-
-        return $negative && $normalized !== '0' ? '-' . $normalized : $normalized;
-    }
-
+    #[Override]
     public function compareTo(Comparable $other): int
     {
         if (!$other instanceof self) {
@@ -145,6 +123,31 @@ final class Decimal extends AbstractStringValueObject implements Comparable
         $this->requireBrickMath();
 
         return BigDecimal::of($this->value)->getSign();
+    }
+
+    #[Override]
+    protected function parse(string $value): string
+    {
+        if (\preg_match(self::PATTERN, $value) !== 1) {
+            throw new InvalidDecimalException(\sprintf('Invalid decimal: "%s".', $value));
+        }
+
+        $negative = $value[0] === '-';
+        $unsigned = \ltrim($value, '+-');
+
+        [$integer, $fraction] = \str_contains($unsigned, '.')
+            ? \explode('.', $unsigned, 2)
+            : [$unsigned, ''];
+
+        $integer = \ltrim($integer, '0');
+        if ($integer === '') {
+            $integer = '0';
+        }
+
+        $fraction = \rtrim($fraction, '0');
+        $normalized = $fraction === '' ? $integer : $integer . '.' . $fraction;
+
+        return $negative && $normalized !== '0' ? '-' . $normalized : $normalized;
     }
 
     /**

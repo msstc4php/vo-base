@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\I18n;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidLocaleException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use Override;
 
 /**
  * BCP 47 locale limited to language and optional region: `en`, `en-US`.
@@ -13,6 +14,19 @@ use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
  */
 final class Locale extends AbstractStringValueObject
 {
+    public function language(): LanguageCode
+    {
+        return LanguageCode::from(\explode('-', $this->value)[0]);
+    }
+
+    public function region(): ?CountryCode
+    {
+        $parts = \explode('-', $this->value);
+
+        return isset($parts[1]) ? CountryCode::from($parts[1]) : null;
+    }
+
+    #[Override]
     protected function parse(string $value): string
     {
         $parts = \explode('-', $value);
@@ -33,17 +47,5 @@ final class Locale extends AbstractStringValueObject
         }
 
         return $language->value . '-' . $region->value;
-    }
-
-    public function language(): LanguageCode
-    {
-        return LanguageCode::from(\explode('-', $this->value)[0]);
-    }
-
-    public function region(): ?CountryCode
-    {
-        $parts = \explode('-', $this->value);
-
-        return isset($parts[1]) ? CountryCode::from($parts[1]) : null;
     }
 }

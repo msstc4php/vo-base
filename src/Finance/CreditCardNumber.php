@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Finance;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidCreditCardNumberException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use Override;
 
 /**
  * Primary Account Number (PAN): 12..19 digits passing the Luhn checksum.
@@ -13,17 +14,6 @@ use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
  */
 final class CreditCardNumber extends AbstractStringValueObject
 {
-    protected function parse(string $value): string
-    {
-        $digits = \str_replace([' ', '-'], '', $value);
-
-        if (\preg_match('/^\d{12,19}$/', $digits) !== 1 || !$this->hasValidLuhn($digits)) {
-            throw new InvalidCreditCardNumberException(\sprintf('Invalid credit card number: "%s".', $value));
-        }
-
-        return $digits;
-    }
-
     public function last4(): string
     {
         return \substr($this->value, -4);
@@ -41,6 +31,18 @@ final class CreditCardNumber extends AbstractStringValueObject
             \preg_match('/^6(?:011|5)/', $this->value) === 1 => 'discover',
             default => 'unknown',
         };
+    }
+
+    #[Override]
+    protected function parse(string $value): string
+    {
+        $digits = \str_replace([' ', '-'], '', $value);
+
+        if (\preg_match('/^\d{12,19}$/', $digits) !== 1 || !$this->hasValidLuhn($digits)) {
+            throw new InvalidCreditCardNumberException(\sprintf('Invalid credit card number: "%s".', $value));
+        }
+
+        return $digits;
     }
 
     private function hasValidLuhn(string $digits): bool

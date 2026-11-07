@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Finance;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIbanException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use Override;
 
 /**
  * International Bank Account Number (ISO 13616) with ISO 7064 mod-97 validation.
@@ -15,6 +16,17 @@ final class Iban extends AbstractStringValueObject
 {
     private const string PATTERN = '/^[A-Z]{2}\d{2}[A-Z0-9]{1,30}$/';
 
+    public function countryCode(): string
+    {
+        return \substr($this->value, 0, 2);
+    }
+
+    public function checkDigits(): string
+    {
+        return \substr($this->value, 2, 2);
+    }
+
+    #[Override]
     protected function parse(string $value): string
     {
         $compact = \strtoupper(\str_replace(' ', '', $value));
@@ -29,16 +41,6 @@ final class Iban extends AbstractStringValueObject
         }
 
         return $compact;
-    }
-
-    public function countryCode(): string
-    {
-        return \substr($this->value, 0, 2);
-    }
-
-    public function checkDigits(): string
-    {
-        return \substr($this->value, 2, 2);
     }
 
     /**

@@ -9,10 +9,12 @@ use MSSTC4PHP\ValueObject\Network\Cidr;
 use MSSTC4PHP\ValueObject\Network\IpAddress;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use RangeException;
 
 #[CoversClass(Cidr::class)]
+#[UsesClass(IpAddress::class)]
 final class CidrTest extends TestCase
 {
     public function testParsesIpv4Block(): void

@@ -9,6 +9,7 @@ use MSSTC4PHP\ValueObject\Exception\InvalidPercentageException;
 use MSSTC4PHP\ValueObject\Exception\MissingDependencyException;
 use MSSTC4PHP\ValueObject\Finance\Decimal;
 use MSSTC4PHP\ValueObject\Support\AbstractFloatValueObject;
+use Override;
 
 /**
  * A percentage within the inclusive range 0.0..100.0.
@@ -55,6 +56,7 @@ final class Percentage extends AbstractFloatValueObject
         return self::from((float) $ratio->value);
     }
 
+    #[Override]
     protected function parse(float $value): float
     {
         if ($value < 0.0 || $value > 100.0) {

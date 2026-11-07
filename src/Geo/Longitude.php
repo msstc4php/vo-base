@@ -6,12 +6,14 @@ namespace MSSTC4PHP\ValueObject\Geo;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidLongitudeException;
 use MSSTC4PHP\ValueObject\Support\AbstractFloatValueObject;
+use Override;
 
 /**
  * Geographic longitude in decimal degrees, bounded to -180..180 inclusive.
  */
 final class Longitude extends AbstractFloatValueObject
 {
+    #[Override]
     protected function parse(float $value): float
     {
         if ($value < -180.0 || $value > 180.0) {

@@ -7,10 +7,15 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Geo;
 use MSSTC4PHP\ValueObject\Geo\GeoCoordinates;
 use MSSTC4PHP\ValueObject\Geo\Latitude;
 use MSSTC4PHP\ValueObject\Geo\Longitude;
+use MSSTC4PHP\ValueObject\Support\AbstractFloatValueObject;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(GeoCoordinates::class)]
+#[UsesClass(Latitude::class)]
+#[UsesClass(Longitude::class)]
+#[UsesClass(AbstractFloatValueObject::class)]
 final class GeoCoordinatesTest extends TestCase
 {
     public function testConstructsFromValueObjects(): void

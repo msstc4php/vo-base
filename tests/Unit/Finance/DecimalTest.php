@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Finance;
 
+use Brick\Math\BigDecimal;
 use Brick\Math\RoundingMode;
 use MSSTC4PHP\ValueObject\Exception\InvalidDecimalException;
 use MSSTC4PHP\ValueObject\Finance\Decimal;
 use MSSTC4PHP\ValueObject\Format\SemVer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresMethod;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Decimal::class)]
+#[UsesClass(SemVer::class)]
 final class DecimalTest extends TestCase
 {
     /**
@@ -75,6 +79,7 @@ final class DecimalTest extends TestCase
         Decimal::from($value);
     }
 
+    #[RequiresMethod(BigDecimal::class, 'of')]
     public function testExactArithmetic(): void
     {
         self::assertSame('3.3', Decimal::from('1.1')->add('2.2')->value);
@@ -84,6 +89,7 @@ final class DecimalTest extends TestCase
         self::assertSame('-4.2', Decimal::from('4.2')->negated()->value);
     }
 
+    #[RequiresMethod(BigDecimal::class, 'of')]
     public function testAddAcceptsDecimalIntAndString(): void
     {
         self::assertSame('5', Decimal::from('2')->add(Decimal::from('3'))->value);
@@ -91,12 +97,14 @@ final class DecimalTest extends TestCase
         self::assertSame('5', Decimal::from('2')->add('3')->value);
     }
 
+    #[RequiresMethod(BigDecimal::class, 'of')]
     public function testDivideWithRounding(): void
     {
         self::assertSame('0.3333', Decimal::from('1')->divide('3', 4)->value);
         self::assertSame('0.25', Decimal::from('1')->divide('4', 2)->value);
     }
 
+    #[RequiresMethod(BigDecimal::class, 'of')]
     public function testDivideByZeroThrows(): void
     {
         $this->expectException(InvalidDecimalException::class);
@@ -104,12 +112,14 @@ final class DecimalTest extends TestCase
         Decimal::from('1')->divide('0', 2);
     }
 
+    #[RequiresMethod(BigDecimal::class, 'of')]
     public function testDivideHonorsExplicitRoundingMode(): void
     {
         self::assertSame('0', Decimal::from('1')->divide('3', 0)->value);
         self::assertSame('1', Decimal::from('1')->divide('3', 0, RoundingMode::Up)->value);
     }
 
+    #[RequiresMethod(BigDecimal::class, 'of')]
     public function testRound(): void
     {
         self::assertSame('3', Decimal::from('2.5')->round(0)->value);
@@ -117,6 +127,7 @@ final class DecimalTest extends TestCase
         self::assertSame('2', Decimal::from('2.5')->round(0, RoundingMode::Down)->value);
     }
 
+    #[RequiresMethod(BigDecimal::class, 'of')]
     public function testSign(): void
     {
         self::assertSame(-1, Decimal::from('-4.2')->sign());
@@ -124,6 +135,7 @@ final class DecimalTest extends TestCase
         self::assertSame(1, Decimal::from('4.2')->sign());
     }
 
+    #[RequiresMethod(BigDecimal::class, 'of')]
     public function testArithmeticIsImmutable(): void
     {
         $decimal = Decimal::from('1.1');

@@ -102,3 +102,18 @@
 `roave/security-advisories` `dev-latest` conflicts with PHP `>=8.4,<8.4.27`, so a
 full resolve fails on such a runtime. A hash-only refresh still works and changes
 nothing else: `composer update --lock --ignore-platform-req=php`.
+
+## `symfony/intl` is pinned to an exact version in `composer-ci.json`
+
+Later releases change the generated data (7.4.22 adds `CNX` and reports 0 display digits for `PKR`), and
+`IsoEnumsUpToDateTest` fails on any such change. Bump the pin only together with
+`php tools/generate-iso-enums.php` and a look at `iso-minor-units.snapshot.json`.
+
+## Generated enums now go through the style tools
+
+The shared templates cannot exclude paths, so the generator's output must stay clean for PHP-CS-Fixer and Rector.
+
+## `beStrictAboutCoverageMetadata` fails only under coverage
+
+`make test` can be green while `make infection` reports 0 mutants: the initial run hits a risky test. A test touching
+another class needs `#[UsesClass]`. Check with `XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-text=/dev/null`.

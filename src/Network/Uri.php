@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Network;
 use MSSTC4PHP\ValueObject\Exception\InvalidUriException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
 use MSSTC4PHP\ValueObject\Support\UriComponents;
+use Override;
 
 /**
  * An RFC 3986 URI that carries an explicit scheme (e.g. https://host/path).
@@ -14,16 +15,6 @@ use MSSTC4PHP\ValueObject\Support\UriComponents;
 final class Uri extends AbstractStringValueObject
 {
     use UriComponents;
-
-    protected function parse(string $value): string
-    {
-        $parts = \parse_url($value);
-        if ($parts === false || !isset($parts['scheme']) || $parts['scheme'] === '') {
-            throw new InvalidUriException(\sprintf('Value "%s" is not a valid URI.', $value));
-        }
-
-        return $value;
-    }
 
     public function scheme(): string
     {
@@ -63,6 +54,17 @@ final class Uri extends AbstractStringValueObject
         $fragment = $this->component('fragment');
 
         return $fragment === null ? null : (string) $fragment;
+    }
+
+    #[Override]
+    protected function parse(string $value): string
+    {
+        $parts = \parse_url($value);
+        if ($parts === false || !isset($parts['scheme']) || $parts['scheme'] === '') {
+            throw new InvalidUriException(\sprintf('Value "%s" is not a valid URI.', $value));
+        }
+
+        return $value;
     }
 
     /**

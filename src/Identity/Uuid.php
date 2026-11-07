@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Identity;
 use MSSTC4PHP\ValueObject\Contract\StringConvertible;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidUuidException;
+use Override;
 
 /**
  * A universally unique identifier in canonical 8-4-4-4-12 hexadecimal form.
@@ -30,6 +31,13 @@ final readonly class Uuid implements StringConvertible, ValueObject
         $this->value = \strtolower($value);
     }
 
+    #[Override]
+    public function __toString(): string
+    {
+        return $this->value;
+    }
+
+    #[Override]
     public static function from(string $value): static
     {
         return new self($value);
@@ -49,6 +57,7 @@ final readonly class Uuid implements StringConvertible, ValueObject
         return self::tryFrom($value) instanceof self;
     }
 
+    #[Override]
     public function equals(ValueObject $other): bool
     {
         return $other instanceof self && $other->value === $this->value;
@@ -120,11 +129,7 @@ final readonly class Uuid implements StringConvertible, ValueObject
         return self::v7(\max(0, (int) (\microtime(true) * 1000)));
     }
 
-    public function __toString(): string
-    {
-        return $this->value;
-    }
-
+    #[Override]
     public function jsonSerialize(): string
     {
         return $this->value;

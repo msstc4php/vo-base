@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Identity;
 use MSSTC4PHP\ValueObject\Exception\InvalidEmailAddressException;
 use MSSTC4PHP\ValueObject\Network\DomainName;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use Override;
 
 /**
  * An e-mail address validated by {@see FILTER_VALIDATE_EMAIL}. No DNS lookup is
@@ -14,15 +15,6 @@ use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
  */
 final class EmailAddress extends AbstractStringValueObject
 {
-    protected function parse(string $value): string
-    {
-        if (\filter_var($value, \FILTER_VALIDATE_EMAIL) === false) {
-            throw new InvalidEmailAddressException(\sprintf('Value "%s" is not a valid e-mail address.', $value));
-        }
-
-        return $value;
-    }
-
     /**
      * The part before the last "@".
      */
@@ -46,6 +38,16 @@ final class EmailAddress extends AbstractStringValueObject
     public function domainName(): ?DomainName
     {
         return DomainName::tryFrom($this->domain());
+    }
+
+    #[Override]
+    protected function parse(string $value): string
+    {
+        if (\filter_var($value, \FILTER_VALIDATE_EMAIL) === false) {
+            throw new InvalidEmailAddressException(\sprintf('Value "%s" is not a valid e-mail address.', $value));
+        }
+
+        return $value;
     }
 
     /**

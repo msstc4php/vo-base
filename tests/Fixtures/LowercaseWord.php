@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Tests\Fixtures;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use Override;
 
 /**
  * Test fixture: a non-empty word, normalized to lowercase. Exercises the
@@ -13,6 +14,7 @@ use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
  */
 final class LowercaseWord extends AbstractStringValueObject
 {
+    #[Override]
     protected function parse(string $value): string
     {
         $trimmed = \trim($value);

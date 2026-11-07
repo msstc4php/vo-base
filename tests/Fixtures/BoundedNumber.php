@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Tests\Fixtures;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
+use Override;
 
 /**
  * Test fixture: an integer bounded to 0..10 inclusive. Exercises the int base's
@@ -13,6 +14,7 @@ use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
  */
 final class BoundedNumber extends AbstractIntValueObject
 {
+    #[Override]
     protected function parse(int $value): int
     {
         if ($value < 0 || $value > 10) {

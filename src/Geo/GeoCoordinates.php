@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MSSTC4PHP\ValueObject\Geo;
 
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
+use Override;
 
 /**
  * A latitude/longitude pair identifying a point on Earth.
@@ -32,6 +33,7 @@ final readonly class GeoCoordinates implements ValueObject
         return $this->longitude;
     }
 
+    #[Override]
     public function equals(ValueObject $other): bool
     {
         return $other instanceof self
@@ -42,6 +44,7 @@ final readonly class GeoCoordinates implements ValueObject
     /**
      * @return array{lat: float, lng: float}
      */
+    #[Override]
     public function jsonSerialize(): array
     {
         return $this->toArray();

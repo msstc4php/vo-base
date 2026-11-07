@@ -6,12 +6,14 @@ namespace MSSTC4PHP\ValueObject\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidUrlPathException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use Override;
 
 /**
  * An RFC 3986 path component. The empty string (root-relative) is allowed.
  */
 final class UrlPath extends AbstractStringValueObject
 {
+    #[Override]
     protected function parse(string $value): string
     {
         if (\preg_match('/^(?:[A-Za-z0-9\-._~!$&\'()*+,;=:@\/]|%[0-9A-Fa-f]{2})*$/', $value) !== 1) {

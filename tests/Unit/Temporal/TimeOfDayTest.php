@@ -6,13 +6,18 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Temporal;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidTimeOfDayException;
 use MSSTC4PHP\ValueObject\Network\Port;
+use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
 use MSSTC4PHP\ValueObject\Temporal\Duration;
 use MSSTC4PHP\ValueObject\Temporal\TimeOfDay;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(TimeOfDay::class)]
+#[UsesClass(Port::class)]
+#[UsesClass(AbstractIntValueObject::class)]
+#[UsesClass(Duration::class)]
 final class TimeOfDayTest extends TestCase
 {
     public function testNormalizesMissingSeconds(): void

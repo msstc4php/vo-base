@@ -6,12 +6,16 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIpv6Exception;
 use MSSTC4PHP\ValueObject\Network\Cidr;
+use MSSTC4PHP\ValueObject\Network\IpAddress;
 use MSSTC4PHP\ValueObject\Network\Ipv6Address;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Ipv6Address::class)]
+#[UsesClass(Cidr::class)]
+#[UsesClass(IpAddress::class)]
 final class Ipv6AddressTest extends TestCase
 {
     public function testConstructsFromLoopback(): void

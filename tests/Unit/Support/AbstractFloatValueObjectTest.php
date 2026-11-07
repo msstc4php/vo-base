@@ -9,9 +9,11 @@ use MSSTC4PHP\ValueObject\Primitive\Percentage;
 use MSSTC4PHP\ValueObject\Support\AbstractFloatValueObject;
 use MSSTC4PHP\ValueObject\Tests\Fixtures\UnitFraction;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(AbstractFloatValueObject::class)]
+#[UsesClass(Percentage::class)]
 final class AbstractFloatValueObjectTest extends TestCase
 {
     public function testConstructsWithinBounds(): void

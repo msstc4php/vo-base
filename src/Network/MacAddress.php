@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidMacAddressException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use Override;
 
 /**
  * A 48-bit MAC address. Accepts colon, hyphen, and dotted notations and stores
@@ -20,6 +21,7 @@ final class MacAddress extends AbstractStringValueObject
 
     private const string DOTTED = '/^[0-9A-Fa-f]{4}(\.[0-9A-Fa-f]{4}){2}$/';
 
+    #[Override]
     protected function parse(string $value): string
     {
         $matchesNotation = \preg_match(self::COLON, $value) === 1

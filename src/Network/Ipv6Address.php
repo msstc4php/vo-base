@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIpv6Exception;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use Override;
 
 /**
  * An IPv6 address (e.g. 2001:db8::1).
@@ -17,6 +18,7 @@ final class Ipv6Address extends AbstractStringValueObject
     /**
      * The fc00::/7 unique-local range (the IPv6 analogue of private addresses).
      */
+    #[Override]
     public function isPrivate(): bool
     {
         return $this->inRange('fc00::/7');
@@ -25,6 +27,7 @@ final class Ipv6Address extends AbstractStringValueObject
     /**
      * The ::1/128 loopback address.
      */
+    #[Override]
     public function isLoopback(): bool
     {
         return $this->inRange('::1/128');
@@ -33,6 +36,7 @@ final class Ipv6Address extends AbstractStringValueObject
     /**
      * The fe80::/10 link-local range.
      */
+    #[Override]
     public function isLinkLocal(): bool
     {
         return $this->inRange('fe80::/10');
@@ -41,6 +45,7 @@ final class Ipv6Address extends AbstractStringValueObject
     /**
      * The ff00::/8 multicast range.
      */
+    #[Override]
     public function isMulticast(): bool
     {
         return $this->inRange('ff00::/8');
@@ -53,6 +58,7 @@ final class Ipv6Address extends AbstractStringValueObject
      * benchmarking (2001:2::/48), and the documentation ranges (2001:db8::/32,
      * 3fff::/20 per RFC 9637).
      */
+    #[Override]
     public function isReserved(): bool
     {
         return $this->inRange('::/128')
@@ -64,6 +70,7 @@ final class Ipv6Address extends AbstractStringValueObject
             || $this->inRange('3fff::/20');
     }
 
+    #[Override]
     protected function parse(string $value): string
     {
         if (\filter_var($value, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6) === false) {

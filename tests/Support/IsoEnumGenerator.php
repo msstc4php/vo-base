@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Tests\Support;
 
+use RuntimeException;
 use Symfony\Component\Intl\Countries;
 use Symfony\Component\Intl\Currencies;
 use Symfony\Component\Intl\Exception\MissingResourceException;
@@ -110,7 +111,7 @@ final class IsoEnumGenerator
         // ISO 4217 minor units come from brick/money's generated table; symfony/intl
         // reports CLDR display digits, which differ for 16 currencies (HUF, IDR, IQD, ...).
         // Mixing the two shifts stored amounts by orders of magnitude.
-        $isoTable = require \dirname(__DIR__, 2) . '/vendor/brick/money/data/iso-currencies.php';
+        $isoMinorUnits = $this->isoMinorUnitsByCode();
 
         $cases = '';
         $displayArms = '';
@@ -121,7 +122,7 @@ final class IsoEnumGenerator
             $isoArms .= \sprintf(
                 "            self::%s => %s,\n",
                 $code,
-                isset($isoTable[$code]) ? (string) $isoTable[$code][3] : 'null',
+                isset($isoMinorUnits[$code]) ? (string) $isoMinorUnits[$code] : 'null',
             );
         }
 
@@ -204,5 +205,29 @@ final class IsoEnumGenerator
             {$cases}}
 
             PHP;
+    }
+
+    /**
+     * Fails on an unknown table format: tolerating one would regenerate every currency with null minor units.
+     *
+     * @return array<string, int>
+     */
+    private function isoMinorUnitsByCode(): array
+    {
+        $table = require \dirname(__DIR__, 2) . '/vendor/brick/money/data/iso-currencies.php';
+        if (!\is_array($table)) {
+            throw new RuntimeException('brick/money ISO table is not an array.');
+        }
+
+        $minorUnits = [];
+        foreach ($table as $code => $entry) {
+            if (!\is_string($code) || !\is_array($entry) || !\is_int($entry[3] ?? null)) {
+                throw new RuntimeException(\sprintf('Unexpected brick/money ISO table entry "%s".', $code));
+            }
+
+            $minorUnits[$code] = $entry[3];
+        }
+
+        return $minorUnits;
     }
 }

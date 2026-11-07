@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Network;
 use MSSTC4PHP\ValueObject\Exception\InvalidHostnameException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
 use MSSTC4PHP\ValueObject\Support\DottedLabels;
+use Override;
 
 /**
  * An RFC 1123 hostname: dot-separated labels of 1-63 chars each, total <= 253,
@@ -16,6 +17,7 @@ final class Hostname extends AbstractStringValueObject
 {
     use DottedLabels;
 
+    #[Override]
     protected function parse(string $value): string
     {
         if ($value === '' || \strlen($value) > 253) {

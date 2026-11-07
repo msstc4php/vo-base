@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Network;
 use MSSTC4PHP\ValueObject\Exception\InvalidDomainNameException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
 use MSSTC4PHP\ValueObject\Support\DottedLabels;
+use Override;
 
 /**
  * A registrable domain name: an RFC 1123 hostname with at least two labels and
@@ -16,6 +17,7 @@ final class DomainName extends AbstractStringValueObject
 {
     use DottedLabels;
 
+    #[Override]
     protected function parse(string $value): string
     {
         if ($value === '' || \strlen($value) > 253) {

@@ -6,12 +6,14 @@ namespace MSSTC4PHP\ValueObject\Format;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidPhoneNumberException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use Override;
 
 /**
  * Phone number in E.164 form: a leading "+" followed by up to 15 digits.
  */
 final class PhoneNumber extends AbstractStringValueObject
 {
+    #[Override]
     protected function parse(string $value): string
     {
         if (\preg_match('/^\+[1-9]\d{1,14}$/', $value) !== 1) {

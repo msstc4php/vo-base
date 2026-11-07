@@ -22,30 +22,15 @@
 - **`#[\Override]` on all overridden methods** — Rector adds it; keep it when
   writing new bridge types.
 
-## Tooling (aligned with msstc4php/healthcheck-bundle)
+## Tooling (byte-identical to the php84 templates of msstc4symfony/bundle-standard)
 
-- **PHPStan level 9**, not `max`, plus the extension-installer stack
-  (strict-rules, phpunit, disallowed-calls).
-  Config is `phpstan.dist.neon` (not auto-detected — always pass `-c`);
-  `phpstan-ci.neon` sets `reportUnmatchedIgnoredErrors: false`; the baseline is
-  empty. `treatPhpDocTypesAsCertain: false`.
-- **PHP-CS-Fixer `@Symfony`** ruleset (+ `declare_strict_types`, left-aligned
-  phpdoc, one-space concat, post-increment, no Yoda). Run `vendor/bin/php-cs-fixer
-  check` (the Makefile `check` target does).
-- **Rector** uses the prepared sets + skip list, but framework-app-only
-  rules and framework code-quality sets are dropped (we are a
-  library, not an app). `AddSeeTestAnnotationRector` is skipped (noise).
-- **`beStrictAboutCoverageMetadata` is OFF.** A VO library's tests legitimately
-  construct collaborator VOs as inputs, which the strict flag reports as risky
-  ("executed code not listed as covered"). Other strict flags (`failOnRisky`,
-  `failOnWarning`, `failOnPhpunitDeprecation`) stay on. Coverage-only test
-  helpers (e.g. `IsoEnumsUpToDateTest`) use `#[CoversNothing]`.
-- **CI:** `.gitlab-ci.yml` (primary) mirrors `make check` + phpunit + a
-  core-only leg; `.github/workflows/ci.yml` also present. Rename/relocate the
-  framework-app-shaped bits when copying more from upstream presets.
-- Toolchain gate: `make check` = php -l + PHPStan (lvl 9) + PHP-CS-Fixer +
-  composer validate/audit + Rector + deptrac; `make test` runs PHPUnit. Run both
-  before considering a change done.
+- Configs are shared: `.php-cs-fixer.dist.php`, `rector.php`, `phpstan*.neon` (level max), `phpunit.xml.dist`,
+  `infection.json5`, `Makefile`, `.gitignore`. CI job `templates` compares them; do not edit them here.
+- Install with `COMPOSER=composer-ci.json`; `composer.json` alone is the "no optional libraries" profile, where
+  tests needing brick or symfony/intl skip through `#[RequiresMethod]`.
+- **`beStrictAboutCoverageMetadata` is ON.** Tests constructing collaborator VOs list them with `#[UsesClass]`.
+- **CI:** `.github/workflows/checks.yml` only. `make check` = php -l + PHPStan + PHP-CS-Fixer + composer
+  validate/audit + Rector + deptrac; `make test` runs PHPUnit.
 
 ## Behavior traits (`src/Support/`, added v1.1)
 

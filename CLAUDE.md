@@ -1,0 +1,20 @@
+# CLAUDE.md
+
+Guidance for Claude Code in this repository. Deep references live under `.claude/docs/`.
+
+## What this is
+
+`msstc4php/vo-base`, namespace `MSSTC4PHP\ValueObject`: immutable value objects for PHP >= 8.4 with no framework
+dependency at runtime (`deptrac.yaml` forbids `Doctrine\` and `Symfony\`). Bridges:
+`msstc4php/vo-base-doctrine-bridge`, `msstc4symfony/vo-base-bridge`.
+
+## Common commands
+
+`COMPOSER=composer-ci.json composer update --ignore-platform-req=php`, then
+`COMPOSER=composer-ci.json make check`, `make test`, `make infection`, `make fix`.
+
+## Standard
+
+Tool configuration is byte-identical to the `php84` templates of `msstc4symfony/bundle-standard`; CI's `templates` job
+enforces it. Do not edit `.php-cs-fixer.dist.php`, `rector.php`, `phpstan*.neon`, `phpunit.xml.dist`,
+`infection.json5`, `Makefile` or `.gitignore` here. The hex layout and the vendor rule of that standard do not apply.

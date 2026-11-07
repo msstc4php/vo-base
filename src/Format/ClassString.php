@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Format;
 use MSSTC4PHP\ValueObject\Contract\StringConvertible;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidClassStringException;
+use Override;
 
 /**
  * A fully-qualified name of an existing class, interface, trait or enum.
@@ -33,6 +34,13 @@ final readonly class ClassString implements StringConvertible, ValueObject
         $this->value = $value;
     }
 
+    #[Override]
+    public function __toString(): string
+    {
+        return $this->value;
+    }
+
+    #[Override]
     public static function from(string $value): static
     {
         return new self($value);
@@ -52,6 +60,7 @@ final readonly class ClassString implements StringConvertible, ValueObject
         return self::tryFrom($value) instanceof self;
     }
 
+    #[Override]
     public function equals(ValueObject $other): bool
     {
         return $other instanceof self && $other->value === $this->value;
@@ -70,11 +79,7 @@ final readonly class ClassString implements StringConvertible, ValueObject
         return \is_subclass_of($this->value, $parent);
     }
 
-    public function __toString(): string
-    {
-        return $this->value;
-    }
-
+    #[Override]
     public function jsonSerialize(): string
     {
         return $this->value;

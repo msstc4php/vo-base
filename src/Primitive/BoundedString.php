@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Primitive;
 
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidBoundedStringException;
+use Override;
 use Stringable;
 
 /**
@@ -36,6 +37,13 @@ final readonly class BoundedString implements ValueObject, Stringable
         }
     }
 
+    #[Override]
+    public function __toString(): string
+    {
+        return $this->value;
+    }
+
+    #[Override]
     public function equals(ValueObject $other): bool
     {
         return $other instanceof self
@@ -44,11 +52,7 @@ final readonly class BoundedString implements ValueObject, Stringable
             && $other->maxLength === $this->maxLength;
     }
 
-    public function __toString(): string
-    {
-        return $this->value;
-    }
-
+    #[Override]
     public function jsonSerialize(): string
     {
         return $this->value;

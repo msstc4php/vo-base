@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Primitive;
 
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidIntRangeException;
+use Override;
 use RangeException;
 
 /**
@@ -74,6 +75,7 @@ final readonly class IntRange implements ValueObject
         );
     }
 
+    #[Override]
     public function equals(ValueObject $other): bool
     {
         return $other instanceof self
@@ -84,6 +86,7 @@ final readonly class IntRange implements ValueObject
     /**
      * @return array{min: int, max: int}
      */
+    #[Override]
     public function jsonSerialize(): array
     {
         return ['min' => $this->min, 'max' => $this->max];

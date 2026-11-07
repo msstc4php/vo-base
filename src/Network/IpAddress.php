@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIpAddressException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use Override;
 
 /**
  * An IP address of either version 4 or version 6.
@@ -62,6 +63,7 @@ final class IpAddress extends AbstractStringValueObject
         return $cidr->contains($this);
     }
 
+    #[Override]
     protected function parse(string $value): string
     {
         if (\filter_var($value, \FILTER_VALIDATE_IP) === false) {

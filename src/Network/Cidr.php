@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Network;
 use LogicException;
 use MSSTC4PHP\ValueObject\Exception\InvalidCidrException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use Override;
 use RangeException;
 
 /**
@@ -152,6 +153,7 @@ final class Cidr extends AbstractStringValueObject
             && \strcmp($this->packedLast(), $other->packedLast()) <= 0;
     }
 
+    #[Override]
     protected function parse(string $value): string
     {
         $parts = explode('/', $value);

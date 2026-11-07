@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidDateRangeException;
+use Override;
 
 /**
  * A closed interval between two instants, inclusive of both endpoints.
@@ -99,6 +100,7 @@ final readonly class DateRange implements ValueObject
         return ($this->end <=> $other->start) === 0 || ($other->end <=> $this->start) === 0;
     }
 
+    #[Override]
     public function equals(ValueObject $other): bool
     {
         return $other instanceof self
@@ -109,6 +111,7 @@ final readonly class DateRange implements ValueObject
     /**
      * @return array{start: string, end: string}
      */
+    #[Override]
     public function jsonSerialize(): array
     {
         return [

@@ -8,6 +8,7 @@ use MSSTC4PHP\ValueObject\Contract\Comparable;
 use MSSTC4PHP\ValueObject\Exception\InvalidSemVerException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
 use MSSTC4PHP\ValueObject\Support\ComparableHelpers;
+use Override;
 
 /**
  * Semantic version (semver.org 2.0.0) with precedence-aware comparison.
@@ -27,15 +28,6 @@ final class SemVer extends AbstractStringValueObject implements Comparable
     private const string PATTERN = '/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)'
         . '(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?'
         . '(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/';
-
-    protected function parse(string $value): string
-    {
-        if (\preg_match(self::PATTERN, $value) !== 1) {
-            throw new InvalidSemVerException(\sprintf('Invalid semantic version: "%s".', $value));
-        }
-
-        return $value;
-    }
 
     public function major(): int
     {
@@ -97,6 +89,7 @@ final class SemVer extends AbstractStringValueObject implements Comparable
         return new self($this->major() . '.' . $this->minor() . '.' . ($this->patch() + 1));
     }
 
+    #[Override]
     public function compareTo(Comparable $other): int
     {
         if (!$other instanceof self) {
@@ -122,6 +115,16 @@ final class SemVer extends AbstractStringValueObject implements Comparable
         }
 
         return $this->comparePrerelease($a['prerelease'], $b['prerelease']);
+    }
+
+    #[Override]
+    protected function parse(string $value): string
+    {
+        if (\preg_match(self::PATTERN, $value) !== 1) {
+            throw new InvalidSemVerException(\sprintf('Invalid semantic version: "%s".', $value));
+        }
+
+        return $value;
     }
 
     /**

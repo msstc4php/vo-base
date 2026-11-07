@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIpv4Exception;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use Override;
 
 /**
  * An IPv4 address in dotted-decimal notation (e.g. 192.168.0.1).
@@ -17,6 +18,7 @@ final class Ipv4Address extends AbstractStringValueObject
     /**
      * RFC 1918 private ranges.
      */
+    #[Override]
     public function isPrivate(): bool
     {
         return $this->inRange('10.0.0.0/8')
@@ -27,6 +29,7 @@ final class Ipv4Address extends AbstractStringValueObject
     /**
      * The 127.0.0.0/8 loopback range.
      */
+    #[Override]
     public function isLoopback(): bool
     {
         return $this->inRange('127.0.0.0/8');
@@ -35,6 +38,7 @@ final class Ipv4Address extends AbstractStringValueObject
     /**
      * The 169.254.0.0/16 link-local (APIPA) range.
      */
+    #[Override]
     public function isLinkLocal(): bool
     {
         return $this->inRange('169.254.0.0/16');
@@ -43,6 +47,7 @@ final class Ipv4Address extends AbstractStringValueObject
     /**
      * The 224.0.0.0/4 multicast range.
      */
+    #[Override]
     public function isMulticast(): bool
     {
         return $this->inRange('224.0.0.0/4');
@@ -55,6 +60,7 @@ final class Ipv4Address extends AbstractStringValueObject
      * 203.0.113.0/24), benchmarking (198.18.0.0/15), and reserved/future use
      * plus limited broadcast (240.0.0.0/4, which includes 255.255.255.255).
      */
+    #[Override]
     public function isReserved(): bool
     {
         return $this->inRange('0.0.0.0/8')
@@ -67,6 +73,7 @@ final class Ipv4Address extends AbstractStringValueObject
             || $this->inRange('240.0.0.0/4');
     }
 
+    #[Override]
     protected function parse(string $value): string
     {
         if (\filter_var($value, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV4) === false) {

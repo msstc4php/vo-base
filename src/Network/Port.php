@@ -6,12 +6,14 @@ namespace MSSTC4PHP\ValueObject\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidPortException;
 use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
+use Override;
 
 /**
  * A TCP/UDP port number in the range 0-65535.
  */
 final class Port extends AbstractIntValueObject
 {
+    #[Override]
     protected function parse(int $value): int
     {
         if ($value < 0 || $value > 65535) {

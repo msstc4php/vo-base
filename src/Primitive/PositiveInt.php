@@ -6,12 +6,14 @@ namespace MSSTC4PHP\ValueObject\Primitive;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidPositiveIntException;
 use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
+use Override;
 
 /**
  * An integer strictly greater than zero.
  */
 final class PositiveInt extends AbstractIntValueObject
 {
+    #[Override]
     protected function parse(int $value): int
     {
         if ($value <= 0) {

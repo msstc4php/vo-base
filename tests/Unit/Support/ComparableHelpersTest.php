@@ -7,12 +7,21 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Support;
 use MSSTC4PHP\ValueObject\Finance\Decimal;
 use MSSTC4PHP\ValueObject\Format\SemVer;
 use MSSTC4PHP\ValueObject\Network\Port;
+use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
+use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
 use MSSTC4PHP\ValueObject\Support\ComparableHelpers;
 use MSSTC4PHP\ValueObject\Temporal\TimeOfDay;
 use PHPUnit\Framework\Attributes\CoversTrait;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversTrait(ComparableHelpers::class)]
+#[UsesClass(Decimal::class)]
+#[UsesClass(SemVer::class)]
+#[UsesClass(Port::class)]
+#[UsesClass(AbstractIntValueObject::class)]
+#[UsesClass(AbstractStringValueObject::class)]
+#[UsesClass(TimeOfDay::class)]
 final class ComparableHelpersTest extends TestCase
 {
     public function testPredicatesAgreeWithCompareToSign(): void

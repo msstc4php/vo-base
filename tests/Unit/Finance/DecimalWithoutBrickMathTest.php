@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Finance;
 use Brick\Math\BigDecimal;
 use MSSTC4PHP\ValueObject\Exception\MissingDependencyException;
 use MSSTC4PHP\ValueObject\Finance\Decimal;
+use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -19,6 +20,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Decimal::class)]
 final class DecimalWithoutBrickMathTest extends TestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         if (class_exists(BigDecimal::class)) {

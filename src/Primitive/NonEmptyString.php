@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Primitive;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidNonEmptyStringException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use Override;
 
 /**
  * A string that is not blank once trimmed. The original value is preserved
@@ -13,6 +14,7 @@ use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
  */
 final class NonEmptyString extends AbstractStringValueObject
 {
+    #[Override]
     protected function parse(string $value): string
     {
         if (\trim($value) === '') {

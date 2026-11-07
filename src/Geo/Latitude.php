@@ -6,12 +6,14 @@ namespace MSSTC4PHP\ValueObject\Geo;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidLatitudeException;
 use MSSTC4PHP\ValueObject\Support\AbstractFloatValueObject;
+use Override;
 
 /**
  * Geographic latitude in decimal degrees, bounded to -90..90 inclusive.
  */
 final class Latitude extends AbstractFloatValueObject
 {
+    #[Override]
     protected function parse(float $value): float
     {
         if ($value < -90.0 || $value > 90.0) {

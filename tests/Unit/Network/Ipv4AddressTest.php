@@ -6,12 +6,16 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidIpv4Exception;
 use MSSTC4PHP\ValueObject\Network\Cidr;
+use MSSTC4PHP\ValueObject\Network\IpAddress;
 use MSSTC4PHP\ValueObject\Network\Ipv4Address;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Ipv4Address::class)]
+#[UsesClass(Cidr::class)]
+#[UsesClass(IpAddress::class)]
 final class Ipv4AddressTest extends TestCase
 {
     public function testConstructsFromValidAddress(): void

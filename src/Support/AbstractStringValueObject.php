@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Support;
 use MSSTC4PHP\ValueObject\Contract\StringConvertible;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
+use Override;
 
 /**
  * Base for string-backed value objects. Subclasses implement {@see parse()} to
@@ -22,13 +23,13 @@ abstract class AbstractStringValueObject implements StringConvertible, ValueObje
         $this->value = $this->parse($value);
     }
 
-    /**
-     * Validate the raw input and return the canonical form to store.
-     *
-     * @throws InvalidValueObjectException when the input is not a valid value
-     */
-    abstract protected function parse(string $value): string;
+    #[Override]
+    public function __toString(): string
+    {
+        return $this->value;
+    }
 
+    #[Override]
     public static function from(string $value): static
     {
         return new static($value);
@@ -48,18 +49,22 @@ abstract class AbstractStringValueObject implements StringConvertible, ValueObje
         return static::tryFrom($value) instanceof static;
     }
 
+    #[Override]
     public function equals(ValueObject $other): bool
     {
         return $other instanceof static && $other->value === $this->value;
     }
 
-    public function __toString(): string
-    {
-        return $this->value;
-    }
-
+    #[Override]
     public function jsonSerialize(): string
     {
         return $this->value;
     }
+
+    /**
+     * Validate the raw input and return the canonical form to store.
+     *
+     * @throws InvalidValueObjectException when the input is not a valid value
+     */
+    abstract protected function parse(string $value): string;
 }

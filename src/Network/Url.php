@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Network;
 use MSSTC4PHP\ValueObject\Exception\InvalidUrlException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
 use MSSTC4PHP\ValueObject\Support\UriComponents;
+use Override;
 
 /**
  * The http/https subset of a URI: an absolute URL with a non-empty host.
@@ -14,25 +15,6 @@ use MSSTC4PHP\ValueObject\Support\UriComponents;
 final class Url extends AbstractStringValueObject
 {
     use UriComponents;
-
-    protected function parse(string $value): string
-    {
-        $parts = \parse_url($value);
-        if ($parts === false) {
-            throw new InvalidUrlException(\sprintf('Value "%s" is not a valid URL.', $value));
-        }
-
-        $scheme = isset($parts['scheme']) ? \strtolower($parts['scheme']) : '';
-        if ($scheme !== 'http' && $scheme !== 'https') {
-            throw new InvalidUrlException(\sprintf('Value "%s" is not a valid URL.', $value));
-        }
-
-        if (!isset($parts['host']) || $parts['host'] === '') {
-            throw new InvalidUrlException(\sprintf('Value "%s" is not a valid URL.', $value));
-        }
-
-        return $value;
-    }
 
     public function scheme(): string
     {
@@ -56,6 +38,26 @@ final class Url extends AbstractStringValueObject
         $path = $this->component('path');
 
         return $path === null ? '' : (string) $path;
+    }
+
+    #[Override]
+    protected function parse(string $value): string
+    {
+        $parts = \parse_url($value);
+        if ($parts === false) {
+            throw new InvalidUrlException(\sprintf('Value "%s" is not a valid URL.', $value));
+        }
+
+        $scheme = isset($parts['scheme']) ? \strtolower($parts['scheme']) : '';
+        if ($scheme !== 'http' && $scheme !== 'https') {
+            throw new InvalidUrlException(\sprintf('Value "%s" is not a valid URL.', $value));
+        }
+
+        if (!isset($parts['host']) || $parts['host'] === '') {
+            throw new InvalidUrlException(\sprintf('Value "%s" is not a valid URL.', $value));
+        }
+
+        return $value;
     }
 
     /**

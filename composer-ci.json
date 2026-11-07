@@ -1,0 +1,67 @@
+{
+    "name": "msstc4php/vo-base",
+    "description": "Immutable value objects for PHP 8.4+, with no framework dependencies. (CI profile: optional libraries and CI-only tools)",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "value-object",
+        "immutable",
+        "ddd"
+    ],
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.4"
+    },
+    "require-dev": {
+        "brick/math": "^0.12 || ^0.13 || ^0.14",
+        "brick/money": "^0.10",
+        "deptrac/deptrac": "^4.6",
+        "friendsofphp/php-cs-fixer": "^3.76",
+        "infection/infection": "^0.32",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpunit/phpunit": ">=11.0",
+        "rector/rector": "^2.1",
+        "roave/backward-compatibility-check": "^8.20",
+        "roave/security-advisories": "dev-latest",
+        "symfony/intl": "7.4.17"
+    },
+    "suggest": {
+        "brick/math": "Enables arithmetic on Decimal and Percentage (add, divide, round, ...).",
+        "brick/money": "Pairs with CurrencyCode for full money handling (arithmetic, rounding).",
+        "msstc4php/vo-base-doctrine-bridge": "Doctrine ORM and MongoDB ODM field types and money embeddables for these value objects.",
+        "msstc4symfony/vo-base-bridge": "Symfony Validator constraints and a bundle that wires everything up."
+    },
+    "autoload": {
+        "psr-4": {
+            "MSSTC4PHP\\ValueObject\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MSSTC4PHP\\ValueObject\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true,
+            "infection/extension-installer": true
+        },
+        "sort-packages": true
+    },
+    "authors": [
+        {
+            "name": "Maxim Shamaev",
+            "email": "maxim.shamaev@gmail.com"
+        }
+    ],
+    "extra": {
+        "bundle-standard": {
+            "kind": "library",
+            "runtime": "php84"
+        }
+    }
+}

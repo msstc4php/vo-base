@@ -107,7 +107,8 @@ in only the stack it actually bridges.
 ## Development
 
 ```bash
-make check   # phpstan (max) + cs-fixer + rector + deptrac + phpunit
+make check   # php -l, PHPStan level max, cs-fixer, composer validate/audit, Rector, deptrac
+make test    # PHPUnit
 make fix     # apply cs-fixer + rector
 ```
 
