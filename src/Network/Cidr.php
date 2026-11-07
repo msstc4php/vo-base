@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Network;
 use LogicException;
 use MSSTC4PHP\ValueObject\Exception\InvalidCidrException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use MSSTC4PHP\ValueObject\Support\PackedAddress;
 use Override;
 use RangeException;
 
@@ -110,9 +111,9 @@ final class Cidr extends AbstractStringValueObject
      * @return positive-int
      *
      * @throws RangeException when the count exceeds PHP's integer range — this is
-     *                        any IPv6 block of /64 or wider (a /64 alone holds
-     *                        2^64 addresses), so the method is practical only for
-     *                        IPv4 and narrow IPv6 prefixes
+     *                        any IPv6 block of /65 or wider (63 or more host
+     *                        bits); {@see self::addressCount()} gives the exact
+     *                        count for any block
      */
     public function hostCount(): int
     {
@@ -124,6 +125,28 @@ final class Cidr extends AbstractStringValueObject
         $total = max(1, 1 << $hostBits);
 
         return $total > 2 ? $total - 2 : $total;
+    }
+
+    /**
+     * The exact number of addresses in the block, network and broadcast
+     * included, as a decimal string. Unlike {@see self::hostCount()} it never
+     * overflows: a /0 IPv6 block yields 2^128.
+     *
+     * @return numeric-string
+     */
+    public function addressCount(): string
+    {
+        $network = $this->packedNetwork();
+
+        return PackedAddress::inclusiveCount($network, $network | ~$this->maskBytes());
+    }
+
+    /**
+     * The block as an address range, in canonical form.
+     */
+    public function toRange(): IpRange
+    {
+        return IpRange::fromCidr($this);
     }
 
     /**
@@ -224,12 +247,6 @@ final class Cidr extends AbstractStringValueObject
 
     private function addressFromPacked(string $packed): IpAddress
     {
-        $address = inet_ntop($packed);
-        if ($address === false) {
-            // Unreachable: $packed is always a valid 4- or 16-byte string.
-            throw new LogicException('Cannot render a packed address.');
-        }
-
-        return IpAddress::fromString($address);
+        return IpAddress::fromString(PackedAddress::unpack($packed));
     }
 }

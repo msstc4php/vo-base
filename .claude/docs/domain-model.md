@@ -54,6 +54,12 @@ All value objects are immutable and validate at construction. `from()` throws,
 ## Network extras (`src/Network/`)
 - `Cidr` — `<ip>/<prefix>` (v4 0–32, v6 0–128); `address(): IpAddress`,
   `prefixLength()`, `version()`.
+- `IpRange` — `<first>-<last>`, one IP version, first <= last, bounds stored in
+  RFC 5952 canonical form (`PackedAddress::unpack()`) (so `2001:DB8::1` becomes `2001:db8::1`; `IpAddress`
+  keeps the input spelling). `fromBounds()`, `fromCidr()` (and `Cidr::toRange()`), `firstAddress()`,
+  `lastAddress()`, `contains(IpAddress|IpRange)`, `overlaps()`, `isSubrangeOf()`,
+  `intersect()`, `isAdjacentTo()`, `addressCount()` (decimal string), `toCidrs()`
+  (minimal aligned cover, ascending, at most 62/254 blocks).
 - `HttpMethod` — backed enum (GET…CONNECT) with `isSafe()`/`isIdempotent()`.
 
 ## Primitives (`src/Primitive/`)
@@ -80,7 +86,8 @@ Value objects gained domain operations (additive, semver-minor). Highlights:
   `TimeOfDay` now implements `Comparable` (string compare == chronological).
 - **`Cidr`** — `contains(IpAddress)`, `firstAddress/lastAddress/netmask`,
   `broadcast()` (`?IpAddress`, null for v6), `hostCount()` (throws
-  `\RangeException` for wide IPv6), `overlaps/isSubnetOf`. All zero-dep via
+  `\RangeException` for wide IPv6; `addressCount()` is the exact decimal-string
+  alternative), `overlaps/isSubnetOf`. All zero-dep via
   `inet_pton` binary masking (v4 + v6).
 - **`Ipv4Address`/`Ipv6Address`/`IpAddress`** — `isPrivate/isLoopback/
   isLinkLocal/isMulticast/isPublic` (RFC ranges via `Support/ClassifiesIpAddress`

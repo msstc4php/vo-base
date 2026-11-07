@@ -40,7 +40,6 @@
 - **Violation-collecting validation path** — intentionally NOT built; it
   contradicts the fail-fast decision (KTD5). Would be a separate design track,
   not a drop-in.
-- A standalone `IpRange` VO (start–end) — `Cidr` covers the common case.
 - `brick/money` bridge stores `"CUR amount"` as a single column; a two-column
   (minor-units + currency) mapping could be added if sub-field querying is needed.
 
@@ -62,8 +61,14 @@
   `RoundingMode` params are `?RoundingMode = null` (resolved to `HalfUp`
   inside, after the guard) so the default value never triggers class loading
   when `brick/math` is absent.
-- **`Cidr::hostCount()` throws `\RangeException`** for IPv6 blocks wider than a
-  /65 (host count exceeds PHP int). `broadcast()` returns null for IPv6.
+- **`Cidr::hostCount()` throws `\RangeException`** for IPv6 blocks of /65 or
+  wider (63+ host bits exceed PHP int); `Cidr::addressCount()` gives the exact
+  count as a decimal string. `broadcast()` returns null for IPv6.
+- **`IpRange` stores RFC 5952 bounds, `IpAddress`/`Cidr` keep the input
+  spelling**, so `IpRange::from('2001:DB8::1-…')->firstAddress()` does not
+  `equals()` `IpAddress::from('2001:DB8::1')`; use `contains()`. The formatter is
+  `PackedAddress::unpack()`, not `inet_ntop()`, whose `::/96` output differs
+  between glibc (`::1.2.3.4`) and musl/macOS (`::102:304`).
 - **`EmailAddress::domainName()` is nullable** — a syntactically valid email
   (e.g. `user@example.c`, 1-char TLD) can have a domain that is not a
   registrable `DomainName`.
@@ -135,3 +140,10 @@ It is the generator's ISO 4217 source, so a different version regenerates `Curre
 46 withdrawn codes plus the current `XCG` (introduced 2025). It also added `XAD`, which CLDR does not know yet, so
 the generator takes the union of both code sets and falls back to ISO minor units for display digits. Bump it like
 `symfony/intl`: regenerate, then review the snapshot diff.
+
+## Intended BC breaks turn the `bc-check` job red until the release tag exists
+
+`bc-check` compares HEAD with the nearest stable tag, and Roave treats even an added enum case as a break (an
+exhaustive `match` in a consumer stops compiling). On 0.x such a change ships as a minor release: the commit before
+the tag is red on that one job (`c6010f7`: `CurrencyCode::XAD was added`), and tagging it moves the baseline. Push
+nothing else between the red commit and its tag.

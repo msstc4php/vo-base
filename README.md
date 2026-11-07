@@ -53,27 +53,31 @@ $block = Cidr::from('10.0.0.0/8');
 $block->contains(IpAddress::from('10.1.2.3'));   // true
 IpAddress::from('10.1.2.3')->isPrivate();         // true
 
+use MSSTC4PHP\ValueObject\Network\IpRange;
+IpRange::from('10.0.0.5-10.0.0.20')->toCidrs();   // 10.0.0.5/32, 10.0.0.6/31, 10.0.0.8/29, ...
+
 use MSSTC4PHP\ValueObject\Finance\Decimal;        // needs brick/math
 Decimal::from('1')->divide('3', 4);               // Decimal('0.3333')
 ```
 
 Arithmetic on `Decimal`/`Percentage` is delegated to **`brick/math`** (optional);
 without it, those types still construct, compare, and serialize, but arithmetic
-throws `MissingDependencyException`. Network math (`Cidr`, IP predicates) is
+throws `MissingDependencyException`. Network math (`Cidr`, `IpRange`, IP predicates) is
 dependency-free.
 
 > **`isPublic()` is not an SSRF gate.** It is a syntactic classification of the
 > address value (excludes private, loopback, link-local, multicast, and IANA
 > special-purpose ranges). It does not resolve DNS, cannot see DNS-rebinding,
 > and may lag the IANA registries. Use a dedicated egress-filtering layer for
-> SSRF defense. Likewise, `Cidr::hostCount()` throws for IPv6 blocks of `/64`
-> or wider (the count exceeds PHP's integer range).
+> SSRF defense. Likewise, `Cidr::hostCount()` throws for IPv6 blocks of `/65`
+> or wider (the count exceeds PHP's integer range); `Cidr::addressCount()` and
+> `IpRange::addressCount()` return the exact count as a decimal string.
 
 ## Catalogue
 
 | Group | Value objects |
 |---|---|
-| Network | `Ipv4Address`, `Ipv6Address`, `IpAddress`, `MacAddress`, `Hostname`, `DomainName`, `Port`, `UrlScheme`, `UrlPath`, `Uri`, `Url`, `Cidr`, `HttpMethod` |
+| Network | `Ipv4Address`, `Ipv6Address`, `IpAddress`, `MacAddress`, `Hostname`, `DomainName`, `Port`, `UrlScheme`, `UrlPath`, `Uri`, `Url`, `Cidr`, `IpRange`, `HttpMethod` |
 | Identity | `EmailAddress`, `Uuid` (validate, version detect, `v4()`/`v7()`/`v7Now()`) |
 | i18n / geo | `CountryCode`, `CurrencyCode`, `LanguageCode` (ISO enums), `Locale`, `Latitude`, `Longitude`, `GeoCoordinates` |
 | Finance | `Iban`, `Bic`, `CreditCardNumber` (Luhn), `Decimal` (arbitrary precision) |

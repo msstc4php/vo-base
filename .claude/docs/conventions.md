@@ -90,3 +90,9 @@ and COP report 0 in CLDR against 2 in ISO, IQD 0 against 3. Monetary arithmetic
 and money persistence must use `isoMinorUnits()`; using the display value shifts
 stored amounts by orders of magnitude. `tests/Unit/I18n/iso-minor-units.snapshot.json`
 pins the full map so a coordinated dependency bump cannot change it silently.
+
+## Big address arithmetic
+
+`Support\PackedAddress` (`@internal`) does unsigned big-endian arithmetic on `inet_pton` strings: masks, trailing
+zero bits, increment, inclusive counts rendered as decimal strings. Use it instead of GMP/bcmath for anything that
+can exceed 64 bits (IPv6 counts), so the core stays dependency-free.

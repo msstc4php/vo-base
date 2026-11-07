@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0 - 2026-11-07
+
+- `IpRange`: an inclusive first-last address range with containment, overlap, `intersect()`, `isAdjacentTo()`,
+  exact `addressCount()` and a minimal CIDR cover via `toCidrs()`; `Cidr::toRange()` converts a block.
+- `Cidr::firstAddress()`, `lastAddress()` and `netmask()` render RFC 5952 text on every platform. On glibc,
+  addresses in `::/96` used to come out as `::1.2.3.4`; they are now `::102:304`, as on musl and macOS.
+- `Cidr::addressCount()`: the exact address count as a decimal string, also for IPv6 blocks where
+  `hostCount()` overflows.
+
 ## 0.2.0 - 2026-11-07
 
 **Breaking:** `CurrencyCode::isoMinorUnits()` returns a value instead of `null` for 47 codes, so code that used

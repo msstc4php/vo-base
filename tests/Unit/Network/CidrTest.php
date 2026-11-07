@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Network;
 use MSSTC4PHP\ValueObject\Exception\InvalidCidrException;
 use MSSTC4PHP\ValueObject\Network\Cidr;
 use MSSTC4PHP\ValueObject\Network\IpAddress;
+use MSSTC4PHP\ValueObject\Support\PackedAddress;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -15,6 +16,7 @@ use RangeException;
 
 #[CoversClass(Cidr::class)]
 #[UsesClass(IpAddress::class)]
+#[UsesClass(PackedAddress::class)]
 final class CidrTest extends TestCase
 {
     public function testParsesIpv4Block(): void
@@ -180,5 +182,23 @@ final class CidrTest extends TestCase
         yield 'v6 /64' => ['2001:db8::/64'];
         yield 'v6 /128' => ['2001:db8::1/128'];
         yield 'v6 /0' => ['::/0'];
+    }
+
+    /**
+     * @return iterable<string, array{string, numeric-string}>
+     */
+    public static function addressCountProvider(): iterable
+    {
+        yield 'ipv4 /32' => ['10.0.0.1/32', '1'];
+        yield 'ipv4 /24' => ['192.168.0.0/24', '256'];
+        yield 'ipv4 /0' => ['0.0.0.0/0', '4294967296'];
+        yield 'ipv6 /64, where hostCount() overflows' => ['2001:db8::/64', '18446744073709551616'];
+        yield 'ipv6 /0' => ['::/0', '340282366920938463463374607431768211456'];
+    }
+
+    #[DataProvider('addressCountProvider')]
+    public function testAddressCountIsExactForAnyPrefix(string $cidr, string $expected): void
+    {
+        self::assertSame($expected, Cidr::from($cidr)->addressCount());
     }
 }
