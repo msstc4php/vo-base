@@ -147,3 +147,8 @@ the generator takes the union of both code sets and falls back to ISO minor unit
 exhaustive `match` in a consumer stops compiling). On 0.x such a change ships as a minor release: the commit before
 the tag is red on that one job (`c6010f7`: `CurrencyCode::XAD was added`), and tagging it moves the baseline. Push
 nothing else between the red commit and its tag.
+
+## PHP 8.5 deprecates `chr()` outside 0..255
+
+PHPUnit runs with `failOnDeprecation`, so the PHP 8.5 job fails on `chr(-1)` even though PHP 8.4 silently wraps it.
+Mask byte values explicitly (`chr($value & 0xFF)`); there is no local 8.5 runtime, only CI catches this.

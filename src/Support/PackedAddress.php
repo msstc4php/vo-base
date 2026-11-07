@@ -134,8 +134,8 @@ final class PackedAddress
         for ($i = \strlen($last) - 1; $i >= 0; $i--) {
             $digit = \ord($last[$i]) - \ord($first[$i]) - $borrow;
             $borrow = $digit < 0 ? 1 : 0;
-            // chr() keeps the low 8 bits, which is the borrowed digit when $digit is negative.
-            $difference = \chr($digit) . $difference;
+            // The low 8 bits are the borrowed digit when $digit is negative; PHP 8.5 deprecates chr() outside 0..255.
+            $difference = \chr($digit & 0xFF) . $difference;
         }
 
         return self::toDecimalPlusOne($difference);
