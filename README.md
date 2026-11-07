@@ -6,8 +6,11 @@ stays a plain library.
 
 ## Install
 
+Not on Packagist yet, so register the GitHub repository first:
+
 ```bash
-composer require msstc4php/vo-base
+composer config repositories.vo-base vcs https://github.com/msstc4php/vo-base
+composer require msstc4php/vo-base:^0.1
 ```
 
 Optional, for arithmetic on `Decimal` and `Percentage`:
