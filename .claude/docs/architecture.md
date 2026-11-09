@@ -2,20 +2,12 @@
 
 ## Layers and the dependency rule
 
-Two layers, enforced by `deptrac.yaml`:
+One layer, **Core**: everything under `src/`, with zero runtime dependencies (composer `require` is only
+`php >=8.4`). `deptrac.yaml` fails the build if a class under `src/` touches `Doctrine\` or `Symfony\`; framework
+integration lives in `msstc4php/vo-base-doctrine` and `msstc4php/vo-base-bundle`.
 
-- **Core** — everything under `src/` except `src/Bridge/`. Zero runtime
-  dependencies (composer `require` is only `php >=8.4`).
-- **Bridge** — `src/Bridge/`. May depend on Core and on the optional frameworks
-  Framework packages are gone entirely; deptrac fails the build if a class
-  under `src/` touches `Doctrine\` or `Symfony\`.
-
-**Core must never reference a Bridge class.** This is the autoload-safety
-invariant: bridge classes `extends` framework base classes, so they fatal if
-loaded without the framework. They are safe only because nothing in Core (and
-no always-loaded path) touches them — they are reached exclusively from
-consumer bootstrap after the consumer installs the framework. `deptrac`
-(`make check`) fails the build if Core → Bridge appears.
+Those packages share the `MSSTC4PHP\ValueObject\` prefix (`…\Doctrine\`, `…\Bundle\`), so the core must never get a
+`src/Doctrine/` or `src/Bundle/` directory: its classes would land in a sibling package's namespace.
 
 ## `Support/` is not a leaf
 

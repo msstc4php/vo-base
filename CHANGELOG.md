@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1 - 2026-11-09
+
+- Package metadata and docs point at the renamed bridges: `msstc4php/vo-base-doctrine` (was
+  `msstc4php/vo-base-doctrine-bridge`) and `msstc4php/vo-base-bundle` (was `msstc4symfony/vo-base-bridge`). No code
+  changes.
+
 ## 0.4.0 - 2026-11-07
 
 **Changed (BC):** validation is stricter. Stored values that used to pass may now fail on hydration; find them with

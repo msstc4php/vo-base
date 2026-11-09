@@ -1,7 +1,7 @@
 name: Code Quality Checks
 
 # Same gates as msstc4symfony/bundle-standard's php-bundle.yml. That workflow cannot be called from here: its
-# standard-check job requires the msstc4symfony vendor and the bundle layout. The templates job keeps the tool
+# standard-check job requires the hex layer layout. The templates job keeps the tool
 # configuration byte-identical to the standard instead.
 
 on:
@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           repository: msstc4symfony/bundle-standard
-          ref: v4.0.0
+          ref: v4.1.0
           path: .standard
       - name: Compare with the php84 templates
         run: |

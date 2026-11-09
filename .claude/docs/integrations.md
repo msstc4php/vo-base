@@ -9,8 +9,8 @@ Framework support lives in two separate packages, each with its own
 
 | Package | What it provides |
 |---|---|
-| `msstc4php/vo-base-doctrine-bridge` | 37 Doctrine field types per branch (ORM and MongoDB ODM), plus base and high-precision money embeddables |
-| `msstc4symfony/vo-base-bridge` | Symfony Validator constraints and a bundle that registers both them and the Doctrine types |
+| `msstc4php/vo-base-doctrine` | 38 Doctrine field types per branch (ORM and MongoDB ODM), plus base and high-precision money embeddables |
+| `msstc4php/vo-base-bundle` | Symfony Validator constraints and a bundle that registers both them and the Doctrine types |
 
 ## Optional runtime libraries
 

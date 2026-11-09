@@ -10,7 +10,7 @@ Not on Packagist yet, so register the GitHub repository first:
 
 ```bash
 composer config repositories.vo-base vcs https://github.com/msstc4php/vo-base
-composer require msstc4php/vo-base:^0.3
+composer require msstc4php/vo-base:^0.4
 ```
 
 Optional, for arithmetic on `Decimal` and `Percentage`:
@@ -119,8 +119,8 @@ appears. Integration lives in two separate packages:
 
 | Package | What it gives you |
 |---|---|
-| [`msstc4php/vo-base-doctrine-bridge`](https://github.com/msstc4php/vo-base-doctrine-bridge) | 38 Doctrine field types per branch (ORM and MongoDB ODM), plus money embeddables that aggregate in SQL |
-| [`msstc4symfony/vo-base-bridge`](https://github.com/msstc4symfony/vo-base-bridge) | Symfony Validator constraints and a bundle that registers both them and the Doctrine types from one line in `bundles.php` |
+| [`msstc4php/vo-base-doctrine`](https://github.com/msstc4php/vo-base-doctrine) | 38 Doctrine field types per branch (ORM and MongoDB ODM), plus money embeddables that aggregate in SQL |
+| [`msstc4php/vo-base-bundle`](https://github.com/msstc4php/vo-base-bundle) | Symfony Validator constraints and a bundle that registers both them and the Doctrine types from one line in `bundles.php` |
 
 Install whichever you need; neither is required by this package, and each pulls
 in only the stack it actually bridges.

@@ -32,8 +32,8 @@
     "suggest": {
         "brick/math": "Enables arithmetic on Decimal and Percentage (add, divide, round, ...).",
         "brick/money": "Pairs with CurrencyCode for full money handling (arithmetic, rounding).",
-        "msstc4php/vo-base-doctrine-bridge": "Doctrine ORM and MongoDB ODM field types and money embeddables for these value objects.",
-        "msstc4symfony/vo-base-bridge": "Symfony Validator constraints and a bundle that wires everything up."
+        "msstc4php/vo-base-doctrine": "Doctrine ORM and MongoDB ODM field types and money embeddables for these value objects.",
+        "msstc4php/vo-base-bundle": "Symfony Validator constraints and a bundle that wires everything up."
     },
     "autoload": {
         "psr-4": {
