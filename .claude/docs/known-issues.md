@@ -35,13 +35,14 @@
   ValidValueObject`. Any VO also works out of the box via the generic
   `ValidValueObject(<VoClass>::class)`.
 
-## Still deferred
+## Deliberately not built
 
-- **Violation-collecting validation path** — intentionally NOT built; it
-  contradicts the fail-fast decision (KTD5). Would be a separate design track,
-  not a drop-in.
-- `brick/money` bridge stores `"CUR amount"` as a single column; a two-column
-  (minor-units + currency) mapping could be added if sub-field querying is needed.
+- **Violation-collecting validation path** — it contradicts the fail-fast
+  decision (KTD5). Declined again on 2026-11-10 UTC; would be a separate design
+  track, not a drop-in.
+
+Queryable money is no longer deferred: `vo-base-doctrine` ships the two-column
+`MoneyAmount` (minor units + currency) and `PreciseMoneyAmount` embeddables.
 
 ## v1.1 behavior semantics (deliberate)
 
@@ -57,7 +58,8 @@
   `class_exists(BigDecimal::class)` and throw `MissingDependencyException`
   (a `\RuntimeException`, NOT `InvalidValueObjectException`). Construction,
   `compareTo`, `isZero`, serialization work without it. The `core-only`
-  GitLab CI leg (`composer install --no-dev`) asserts the guard throws.
+  CI job (`composer update --no-dev`) only proves the core loads and constructs
+  without dev dependencies; the guard itself is covered by unit tests.
   `RoundingMode` params are `?RoundingMode = null` (resolved to `HalfUp`
   inside, after the guard) so the default value never triggers class loading
   when `brick/math` is absent.
@@ -92,9 +94,10 @@
 - **`ClassifiesIpAddress` trait now lives in `Network`** (was `Support`) — it
   references `Cidr`/`IpAddress`, so keeping it in `Network` avoids a
   Support→Network upward dependency (CR-009). Pure relocation.
-- **Mutation floor in CI.** `infection.json5` sets `minMsi: 70` /
-  `minCoveredMsi: 84` (current ~72% / ~86%, buffered for run-variance); the
-  GitLab `infection` job (installs pcov) enforces it. **Equivalent-mutant
+- **Mutation floor in CI.** `infection.json5` is the byte-identical standard
+  template, so the floor lives in `checks.yml`: the `infection` job (GitHub
+  Actions, xdebug coverage, `main` pushes only) passes `--min-msi=79
+  --min-covered-msi=79`. **Equivalent-mutant
   policy:** genuine equivalents are ignored narrowly per-mutator in
   `infection.json5` with a reason (currently `GreaterThan`/`LessThan`/
   `DecrementInteger` on `IntRange::length` — the `=== PHP_INT_MAX` fallback and
