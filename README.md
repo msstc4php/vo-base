@@ -10,7 +10,7 @@ Not on Packagist yet, so register the GitHub repository first:
 
 ```bash
 composer config repositories.vo-base vcs https://github.com/msstc4php/vo-base
-composer require msstc4php/vo-base:^0.4
+composer require msstc4php/vo-base:^1.0
 ```
 
 Optional, for arithmetic on `Decimal` and `Percentage`:
@@ -76,7 +76,7 @@ dependency-free.
 ## Test data
 
 `Testing\RandomValueObjects` generates valid instances for your own tests and property-style checks; pass a seed
-to make a run reproducible:
+to make a run reproducible within one release (a new release may draw different values for the same seed):
 
 ```php
 use MSSTC4PHP\ValueObject\Testing\RandomValueObjects;

@@ -183,8 +183,3 @@ in a CVV that still looks like digits; PCI DSS), `Iban` keeps country and last f
 `CC99...`) and only the length for anything else (personal data; may be any value typed into the wrong field).
 
 `QueryString::fromLoose()` is public only so `UriComponents` can reach it; it is `@internal`, not API.
-
-## Pending for the next breaking release
-
-- Move the `UriComponents` trait from `Support/` to `Network/`; it is network-specific and closes the
-  `Support` <-> `Network` cycle, but renaming it breaks anyone who used the trait directly.

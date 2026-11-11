@@ -60,8 +60,8 @@ use Random\Randomizer;
  * Valid random value objects for consumers' tests and property-style checks.
  * Pass a seed to make a run reproducible within one library version (a new
  * release may draw differently), or a Randomizer of your own; without either
- * the engine is cryptographically secure and every run differs. Experimental
- * until 1.0: generators may still be added or change their distributions.
+ * the engine is cryptographically secure and every run differs. The set of
+ * generators and their return types follow semver; the values a seed draws do not.
  * Every value goes through the type's validating constructor, so a generator
  * bug surfaces as an exception, never as an invalid instance.
  *

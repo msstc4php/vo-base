@@ -9,16 +9,17 @@ integration lives in `msstc4php/vo-base-doctrine` and `msstc4php/vo-base-bundle`
 Those packages share the `MSSTC4PHP\ValueObject\` prefix (`…\Doctrine\`, `…\Bundle\`), so the core must never get a
 `src/Doctrine/` or `src/Bundle/` directory: its classes would land in a sibling package's namespace.
 
-## `Support/` is not a leaf
+## `Support/` is a leaf
 
-Besides the generic bases, `Support/` holds helpers owned by one family: `PackedAddress` (network arithmetic,
-`@internal`) and the `UriComponents` trait (it also owns the private forbidden-character set shared by `Url` and
-`Uri`), which imports `Network\QueryString`. That makes `Support` and
-`Network` depend on each other; deptrac has a single `Core` layer and allows it. Moving the trait to `Network/`
-would rename a public type, so it stays until a release that breaks anyway.
+`Support/` imports nothing from the families: besides the generic bases it holds `PackedAddress` (network
+arithmetic, `@internal`), which `Network` uses. The `UriComponents` trait (it also owns the private
+forbidden-character set shared by `Url` and `Uri`) imported `Network\QueryString` and moved to `Network/` in
+1.0.0, which removed the only `Support` -> `Network` edge. deptrac has a single `Core` layer, so keeping it a leaf
+is a review rule, not an enforced one.
 
 `Testing/RandomValueObjects` is public API for consumers' tests: seeded, dependency-free generators of valid
-instances, experimental until 1.0. Library code never calls it; it is excluded from mutation testing, and
+instances, stable since 1.0.0: the generator set and return types follow semver, the values a seed draws do
+not (a release may draw differently). Library code never calls it; it is excluded from mutation testing, and
 `testTheGeneratorSetIsDeliberate` plus a seed-42 golden test pin its surface and draw order.
 
 ## The value object base machinery

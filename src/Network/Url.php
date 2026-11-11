@@ -6,7 +6,6 @@ namespace MSSTC4PHP\ValueObject\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidUrlException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
-use MSSTC4PHP\ValueObject\Support\UriComponents;
 use Override;
 
 /**

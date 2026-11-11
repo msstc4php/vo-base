@@ -92,7 +92,7 @@ Value objects gained domain operations (additive, semver-minor). Highlights:
 - **`Ipv4Address`/`Ipv6Address`/`IpAddress`** — `isPrivate/isLoopback/
   isLinkLocal/isMulticast/isPublic` (RFC ranges via `Support/ClassifiesIpAddress`
   trait) and `isInRange(Cidr)`. `IpAddress` delegates to the concrete family.
-- **`Url`/`Uri`** — `Support/UriComponents` trait: `with{Scheme,Host,Port,Path,
+- **`Url`/`Uri`** — `Network/UriComponents` trait: `with{Scheme,Host,Port,Path,
   Query,Fragment}()` (revalidate via ctor) + `queryParameters(): array`.
 - **`EmailAddress::domainName(): ?DomainName`** (nullable — a valid email domain
   may be non-registrable). `DomainName`/`Hostname` gained `labels()/tld()/

@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MSSTC4PHP\ValueObject\Support;
-
-use MSSTC4PHP\ValueObject\Network\QueryString;
+namespace MSSTC4PHP\ValueObject\Network;
 
 /**
  * Immutable component mutators and query parsing for string-backed URL/URI

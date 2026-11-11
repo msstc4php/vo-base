@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.0 - 2026-11-11
+
+First stable release: from here on a breaking change needs 2.0.
+
+**Changed (BC):** the `UriComponents` trait moved from `MSSTC4PHP\ValueObject\Support` to
+`MSSTC4PHP\ValueObject\Network`. Only code that used the trait directly is affected; `Url` and `Uri` are unchanged.
+
+- `Testing\RandomValueObjects` is no longer experimental. The generator set and return types follow semver; the
+  values a seed draws may change in any release.
+
+**Upgrading:** replace `use MSSTC4PHP\ValueObject\Support\UriComponents` with
+`use MSSTC4PHP\ValueObject\Network\UriComponents`.
+
 ## 0.4.1 - 2026-11-09
 
 - Package metadata and docs point at the renamed bridges: `msstc4php/vo-base-doctrine` (was
