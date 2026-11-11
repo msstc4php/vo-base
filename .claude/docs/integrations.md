@@ -1,8 +1,8 @@
 # Integrations
 
 The core has none. It depends on `php >= 8.4` and nothing else, and that is
-enforced by `deptrac.yaml`: any class under `src/` that touches `Doctrine\` or
-`Symfony\` fails the build.
+enforced by `deptrac.yaml`: any class under `src/` that touches a bridged framework's namespace (`Doctrine\`,
+`Symfony\`, `Illuminate\`, `yii\`, `CodeIgniter\`, `Cycle\`, `Spiral\`) fails the build.
 
 Framework support lives in separate packages, each with its own
 `.claude/docs/`, all sharing the core's `Payload\ValueObjectMapper`:

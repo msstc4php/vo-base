@@ -3,7 +3,8 @@
 ## Layers and the dependency rule
 
 One layer, **Core**: everything under `src/`, with zero runtime dependencies (composer `require` is only
-`php >=8.4`). `deptrac.yaml` fails the build if a class under `src/` touches `Doctrine\` or `Symfony\`; framework
+`php >=8.4`). `deptrac.yaml` fails the build if a class under `src/` touches `Doctrine\`, `Symfony\`, `Illuminate\`, `yii\`,
+`CodeIgniter\`, `Cycle\` or `Spiral\`; framework
 integration lives in `msstc4php/vo-base-doctrine` and `msstc4php/vo-base-bundle`.
 
 Those packages share the `MSSTC4PHP\ValueObject\` prefix (`…\Doctrine\`, `…\Bundle\`, `…\Laravel\`, `…\Yii2\`,

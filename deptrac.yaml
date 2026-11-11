@@ -6,7 +6,7 @@ deptrac:
       collectors:
         - type: directory
           value: src/.*
-    # These two layers exist only to be forbidden. The bridges that used to live
+    # These layers exist only to be forbidden. The bridges that used to live
     # here are separate packages now; this rule is what stops them coming back,
     # and unlike a convention it outlives the code that prompted it.
     - name: Doctrine
@@ -17,7 +17,27 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Symfony\\#'
+    - name: Laravel
+      collectors:
+        - type: classNameRegex
+          value: '#^Illuminate\\#'
+    - name: Yii
+      collectors:
+        - type: classNameRegex
+          value: '#^yii\\#'
+    - name: CodeIgniter
+      collectors:
+        - type: classNameRegex
+          value: '#^CodeIgniter\\#'
+    - name: Cycle
+      collectors:
+        - type: classNameRegex
+          value: '#^(Cycle|Spiral)\\#'
   ruleset:
     Core: ~
     Doctrine: ~
     Symfony: ~
+    Laravel: ~
+    Yii: ~
+    CodeIgniter: ~
+    Cycle: ~
