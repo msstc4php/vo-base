@@ -6,8 +6,9 @@ One layer, **Core**: everything under `src/`, with zero runtime dependencies (co
 `php >=8.4`). `deptrac.yaml` fails the build if a class under `src/` touches `Doctrine\` or `Symfony\`; framework
 integration lives in `msstc4php/vo-base-doctrine` and `msstc4php/vo-base-bundle`.
 
-Those packages share the `MSSTC4PHP\ValueObject\` prefix (`…\Doctrine\`, `…\Bundle\`), so the core must never get a
-`src/Doctrine/` or `src/Bundle/` directory: its classes would land in a sibling package's namespace.
+Those packages share the `MSSTC4PHP\ValueObject\` prefix (`…\Doctrine\`, `…\Bundle\`, `…\Laravel\`, `…\Yii2\`,
+`…\CodeIgniter4\`, `…\Cycle\`), so the core must never get a directory of one of those names under `src/`: its
+classes would land in a sibling package's namespace.
 
 ## `Support/` is a leaf
 
@@ -21,6 +22,17 @@ is a review rule, not an enforced one.
 instances, stable since 1.0.0: the generator set and return types follow semver, the values a seed draws do
 not (a release may draw differently). Library code never calls it; it is excluded from mutation testing, and
 `testTheGeneratorSetIsDeliberate` plus a seed-42 golden test pin its surface and draw order.
+
+## `Payload/`: the storage form bridges share
+
+`Payload\ValueObjectMapper` is the one place that decides how a value object is stored: string-backed
+(`StringConvertible`) to string, `Abstract{Int,Float}ValueObject` to the number, backed enums to `->value`,
+composites through a `PayloadCodec` to a flat array. Every bridge (Doctrine, Symfony Serializer, Laravel, Yii 2,
+CodeIgniter 4, Cycle) calls it rather than re-detecting kinds, so a row written by one reads back through another.
+JSON stays in the bridges. `PayloadCodec` is `@template-covariant`: `encode()` takes any `ValueObject` and throws
+`LogicException` for a foreign class, which is what lets a `PayloadCodec<IntRange>` be passed where
+`PayloadCodec<ValueObject>` is expected. The four codecs came from the Doctrine package in 1.1.0 with their formats
+unchanged; `DateRangeCodec` keeps microseconds and the numeric offset on purpose (see its docblock).
 
 ## The value object base machinery
 

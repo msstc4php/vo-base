@@ -112,6 +112,26 @@ Regenerate after a data update:
 php tools/generate-iso-enums.php
 ```
 
+## Storage form
+
+`Payload\ValueObjectMapper` turns a value object into what a column or a wire format holds, and back. Framework
+bridges are built on it, and it is the place to start when you write one of your own:
+
+```php
+use MSSTC4PHP\ValueObject\Payload\ValueObjectMapper;
+
+$mapper = new ValueObjectMapper();
+$mapper->toPayload(EmailAddress::from('a@example.com'));   // 'a@example.com'
+$mapper->toPayload(new IntRange(1, 5));                     // ['min' => 1, 'max' => 5]
+$mapper->fromPayload(Port::class, '8080');                  // Port 8080: numeric strings from PDO are accepted
+```
+
+String-backed value objects map to strings, int- and float-backed ones to numbers, the ISO enums to their codes,
+and the composites (`BoundedString`, `IntRange`, `GeoCoordinates`, `DateRange`) to flat arrays through a
+`Payload\PayloadCodec`; pass your own codecs to the constructor for your own composites. A wrong type or shape
+throws `InvalidPayloadException`, invalid content the value object's own exception; both extend
+`InvalidValueObjectException`.
+
 ## Framework integration
 
 The core carries no framework dependency, and `deptrac` fails the build if one

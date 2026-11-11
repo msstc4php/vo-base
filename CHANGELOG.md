@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.0 - 2026-11-11
+
+**Added:** the storage form every framework bridge shares.
+
+- `Payload\ValueObjectMapper`: value object or ISO enum to a string, number or flat array, and back. Numeric strings
+  are read as numbers, the way PDO returns them.
+- `Payload\PayloadCodec` and the codecs `BoundedStringCodec`, `IntRangeCodec`, `GeoCoordinatesCodec`,
+  `DateRangeCodec`, moved from `msstc4php/vo-base-doctrine` (where they were `@internal`) with the same stored
+  formats.
+- `Exception\InvalidPayloadException` for a payload of the wrong type or shape.
+
 ## 1.0.0 - 2026-11-11
 
 First stable release: from here on a breaking change needs 2.0.
