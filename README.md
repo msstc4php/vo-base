@@ -132,9 +132,12 @@ and the composites (`BoundedString`, `IntRange`, `GeoCoordinates`, `DateRange`) 
 throws `InvalidPayloadException`, invalid content the value object's own exception; both extend
 `InvalidValueObjectException`.
 
-A `BoundedString` payload carries its own length limits, so decode it only from storage the application wrote,
-never from request input: a client could send its own `maxLength`. The framework bridges refuse it on their input
-paths.
+Use `fromPayload()` for storage your application wrote and `fromUntrustedPayload()` for request input. The latter
+refuses classes whose codec implements `Payload\TrustedSourceOnly`: a `BoundedString` payload carries its own length
+limits, so a client could send its own `maxLength`. `supportsUntrusted()` tells a bridge up front.
+
+Payloads are read strictly: integers as canonical digit strings (`"080"` is rejected), floats as plain decimals,
+`DateRange` boundaries only as ISO 8601 instants with an offset.
 
 ## Framework integration
 

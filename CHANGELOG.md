@@ -10,6 +10,11 @@
   `DateRangeCodec`, moved from `msstc4php/vo-base-doctrine` (where they were `@internal`) with the same stored
   formats.
 - `Exception\InvalidPayloadException` for a payload of the wrong type or shape.
+- A trust boundary: `fromUntrustedPayload()` and `supportsUntrusted()` refuse classes whose codec implements
+  `Payload\TrustedSourceOnly` (`BoundedStringCodec`: its payload carries the length limits). `isScalarBacked()` tells
+  whether a class fits a single string or number.
+- Strict reading: canonical integer strings, plain decimal strings, and `DateRange` boundaries only as ISO 8601
+  instants with an offset (the Doctrine codec accepted anything `DateTimeImmutable` parses, such as `"now"`).
 
 ## 1.0.0 - 2026-11-11
 
