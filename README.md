@@ -142,14 +142,19 @@ Payloads are read strictly: integers as canonical digit strings (`"080"` is reje
 ## Framework integration
 
 The core carries no framework dependency, and `deptrac` fails the build if one
-appears. Integration lives in two separate packages:
+appears. Integration lives in separate packages, all built on the same storage form
+(`Payload\ValueObjectMapper`), so a value written by one reads back through another:
 
 | Package | What it gives you |
 |---|---|
 | [`msstc4php/vo-base-doctrine`](https://github.com/msstc4php/vo-base-doctrine) | 38 Doctrine field types per branch (ORM and MongoDB ODM), plus money embeddables that aggregate in SQL |
-| [`msstc4php/vo-base-bundle`](https://github.com/msstc4php/vo-base-bundle) | Symfony Validator constraints and a bundle that registers both them and the Doctrine types from one line in `bundles.php` |
+| [`msstc4php/vo-base-bundle`](https://github.com/msstc4php/vo-base-bundle) | Symfony: Validator constraints, Serializer normalizer, route argument resolver, and the Doctrine types from one line in `bundles.php` |
+| [`msstc4php/vo-base-laravel`](https://github.com/msstc4php/vo-base-laravel) | Laravel 13: Eloquent cast and validation rule |
+| [`msstc4php/vo-base-yii2`](https://github.com/msstc4php/vo-base-yii2) | Yii 2: validator and ActiveRecord behavior |
+| [`msstc4php/vo-base-codeigniter4`](https://github.com/msstc4php/vo-base-codeigniter4) | CodeIgniter 4: Entity and Model casts, validation rule |
+| [`msstc4php/vo-base-cycle`](https://github.com/msstc4php/vo-base-cycle) | Cycle ORM 2: typecast handler |
 
-Install whichever you need; neither is required by this package, and each pulls
+Install whichever you need; none is required by this package, and each pulls
 in only the stack it actually bridges.
 
 ## Development

@@ -4,13 +4,17 @@ The core has none. It depends on `php >= 8.4` and nothing else, and that is
 enforced by `deptrac.yaml`: any class under `src/` that touches `Doctrine\` or
 `Symfony\` fails the build.
 
-Framework support lives in two separate packages, each with its own
-`.claude/docs/`:
+Framework support lives in separate packages, each with its own
+`.claude/docs/`, all sharing the core's `Payload\ValueObjectMapper`:
 
 | Package | What it provides |
 |---|---|
 | `msstc4php/vo-base-doctrine` | 38 Doctrine field types per branch (ORM and MongoDB ODM), plus base and high-precision money embeddables |
-| `msstc4php/vo-base-bundle` | Symfony Validator constraints and a bundle that registers both them and the Doctrine types |
+| `msstc4php/vo-base-bundle` | Symfony: Validator constraints, Serializer normalizer, route argument resolver, Doctrine type registration |
+| `msstc4php/vo-base-laravel` | Laravel 13 Eloquent cast + validation rule (Laravel 12 blocked: its brick/math cap is below the core's 0.15 floor) |
+| `msstc4php/vo-base-yii2` | Yii 2 validator + ActiveRecord behavior (+ trait restoring VOs after a failed save) |
+| `msstc4php/vo-base-codeigniter4` | CodeIgniter 4 Entity/Model casts + `valid_value_object[...]` rule |
+| `msstc4php/vo-base-cycle` | Cycle ORM 2 typecast handler (`untrustedCastInput` opt-in for `make(typecast: true)` with request data) |
 
 ## Optional runtime libraries
 
