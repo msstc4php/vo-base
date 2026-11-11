@@ -41,6 +41,12 @@ final readonly class DateRangeCodec implements PayloadCodec
      */
     private const array READ_FORMATS = ['!X-m-d\TH:i:s.uP', '!X-m-d\TH:i:sP'];
 
+    /**
+     * The year exactly as Y writes it: four digits, more only without a leading
+     * zero, a minus for BCE. X alone also takes "26" (year 26) or "+2026".
+     */
+    private const string YEAR = '/^-?(?:\d{4}|[1-9]\d{4,})-/D';
+
     #[Override]
     public function valueObjectClass(): string
     {
@@ -77,7 +83,7 @@ final readonly class DateRangeCodec implements PayloadCodec
 
     private function instant(string $text): DateTimeImmutable
     {
-        foreach (self::READ_FORMATS as $format) {
+        foreach (preg_match(self::YEAR, $text) === 1 ? self::READ_FORMATS : [] as $format) {
             $instant = DateTimeImmutable::createFromFormat($format, $text);
             if ($instant !== false && DateTimeImmutable::getLastErrors() === false) {
                 return $instant;

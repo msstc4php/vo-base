@@ -12,6 +12,7 @@ use MSSTC4PHP\ValueObject\Exception\InvalidPayloadException;
 use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Support\AbstractFloatValueObject;
 use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
+use ReflectionEnum;
 
 /**
  * The storage form every framework bridge shares: a string, int or float for a
@@ -108,7 +109,7 @@ final readonly class ValueObjectMapper
             is_subclass_of($class, AbstractIntValueObject::class) => 'int',
             is_subclass_of($class, AbstractFloatValueObject::class) => 'float',
             $this->isScalarBacked($class) => 'string',
-            is_subclass_of($class, BackedEnum::class) => \is_int(($class::cases()[0] ?? null)?->value) ? 'int' : 'string',
+            is_subclass_of($class, BackedEnum::class) => $this->isIntBacked($class) ? 'int' : 'string',
             default => throw $this->unsupported($class),
         };
     }
@@ -236,14 +237,21 @@ final readonly class ValueObjectMapper
      */
     private function fromEnum(string $class, mixed $payload): BackedEnum
     {
-        $first = $class::cases()[0] ?? null;
-        if ($first !== null && \is_int($first->value)) {
+        if ($this->isIntBacked($class)) {
             $int = $this->integer($payload);
 
             return $int !== null ? $this->caseOf($class, $int) : throw $this->wrongType($class, 'an integer', $payload);
         }
 
         return \is_string($payload) ? $this->caseOf($class, $payload) : throw $this->wrongType($class, 'a string', $payload);
+    }
+
+    /**
+     * @param class-string<BackedEnum> $class
+     */
+    private function isIntBacked(string $class): bool
+    {
+        return new ReflectionEnum($class)->getBackingType()?->getName() === 'int';
     }
 
     /**

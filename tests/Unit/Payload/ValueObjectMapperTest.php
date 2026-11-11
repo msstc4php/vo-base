@@ -33,6 +33,7 @@ use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
 use MSSTC4PHP\ValueObject\Temporal\DateRange;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\LyingCodec;
+use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\NoCases;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\Priority;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\RangeAsTextCodec;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\StringOnly;
@@ -132,6 +133,8 @@ final class ValueObjectMapperTest extends TestCase
         yield 'leading zero for a float-backed' => [Percentage::class, '007.5'];
         yield 'infinite number for a float-backed' => [Percentage::class, '1e999'];
         yield 'leading zero for an int-backed enum' => [Priority::class, '02'];
+        yield 'string for an int enum without cases' => [NoCases::class, 'x'];
+        yield 'no case of an int enum without cases' => [NoCases::class, 1];
         yield 'string for an int-backed enum' => [Priority::class, 'high'];
         yield 'digits with a trailing newline for an int-backed enum' => [Priority::class, "2\n"];
         yield 'non-numeric string for a float-backed' => [Percentage::class, 'abc'];
@@ -250,6 +253,7 @@ final class ValueObjectMapperTest extends TestCase
         yield 'float-backed' => [Percentage::class, 'float'];
         yield 'string enum' => [CountryCode::class, 'string'];
         yield 'int enum' => [Priority::class, 'int'];
+        yield 'int enum without cases' => [NoCases::class, 'int'];
         yield 'composite' => [IntRange::class, 'array'];
         yield 'stringable composite' => [BoundedString::class, 'array'];
     }
