@@ -183,3 +183,12 @@ in a CVV that still looks like digits; PCI DSS), `Iban` keeps country and last f
 `CC99...`) and only the length for anything else (personal data; may be any value typed into the wrong field).
 
 `QueryString::fromLoose()` is public only so `UriComponents` can reach it; it is `@internal`, not API.
+
+## `InvalidPayloadException` is also a `LogicException`
+
+PHP's `InvalidArgumentException` extends `LogicException`, so every `InvalidValueObjectException` (and
+`InvalidPayloadException`) is one too. The mapper's contract "LogicException = programmer error, unsupported class"
+therefore only holds when callers catch `InvalidValueObjectException` **first**: a bridge that catches
+`LogicException` alone would swallow input errors as configuration errors, and a test expecting `LogicException`
+passes on an input error. Bridges catch `InvalidValueObjectException` before anything else, and tests expect the
+exact class.
