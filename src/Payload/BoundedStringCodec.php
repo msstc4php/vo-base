@@ -15,6 +15,11 @@ use Override;
  * the value's identity (BoundedString::equals compares them), so this must NOT
  * delegate to jsonSerialize(), which returns the bare string.
  *
+ * Because the bounds travel with the payload, decode() trusts its source: fine
+ * for a column the application wrote, a validation bypass for request input,
+ * where the client would choose its own limits. Bridges that read untrusted
+ * input refuse BoundedString instead of decoding it.
+ *
  * @implements PayloadCodec<BoundedString>
  */
 final readonly class BoundedStringCodec implements PayloadCodec

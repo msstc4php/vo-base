@@ -132,6 +132,10 @@ and the composites (`BoundedString`, `IntRange`, `GeoCoordinates`, `DateRange`) 
 throws `InvalidPayloadException`, invalid content the value object's own exception; both extend
 `InvalidValueObjectException`.
 
+A `BoundedString` payload carries its own length limits, so decode it only from storage the application wrote,
+never from request input: a client could send its own `maxLength`. The framework bridges refuse it on their input
+paths.
+
 ## Framework integration
 
 The core carries no framework dependency, and `deptrac` fails the build if one
