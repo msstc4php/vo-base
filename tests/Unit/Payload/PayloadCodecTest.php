@@ -77,6 +77,14 @@ final class PayloadCodecTest extends TestCase
         self::assertTrue($value->equals($codec->decode($codec->encode($value))));
     }
 
+    public function testDateRangeAcceptsAZuluOffsetFromApiClients(): void
+    {
+        $range = new DateRangeCodec()->decode(['start' => '2026-01-01T00:00:00Z', 'end' => '2026-01-02T00:00:00.5Z']);
+
+        self::assertSame('2026-01-01T00:00:00.000000+00:00', $range->start->format('Y-m-d\\TH:i:s.uP'));
+        self::assertSame('2026-01-02T00:00:00.500000+00:00', $range->end->format('Y-m-d\\TH:i:s.uP'));
+    }
+
     public function testDateRangeReadsRowsWrittenInAtomFormat(): void
     {
         $range = new DateRangeCodec()->decode(['start' => '2026-01-01T00:00:00+00:00', 'end' => '2026-01-02T00:00:00+00:00']);
@@ -125,6 +133,9 @@ final class PayloadCodecTest extends TestCase
         yield 'geo string lat' => [new GeoCoordinatesCodec(), ['lat' => '1.0', 'lng' => 2.0]];
         yield 'date range missing end' => [new DateRangeCodec(), ['start' => '2026-01-01T00:00:00+00:00']];
         yield 'date range garbage instant' => [new DateRangeCodec(), ['start' => 'not a date', 'end' => '2026-01-01T00:00:00+00:00']];
+        yield 'date range relative instant' => [new DateRangeCodec(), ['start' => 'now', 'end' => '+1 year']];
+        yield 'date range without offset' => [new DateRangeCodec(), ['start' => '2026-01-01T00:00:00', 'end' => '2026-02-01T00:00:00']];
+        yield 'date range overflowing month' => [new DateRangeCodec(), ['start' => '2026-13-01T00:00:00+00:00', 'end' => '2027-02-01T00:00:00+00:00']];
         yield 'int range string max' => [new IntRangeCodec(), ['min' => 1, 'max' => '2']];
         yield 'bounded string without minLength' => [new BoundedStringCodec(), ['value' => 'a']];
         yield 'bounded string float maxLength' => [new BoundedStringCodec(), ['value' => 'a', 'minLength' => 0, 'maxLength' => 1.5]];

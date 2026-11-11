@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Payload;
 
 use BackedEnum;
 use DateTimeImmutable;
+use Generator;
 use LogicException;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidEmailAddressException;
@@ -31,6 +32,7 @@ use MSSTC4PHP\ValueObject\Support\AbstractFloatValueObject;
 use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
 use MSSTC4PHP\ValueObject\Temporal\DateRange;
+use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\LyingCodec;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\Priority;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\RangeAsTextCodec;
 use Override;
@@ -123,6 +125,11 @@ final class ValueObjectMapperTest extends TestCase
         yield 'int-overflowing digits' => [Port::class, '99999999999999999999'];
         yield 'digits with a trailing newline' => [Port::class, "80\n"];
         yield 'digits with a prefix' => [Port::class, 'a80'];
+        yield 'digits with a leading zero' => [Port::class, '080'];
+        yield 'exponent for an int-backed' => [Port::class, '8e1'];
+        yield 'padded number for a float-backed' => [Percentage::class, ' 1.5'];
+        yield 'infinite number for a float-backed' => [Percentage::class, '1e999'];
+        yield 'leading zero for an int-backed enum' => [Priority::class, '02'];
         yield 'string for an int-backed enum' => [Priority::class, 'high'];
         yield 'digits with a trailing newline for an int-backed enum' => [Priority::class, "2\n"];
         yield 'non-numeric string for a float-backed' => [Percentage::class, 'abc'];
@@ -183,6 +190,56 @@ final class ValueObjectMapperTest extends TestCase
     {
         $this->expectException(LogicException::class);
         new IntRangeCodec()->encode(EmailAddress::from('a@example.com'));
+    }
+
+    public function testTrustedSourceOnlyClassesAreRefusedOnTheUntrustedPath(): void
+    {
+        self::assertTrue($this->mapper->supports(BoundedString::class));
+        self::assertFalse($this->mapper->supportsUntrusted(BoundedString::class));
+        self::assertTrue($this->mapper->supportsUntrusted(IntRange::class));
+        self::assertTrue($this->mapper->supportsUntrusted(EmailAddress::class));
+        self::assertFalse($this->mapper->supportsUntrusted(stdClass::class));
+        self::assertEquals(new IntRange(1, 2), $this->mapper->fromUntrustedPayload(IntRange::class, ['min' => 1, 'max' => 2]));
+
+        $this->expectException(LogicException::class);
+        $this->mapper->fromUntrustedPayload(BoundedString::class, ['value' => 'x', 'minLength' => 0, 'maxLength' => null]);
+    }
+
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function scalarBackedness(): iterable
+    {
+        yield 'string-backed' => [EmailAddress::class, true];
+        yield 'int-backed' => [Port::class, true];
+        yield 'float-backed' => [Percentage::class, true];
+        yield 'enum' => [CountryCode::class, false];
+        yield 'composite' => [IntRange::class, false];
+        yield 'stringable composite' => [BoundedString::class, false];
+    }
+
+    #[DataProvider('scalarBackedness')]
+    public function testScalarBackedMeansOneStringOrNumberPayload(string $class, bool $expected): void
+    {
+        self::assertSame($expected, $this->mapper->isScalarBacked($class));
+    }
+
+    public function testACodecDecodingIntoAnotherClassIsAProgrammerError(): void
+    {
+        $mapper = new ValueObjectMapper([new LyingCodec(EmailAddress::from('a@example.com'))]);
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('The payload codec for ' . IntRange::class . ' returned ' . EmailAddress::class . '.');
+        $mapper->fromPayload(IntRange::class, []);
+    }
+
+    public function testCodecsArriveFromAnyIterable(): void
+    {
+        $mapper = new ValueObjectMapper((static function (): Generator {
+            yield 'custom' => new RangeAsTextCodec();
+        })());
+
+        self::assertSame(['range' => '1..2'], $mapper->toPayload(new IntRange(1, 2)));
     }
 
     public function testACustomCodecReplacesTheBuiltInOne(): void

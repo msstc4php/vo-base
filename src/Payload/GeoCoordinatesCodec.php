@@ -41,7 +41,7 @@ final readonly class GeoCoordinatesCodec implements PayloadCodec
     {
         $lat = $payload['lat'] ?? null;
         $lng = $payload['lng'] ?? null;
-        if (!\is_int($lat) && !\is_float($lat) || !\is_int($lng) && !\is_float($lng)) {
+        if ((!\is_int($lat) && !\is_float($lat)) || (!\is_int($lng) && !\is_float($lng))) {
             throw new InvalidPayloadException('Expected a geo-coordinates payload with numeric "lat" and "lng".');
         }
 

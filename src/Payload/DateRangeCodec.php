@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Payload;
 
-use DateMalformedStringException;
 use DateTimeImmutable;
 use LogicException;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
@@ -32,6 +31,14 @@ final readonly class DateRangeCodec implements PayloadCodec
      * compares instants, so the offset is sufficient.
      */
     private const string BOUNDARY_FORMAT = 'Y-m-d\TH:i:s.uP';
+
+    /**
+     * Read strictly: the payload may come from a request now, and the permissive
+     * DateTimeImmutable constructor would accept "now" or a wall time without an
+     * offset, silently taken in the server's zone. Seconds-only ATOM is the form
+     * rows had before microseconds were kept, and what API clients usually send.
+     */
+    private const array READ_FORMATS = ['!' . self::BOUNDARY_FORMAT, '!' . \DATE_ATOM];
 
     #[Override]
     public function valueObjectClass(): string
@@ -64,10 +71,18 @@ final readonly class DateRangeCodec implements PayloadCodec
             throw new InvalidPayloadException('Expected a date-range payload with string "start" and "end".');
         }
 
-        try {
-            return new DateRange(new DateTimeImmutable($start), new DateTimeImmutable($end));
-        } catch (DateMalformedStringException $exception) {
-            throw new InvalidPayloadException('Expected ISO 8601 instants in "start" and "end".', 0, $exception);
+        return new DateRange($this->instant($start), $this->instant($end));
+    }
+
+    private function instant(string $text): DateTimeImmutable
+    {
+        foreach (self::READ_FORMATS as $format) {
+            $instant = DateTimeImmutable::createFromFormat($format, $text);
+            if ($instant !== false && DateTimeImmutable::getLastErrors() === false) {
+                return $instant;
+            }
         }
+
+        throw new InvalidPayloadException(\sprintf('Expected an ISO 8601 instant with an offset in "start" and "end", got "%s".', InvalidPayloadException::excerpt($text)));
     }
 }

@@ -22,7 +22,7 @@ use Override;
  *
  * @implements PayloadCodec<BoundedString>
  */
-final readonly class BoundedStringCodec implements PayloadCodec
+final readonly class BoundedStringCodec implements PayloadCodec, TrustedSourceOnly
 {
     #[Override]
     public function valueObjectClass(): string
