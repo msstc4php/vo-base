@@ -85,6 +85,15 @@ final class PayloadCodecTest extends TestCase
         self::assertSame('2026-01-02T00:00:00.500000+00:00', $range->end->format('Y-m-d\\TH:i:s.uP'));
     }
 
+    public function testDateRangeRoundTripsYearsOutsideFourDigits(): void
+    {
+        $codec = new DateRangeCodec();
+        $range = new DateRange(new DateTimeImmutable('-0044-03-15T00:00:00+00:00'), new DateTimeImmutable('2000-01-01T00:00:00+00:00')->setDate(10000, 1, 1));
+
+        self::assertSame(['start' => '-0044-03-15T00:00:00.000000+00:00', 'end' => '10000-01-01T00:00:00.000000+00:00'], $codec->encode($range));
+        self::assertTrue($range->equals($codec->decode($codec->encode($range))));
+    }
+
     public function testDateRangeReadsRowsWrittenInAtomFormat(): void
     {
         $range = new DateRangeCodec()->decode(['start' => '2026-01-01T00:00:00+00:00', 'end' => '2026-01-02T00:00:00+00:00']);

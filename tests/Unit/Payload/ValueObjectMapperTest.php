@@ -35,6 +35,7 @@ use MSSTC4PHP\ValueObject\Temporal\DateRange;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\LyingCodec;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\Priority;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\RangeAsTextCodec;
+use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\StringOnly;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -128,6 +129,7 @@ final class ValueObjectMapperTest extends TestCase
         yield 'digits with a leading zero' => [Port::class, '080'];
         yield 'exponent for an int-backed' => [Port::class, '8e1'];
         yield 'padded number for a float-backed' => [Percentage::class, ' 1.5'];
+        yield 'leading zero for a float-backed' => [Percentage::class, '007.5'];
         yield 'infinite number for a float-backed' => [Percentage::class, '1e999'];
         yield 'leading zero for an int-backed enum' => [Priority::class, '02'];
         yield 'string for an int-backed enum' => [Priority::class, 'high'];
@@ -201,7 +203,7 @@ final class ValueObjectMapperTest extends TestCase
         self::assertFalse($this->mapper->supportsUntrusted(stdClass::class));
         self::assertEquals(new IntRange(1, 2), $this->mapper->fromUntrustedPayload(IntRange::class, ['min' => 1, 'max' => 2]));
 
-        $this->expectException(LogicException::class);
+        $this->expectException(InvalidPayloadException::class);
         $this->mapper->fromUntrustedPayload(BoundedString::class, ['value' => 'x', 'minLength' => 0, 'maxLength' => null]);
     }
 
@@ -218,10 +220,58 @@ final class ValueObjectMapperTest extends TestCase
         yield 'stringable composite' => [BoundedString::class, false];
     }
 
+    public function testAnUnsupportedClassOnTheUntrustedPathIsStillAProgrammerError(): void
+    {
+        $this->expectException(LogicException::class);
+        $this->mapper->fromUntrustedPayload(stdClass::class, 'x');
+    }
+
+    public function testCompositesAreTheClassesWithACodec(): void
+    {
+        self::assertTrue($this->mapper->isComposite(IntRange::class));
+        self::assertTrue($this->mapper->isComposite(BoundedString::class));
+        self::assertFalse($this->mapper->isComposite(EmailAddress::class));
+        self::assertFalse($this->mapper->isComposite(CountryCode::class));
+    }
+
     #[DataProvider('scalarBackedness')]
     public function testScalarBackedMeansOneStringOrNumberPayload(string $class, bool $expected): void
     {
         self::assertSame($expected, $this->mapper->isScalarBacked($class));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function payloadTypes(): iterable
+    {
+        yield 'string-backed' => [EmailAddress::class, 'string'];
+        yield 'int-backed' => [Port::class, 'int'];
+        yield 'float-backed' => [Percentage::class, 'float'];
+        yield 'string enum' => [CountryCode::class, 'string'];
+        yield 'int enum' => [Priority::class, 'int'];
+        yield 'composite' => [IntRange::class, 'array'];
+        yield 'stringable composite' => [BoundedString::class, 'array'];
+    }
+
+    #[DataProvider('payloadTypes')]
+    public function testPayloadTypeIsTheJsonTypeOfThePayload(string $class, string $expected): void
+    {
+        self::assertSame($expected, $this->mapper->payloadType($class));
+    }
+
+    public function testPayloadTypeOfAnUnsupportedClassIsAProgrammerError(): void
+    {
+        $this->expectException(LogicException::class);
+        $this->mapper->payloadType(stdClass::class);
+    }
+
+    public function testAStringConvertibleThatIsNoValueObjectIsNotStored(): void
+    {
+        self::assertFalse($this->mapper->supports(StringOnly::class));
+
+        $this->expectException(LogicException::class);
+        $this->mapper->fromPayload(StringOnly::class, 'x');
     }
 
     public function testACodecDecodingIntoAnotherClassIsAProgrammerError(): void

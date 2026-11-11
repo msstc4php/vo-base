@@ -21,6 +21,8 @@ use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
  * Raw values are read the way databases hand them over: an int-backed value
  * object or enum accepts a canonical decimal-digit string, a float-backed one a
  * plain decimal string, because PDO and most drivers return numbers as strings.
+ * The untrusted path keeps that on purpose: form fields, XML and CSV carry
+ * numbers as strings too.
  *
  * Two entry points by trust: fromPayload() for storage the application wrote,
  * fromUntrustedPayload() for request input, which refuses classes whose codec is
@@ -33,7 +35,7 @@ final readonly class ValueObjectMapper
 {
     private const string INTEGER = '/^-?(?:0|[1-9]\d*)$/D';
 
-    private const string DECIMAL = '/^-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?$/D';
+    private const string DECIMAL = '/^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][-+]?\d+)?$/D';
 
     /**
      * @var array<class-string<ValueObject>, PayloadCodec<ValueObject>>
@@ -71,6 +73,14 @@ final readonly class ValueObjectMapper
     }
 
     /**
+     * A class stored through a codec as a flat array (a JSON column, a sub-document).
+     */
+    public function isComposite(string $class): bool
+    {
+        return isset($this->codecs[$class]);
+    }
+
+    /**
      * A value object whose payload is a single string, int or float: what a URL segment or a form field can carry.
      * Excludes enums and composites.
      *
@@ -82,6 +92,25 @@ final readonly class ValueObjectMapper
             && ((is_subclass_of($class, StringConvertible::class) && is_subclass_of($class, ValueObject::class))
                 || is_subclass_of($class, AbstractIntValueObject::class)
                 || is_subclass_of($class, AbstractFloatValueObject::class));
+    }
+
+    /**
+     * The JSON type a $class payload has, for error messages that must not name internal classes.
+     *
+     * @return 'string'|'int'|'float'|'array'
+     *
+     * @throws LogicException when $class is not supported
+     */
+    public function payloadType(string $class): string
+    {
+        return match (true) {
+            isset($this->codecs[$class]) => 'array',
+            is_subclass_of($class, AbstractIntValueObject::class) => 'int',
+            is_subclass_of($class, AbstractFloatValueObject::class) => 'float',
+            $this->isScalarBacked($class) => 'string',
+            is_subclass_of($class, BackedEnum::class) => \is_int(($class::cases()[0] ?? null)?->value) ? 'int' : 'string',
+            default => throw $this->unsupported($class),
+        };
     }
 
     /**
@@ -128,7 +157,7 @@ final readonly class ValueObjectMapper
         $codec = $this->codecs[$class] ?? null;
         $value = match (true) {
             $codec !== null => $codec->decode(\is_array($payload) ? $payload : throw $this->wrongType($class, 'an array', $payload)),
-            is_subclass_of($class, StringConvertible::class) => $this->fromString($class, $payload),
+            is_subclass_of($class, StringConvertible::class) && is_subclass_of($class, ValueObject::class) => $this->fromString($class, $payload),
             is_subclass_of($class, AbstractIntValueObject::class) => $this->fromInt($class, $payload),
             is_subclass_of($class, AbstractFloatValueObject::class) => $this->fromFloat($class, $payload),
             is_subclass_of($class, BackedEnum::class) => $this->fromEnum($class, $payload),
@@ -143,7 +172,9 @@ final readonly class ValueObjectMapper
     }
 
     /**
-     * For request input: refuses a class whose payload carries its own constraints.
+     * For request input and raw values mass-assigned into a model: refuses a class whose payload carries its own
+     * constraints. That refusal is about the input, so it is an InvalidPayloadException (a client error), not a
+     * LogicException; a bridge that should never offer the class asks supportsUntrusted() at configuration time.
      *
      * @template T of object
      *
@@ -151,13 +182,18 @@ final readonly class ValueObjectMapper
      *
      * @return T
      *
-     * @throws InvalidValueObjectException when the payload is not a valid T; InvalidPayloadException for a wrong type or shape
-     * @throws LogicException when $class is not supported for untrusted input
+     * @throws InvalidValueObjectException when the payload is not a valid T; InvalidPayloadException for a wrong type or
+     *                                     shape, or for a class that cannot be read from untrusted input
+     * @throws LogicException when $class is not supported at all
      */
     public function fromUntrustedPayload(string $class, mixed $payload): object
     {
+        if (!$this->supports($class)) {
+            throw $this->unsupported($class);
+        }
+
         if (!$this->supportsUntrusted($class)) {
-            throw new LogicException(\sprintf('%s cannot be read from untrusted input: its payload carries its own constraints, or it is not supported.', $class));
+            throw new InvalidPayloadException(\sprintf('A %s cannot be read from untrusted input: its payload carries its own constraints.', $class));
         }
 
         return $this->fromPayload($class, $payload);

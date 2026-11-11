@@ -37,7 +37,9 @@ unchanged; `DateRangeCodec` keeps microseconds and the numeric offset on purpose
 Trust boundary: `fromPayload()` is for storage the application wrote, `fromUntrustedPayload()` for request input and
 for raw values mass-assigned into a model. The latter refuses a class whose codec implements the marker
 `TrustedSourceOnly` (only `BoundedStringCodec`: its payload carries `minLength`/`maxLength`, so a client could choose
-them). Bridges never name `BoundedString`; they ask `supportsUntrusted()`. Reading is strict on both paths because
+them) with an `InvalidPayloadException`: the refusal is about the input, so a bridge reports it like invalid input
+(422 / validation error), not a 500. Bridges never name `BoundedString`; they ask `supportsUntrusted()` up front
+and `isComposite()` to decide on JSON, never re-detecting kinds. Reading is strict on both paths because
 storage written by another bridge or by hand is not more trustworthy in format than a request: canonical integers,
 plain decimals, finite floats, `DateRange` boundaries only with an offset (no `"now"`, no server-zone wall time).
 

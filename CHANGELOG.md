@@ -12,7 +12,9 @@
 - `Exception\InvalidPayloadException` for a payload of the wrong type or shape.
 - A trust boundary: `fromUntrustedPayload()` and `supportsUntrusted()` refuse classes whose codec implements
   `Payload\TrustedSourceOnly` (`BoundedStringCodec`: its payload carries the length limits). `isScalarBacked()` tells
-  whether a class fits a single string or number.
+  whether a class fits a single string or number, `isComposite()` whether it is stored as an array, `payloadType()`
+  its JSON type (for error messages that must not name internal classes). Refusing a trusted-source-only class is an
+  `InvalidPayloadException` (client input); only an unsupported class is a `LogicException`.
 - Strict reading: canonical integer strings, plain decimal strings, and `DateRange` boundaries only as ISO 8601
   instants with an offset (the Doctrine codec accepted anything `DateTimeImmutable` parses, such as `"now"`).
 

@@ -35,10 +35,11 @@ final readonly class DateRangeCodec implements PayloadCodec
     /**
      * Read strictly: the payload may come from a request now, and the permissive
      * DateTimeImmutable constructor would accept "now" or a wall time without an
-     * offset, silently taken in the server's zone. Seconds-only ATOM is the form
-     * rows had before microseconds were kept, and what API clients usually send.
+     * offset, silently taken in the server's zone. Seconds-only is the form rows
+     * had before microseconds were kept, and what API clients usually send. X
+     * instead of Y reads back what Y writes for years before 1 or after 9999.
      */
-    private const array READ_FORMATS = ['!' . self::BOUNDARY_FORMAT, '!' . \DATE_ATOM];
+    private const array READ_FORMATS = ['!X-m-d\TH:i:s.uP', '!X-m-d\TH:i:sP'];
 
     #[Override]
     public function valueObjectClass(): string
