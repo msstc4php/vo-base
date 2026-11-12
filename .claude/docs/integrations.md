@@ -11,10 +11,11 @@ Framework support lives in separate packages, each with its own
 |---|---|
 | `msstc4php/vo-base-doctrine` | 38 Doctrine field types per branch (ORM and MongoDB ODM), plus base and high-precision money embeddables |
 | `msstc4php/vo-base-bundle` | Symfony: Validator constraints, Serializer normalizer, route argument resolver, Doctrine type registration |
-| `msstc4php/vo-base-laravel` | Laravel 13 Eloquent cast + validation rule (Laravel 12 blocked: its brick/math cap is below the core's 0.15 floor) |
-| `msstc4php/vo-base-yii2` | Yii 2 validator + ActiveRecord behavior (+ trait restoring VOs after a failed save) |
-| `msstc4php/vo-base-codeigniter4` | CodeIgniter 4 Entity/Model casts + `valid_value_object[...]` rule |
+| `msstc4php/vo-base-laravel` | Laravel 13.30+ Eloquent cast + validation rule; 0.2.0: `$request->valueObject()`, `ValidatedValueObjects` form-request trait, route parameters via a `RouteMatched` listener (Laravel 12 blocked: its brick/math cap is below the core's 0.15 floor) |
+| `msstc4php/vo-base-yii2` | Yii 2 validator + ActiveRecord behavior (+ trait restoring VOs after a failed save); 0.2.0: `ValueObjectModel` trait, `ValueObjectActionParams` controller trait |
+| `msstc4php/vo-base-codeigniter4` | CodeIgniter 4 Entity/Model casts + `valid_value_object[...]` rule; 0.2.0: `ValidatedValueObjects` and `ValueObjectArguments` (`_remap`, explicit routes only) controller traits |
 | `msstc4php/vo-base-cycle` | Cycle ORM 2 typecast handler (`untrustedCastInput` opt-in for `make(typecast: true)` with request data) |
+| `msstc4php/vo-base-spiral` | Spiral 3 bootloader: filter caster, route argument interceptor, `vo:valid` checker |
 
 ## Optional runtime libraries
 

@@ -149,10 +149,11 @@ appears. Integration lives in separate packages, all built on the same storage f
 |---|---|
 | [`msstc4php/vo-base-doctrine`](https://github.com/msstc4php/vo-base-doctrine) | 38 Doctrine field types per branch (ORM and MongoDB ODM), plus money embeddables that aggregate in SQL |
 | [`msstc4php/vo-base-bundle`](https://github.com/msstc4php/vo-base-bundle) | Symfony: Validator constraints, Serializer normalizer, route argument resolver, and the Doctrine types from one line in `bundles.php` |
-| [`msstc4php/vo-base-laravel`](https://github.com/msstc4php/vo-base-laravel) | Laravel 13: Eloquent cast and validation rule |
-| [`msstc4php/vo-base-yii2`](https://github.com/msstc4php/vo-base-yii2) | Yii 2: validator and ActiveRecord behavior |
-| [`msstc4php/vo-base-codeigniter4`](https://github.com/msstc4php/vo-base-codeigniter4) | CodeIgniter 4: Entity and Model casts, validation rule |
+| [`msstc4php/vo-base-laravel`](https://github.com/msstc4php/vo-base-laravel) | Laravel 13.30+: Eloquent cast, validation rule, `$request->valueObject()`, form-request helper, route parameters |
+| [`msstc4php/vo-base-yii2`](https://github.com/msstc4php/vo-base-yii2) | Yii 2: validator, ActiveRecord behavior, model values, action parameters |
+| [`msstc4php/vo-base-codeigniter4`](https://github.com/msstc4php/vo-base-codeigniter4) | CodeIgniter 4: Entity and Model casts, validation rule, validated data, controller arguments |
 | [`msstc4php/vo-base-cycle`](https://github.com/msstc4php/vo-base-cycle) | Cycle ORM 2: typecast handler |
+| [`msstc4php/vo-base-spiral`](https://github.com/msstc4php/vo-base-spiral) | Spiral 3: filter caster, route argument interceptor, `vo:valid` checker (storage via `vo-base-cycle`) |
 
 Install whichever you need; none is required by this package, and each pulls
 in only the stack it actually bridges.

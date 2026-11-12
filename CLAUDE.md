@@ -7,7 +7,7 @@ Guidance for Claude Code in this repository. Deep references live under `.claude
 `msstc4php/vo-base`, namespace `MSSTC4PHP\ValueObject`: immutable value objects for PHP >= 8.4 with no framework
 dependency at runtime (`deptrac.yaml` forbids every bridged framework's namespace). Bridges
 (sibling checkouts, all on `Payload\ValueObjectMapper`): `vo-base-doctrine`, `vo-base-bundle` (Symfony),
-`vo-base-laravel`, `vo-base-yii2`, `vo-base-codeigniter4`, `vo-base-cycle`.
+`vo-base-laravel`, `vo-base-yii2`, `vo-base-codeigniter4`, `vo-base-cycle`, `vo-base-spiral`.
 
 ## Common commands
 
