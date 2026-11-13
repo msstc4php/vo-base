@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+To be released as 1.1.1.
+
+**Fixed:** `Payload\ValueObjectMapper` no longer supports an interface or an abstract class without a codec.
+`supports()`, `supportsUntrusted()` and `isScalarBacked()` return false for them, and `fromPayload()`,
+`fromUntrustedPayload()` and `payloadType()` throw the `LogicException` of an unsupported class. Before, an interface
+such as one extending `StringConvertible` and `ValueObject` was reported as supported and reading it failed with an
+`\Error` ("Cannot call abstract method"), a server error for request input.
+
 ## 1.1.0 - 2026-11-11
 
 **Added:** the storage form every framework bridge shares.

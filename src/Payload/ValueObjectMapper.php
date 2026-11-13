@@ -12,6 +12,7 @@ use MSSTC4PHP\ValueObject\Exception\InvalidPayloadException;
 use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Support\AbstractFloatValueObject;
 use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
+use ReflectionClass;
 use ReflectionEnum;
 
 /**
@@ -60,9 +61,14 @@ final readonly class ValueObjectMapper
         $this->codecs = $byClass;
     }
 
+    /**
+     * An interface or an abstract class is supported only through a codec: without one there is no class to build.
+     */
     public function supports(string $class): bool
     {
-        return isset($this->codecs[$class]) || $this->isScalarBacked($class) || is_subclass_of($class, BackedEnum::class);
+        return isset($this->codecs[$class])
+            || $this->isScalarBacked($class)
+            || ($this->isInstantiable($class) && is_subclass_of($class, BackedEnum::class));
     }
 
     /**
@@ -83,13 +89,14 @@ final readonly class ValueObjectMapper
 
     /**
      * A value object whose payload is a single string, int or float: what a URL segment or a form field can carry.
-     * Excludes enums and composites.
+     * Excludes enums, composites, interfaces and abstract classes.
      *
      * @phpstan-assert-if-true class-string<ValueObject> $class
      */
     public function isScalarBacked(string $class): bool
     {
         return !isset($this->codecs[$class])
+            && $this->isInstantiable($class)
             && ((is_subclass_of($class, StringConvertible::class) && is_subclass_of($class, ValueObject::class))
                 || is_subclass_of($class, AbstractIntValueObject::class)
                 || is_subclass_of($class, AbstractFloatValueObject::class));
@@ -106,10 +113,10 @@ final readonly class ValueObjectMapper
     {
         return match (true) {
             isset($this->codecs[$class]) => 'array',
-            is_subclass_of($class, AbstractIntValueObject::class) => 'int',
-            is_subclass_of($class, AbstractFloatValueObject::class) => 'float',
+            $this->isScalarBacked($class) && is_subclass_of($class, AbstractIntValueObject::class) => 'int',
+            $this->isScalarBacked($class) && is_subclass_of($class, AbstractFloatValueObject::class) => 'float',
             $this->isScalarBacked($class) => 'string',
-            is_subclass_of($class, BackedEnum::class) => $this->isIntBacked($class) ? 'int' : 'string',
+            $this->isInstantiable($class) && is_subclass_of($class, BackedEnum::class) => $this->isIntBacked($class) ? 'int' : 'string',
             default => throw $this->unsupported($class),
         };
     }
@@ -158,10 +165,10 @@ final readonly class ValueObjectMapper
         $codec = $this->codecs[$class] ?? null;
         $value = match (true) {
             $codec !== null => $codec->decode(\is_array($payload) ? $payload : throw $this->wrongType($class, 'an array', $payload)),
-            is_subclass_of($class, StringConvertible::class) && is_subclass_of($class, ValueObject::class) => $this->fromString($class, $payload),
-            is_subclass_of($class, AbstractIntValueObject::class) => $this->fromInt($class, $payload),
-            is_subclass_of($class, AbstractFloatValueObject::class) => $this->fromFloat($class, $payload),
-            is_subclass_of($class, BackedEnum::class) => $this->fromEnum($class, $payload),
+            $this->isScalarBacked($class) && is_subclass_of($class, StringConvertible::class) => $this->fromString($class, $payload),
+            $this->isScalarBacked($class) && is_subclass_of($class, AbstractIntValueObject::class) => $this->fromInt($class, $payload),
+            $this->isScalarBacked($class) && is_subclass_of($class, AbstractFloatValueObject::class) => $this->fromFloat($class, $payload),
+            $this->isInstantiable($class) && is_subclass_of($class, BackedEnum::class) => $this->fromEnum($class, $payload),
             default => throw $this->unsupported($class),
         };
 
@@ -198,6 +205,11 @@ final readonly class ValueObjectMapper
         }
 
         return $this->fromPayload($class, $payload);
+    }
+
+    private function isInstantiable(string $class): bool
+    {
+        return class_exists($class) && !new ReflectionClass($class)->isAbstract();
     }
 
     /**

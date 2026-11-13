@@ -32,11 +32,15 @@ use MSSTC4PHP\ValueObject\Support\AbstractFloatValueObject;
 use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
 use MSSTC4PHP\ValueObject\Temporal\DateRange;
+use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\AbstractCount;
+use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\AbstractRatio;
+use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\BackedEnumContract;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\LyingCodec;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\NoCases;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\Priority;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\RangeAsTextCodec;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\StringOnly;
+use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\StringValueObjectContract;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -221,6 +225,60 @@ final class ValueObjectMapperTest extends TestCase
         yield 'enum' => [CountryCode::class, false];
         yield 'composite' => [IntRange::class, false];
         yield 'stringable composite' => [BoundedString::class, false];
+        yield 'interface' => [StringValueObjectContract::class, false];
+        yield 'abstract string-backed' => [AbstractStringValueObject::class, false];
+        yield 'abstract int-backed' => [AbstractCount::class, false];
+        yield 'abstract float-backed' => [AbstractRatio::class, false];
+    }
+
+    /**
+     * @return iterable<string, array{class-string}>
+     */
+    public static function classesWithoutAnInstance(): iterable
+    {
+        yield 'interface' => [StringValueObjectContract::class];
+        yield 'abstract string-backed' => [AbstractStringValueObject::class];
+        yield 'abstract int-backed' => [AbstractCount::class];
+        yield 'abstract float-backed' => [AbstractRatio::class];
+        yield 'enum interface' => [BackedEnumContract::class];
+    }
+
+    #[DataProvider('classesWithoutAnInstance')]
+    public function testInterfacesAndAbstractClassesAreNotSupported(string $class): void
+    {
+        self::assertFalse($this->mapper->supports($class));
+        self::assertFalse($this->mapper->supportsUntrusted($class));
+        self::assertFalse($this->mapper->isScalarBacked($class));
+    }
+
+    /**
+     * @param class-string $class
+     */
+    #[DataProvider('classesWithoutAnInstance')]
+    public function testUntrustedInputForAnInterfaceOrAnAbstractClassIsAProgrammerError(string $class): void
+    {
+        $this->expectException(LogicException::class);
+        $this->mapper->fromUntrustedPayload($class, '1');
+    }
+
+    /**
+     * @param class-string $class
+     */
+    #[DataProvider('classesWithoutAnInstance')]
+    public function testStoredPayloadForAnInterfaceOrAnAbstractClassIsAProgrammerError(string $class): void
+    {
+        $this->expectException(LogicException::class);
+        $this->mapper->fromPayload($class, '1');
+    }
+
+    /**
+     * @param class-string $class
+     */
+    #[DataProvider('classesWithoutAnInstance')]
+    public function testPayloadTypeOfAnInterfaceOrAnAbstractClassIsAProgrammerError(string $class): void
+    {
+        $this->expectException(LogicException::class);
+        $this->mapper->payloadType($class);
     }
 
     public function testAnUnsupportedClassOnTheUntrustedPathIsStillAProgrammerError(): void
