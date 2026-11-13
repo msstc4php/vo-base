@@ -166,21 +166,7 @@ final readonly class ValueObjectMapper
      */
     public function fromPayload(string $class, mixed $payload): object
     {
-        $kind = $this->kind($class);
-        $value = match (true) {
-            $kind === self::CODEC => $this->codecs[$class]->decode(\is_array($payload) ? $payload : throw $this->wrongType($class, 'an array', $payload)),
-            $kind === self::STRING && is_subclass_of($class, StringConvertible::class) => $this->fromString($class, $payload),
-            $kind === self::INT && is_subclass_of($class, AbstractIntValueObject::class) => $this->fromInt($class, $payload),
-            $kind === self::FLOAT && is_subclass_of($class, AbstractFloatValueObject::class) => $this->fromFloat($class, $payload),
-            $kind === self::ENUM && is_subclass_of($class, BackedEnum::class) => $this->fromEnum($class, $payload),
-            default => throw $this->unsupported($class),
-        };
-
-        if (!$value instanceof $class) {
-            throw new LogicException(\sprintf('The payload codec for %s returned %s.', $class, $value::class));
-        }
-
-        return $value;
+        return $this->fromPayloadOfKind($class, $this->kind($class), $payload);
     }
 
     /**
@@ -200,15 +186,45 @@ final readonly class ValueObjectMapper
      */
     public function fromUntrustedPayload(string $class, mixed $payload): object
     {
-        if (!$this->supports($class)) {
+        $kind = $this->kind($class);
+        if ($kind === null) {
             throw $this->unsupported($class);
         }
 
-        if (!$this->supportsUntrusted($class)) {
+        if (($this->codecs[$class] ?? null) instanceof TrustedSourceOnly) {
             throw new InvalidPayloadException(\sprintf('A %s cannot be read from untrusted input: its payload carries its own constraints.', $class));
         }
 
-        return $this->fromPayload($class, $payload);
+        return $this->fromPayloadOfKind($class, $kind, $payload);
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param class-string<T> $class
+     * @param self::CODEC|self::STRING|self::INT|self::FLOAT|self::ENUM|null $kind from kind($class)
+     *
+     * @return T
+     *
+     * @throws InvalidValueObjectException
+     * @throws LogicException when $class is not supported
+     */
+    private function fromPayloadOfKind(string $class, ?string $kind, mixed $payload): object
+    {
+        $value = match (true) {
+            $kind === self::CODEC => $this->codecs[$class]->decode(\is_array($payload) ? $payload : throw $this->wrongType($class, 'an array', $payload)),
+            $kind === self::STRING && is_subclass_of($class, StringConvertible::class) => $this->fromString($class, $payload),
+            $kind === self::INT && is_subclass_of($class, AbstractIntValueObject::class) => $this->fromInt($class, $payload),
+            $kind === self::FLOAT && is_subclass_of($class, AbstractFloatValueObject::class) => $this->fromFloat($class, $payload),
+            $kind === self::ENUM && is_subclass_of($class, BackedEnum::class) => $this->fromEnum($class, $payload),
+            default => throw $this->unsupported($class),
+        };
+
+        if (!$value instanceof $class) {
+            throw new LogicException(\sprintf('The payload codec for %s returned %s.', $class, $value::class));
+        }
+
+        return $value;
     }
 
     /**
