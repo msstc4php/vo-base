@@ -39,6 +39,16 @@ final readonly class ValueObjectMapper
 
     private const string DECIMAL = '/^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][-+]?\d+)?$/D';
 
+    private const string CODEC = 'codec';
+
+    private const string STRING = 'string';
+
+    private const string INT = 'int';
+
+    private const string FLOAT = 'float';
+
+    private const string ENUM = 'enum';
+
     /**
      * @var array<class-string<ValueObject>, PayloadCodec<ValueObject>>
      */
@@ -66,9 +76,7 @@ final readonly class ValueObjectMapper
      */
     public function supports(string $class): bool
     {
-        return isset($this->codecs[$class])
-            || $this->isScalarBacked($class)
-            || ($this->isInstantiable($class) && is_subclass_of($class, BackedEnum::class));
+        return $this->kind($class) !== null;
     }
 
     /**
@@ -95,11 +103,7 @@ final readonly class ValueObjectMapper
      */
     public function isScalarBacked(string $class): bool
     {
-        return !isset($this->codecs[$class])
-            && $this->isInstantiable($class)
-            && ((is_subclass_of($class, StringConvertible::class) && is_subclass_of($class, ValueObject::class))
-                || is_subclass_of($class, AbstractIntValueObject::class)
-                || is_subclass_of($class, AbstractFloatValueObject::class));
+        return \in_array($this->kind($class), [self::STRING, self::INT, self::FLOAT], true);
     }
 
     /**
@@ -111,13 +115,13 @@ final readonly class ValueObjectMapper
      */
     public function payloadType(string $class): string
     {
-        return match (true) {
-            isset($this->codecs[$class]) => 'array',
-            $this->isScalarBacked($class) && is_subclass_of($class, AbstractIntValueObject::class) => 'int',
-            $this->isScalarBacked($class) && is_subclass_of($class, AbstractFloatValueObject::class) => 'float',
-            $this->isScalarBacked($class) => 'string',
-            $this->isInstantiable($class) && is_subclass_of($class, BackedEnum::class) => $this->isIntBacked($class) ? 'int' : 'string',
-            default => throw $this->unsupported($class),
+        return match ($this->kind($class)) {
+            self::CODEC => 'array',
+            self::INT => 'int',
+            self::FLOAT => 'float',
+            self::STRING => 'string',
+            self::ENUM => is_subclass_of($class, BackedEnum::class) && $this->isIntBacked($class) ? 'int' : 'string',
+            null => throw $this->unsupported($class),
         };
     }
 
@@ -162,13 +166,13 @@ final readonly class ValueObjectMapper
      */
     public function fromPayload(string $class, mixed $payload): object
     {
-        $codec = $this->codecs[$class] ?? null;
+        $kind = $this->kind($class);
         $value = match (true) {
-            $codec !== null => $codec->decode(\is_array($payload) ? $payload : throw $this->wrongType($class, 'an array', $payload)),
-            $this->isScalarBacked($class) && is_subclass_of($class, StringConvertible::class) => $this->fromString($class, $payload),
-            $this->isScalarBacked($class) && is_subclass_of($class, AbstractIntValueObject::class) => $this->fromInt($class, $payload),
-            $this->isScalarBacked($class) && is_subclass_of($class, AbstractFloatValueObject::class) => $this->fromFloat($class, $payload),
-            $this->isInstantiable($class) && is_subclass_of($class, BackedEnum::class) => $this->fromEnum($class, $payload),
+            $kind === self::CODEC => $this->codecs[$class]->decode(\is_array($payload) ? $payload : throw $this->wrongType($class, 'an array', $payload)),
+            $kind === self::STRING && is_subclass_of($class, StringConvertible::class) => $this->fromString($class, $payload),
+            $kind === self::INT && is_subclass_of($class, AbstractIntValueObject::class) => $this->fromInt($class, $payload),
+            $kind === self::FLOAT && is_subclass_of($class, AbstractFloatValueObject::class) => $this->fromFloat($class, $payload),
+            $kind === self::ENUM && is_subclass_of($class, BackedEnum::class) => $this->fromEnum($class, $payload),
             default => throw $this->unsupported($class),
         };
 
@@ -207,9 +211,28 @@ final readonly class ValueObjectMapper
         return $this->fromPayload($class, $payload);
     }
 
-    private function isInstantiable(string $class): bool
+    /**
+     * How a $class is stored, computed once per call: one reflection instead of one per check.
+     *
+     * @return self::CODEC|self::STRING|self::INT|self::FLOAT|self::ENUM|null null when unsupported
+     */
+    private function kind(string $class): ?string
     {
-        return class_exists($class) && !new ReflectionClass($class)->isAbstract();
+        if (isset($this->codecs[$class])) {
+            return self::CODEC;
+        }
+
+        if (!class_exists($class) || new ReflectionClass($class)->isAbstract()) {
+            return null;
+        }
+
+        return match (true) {
+            is_subclass_of($class, StringConvertible::class) && is_subclass_of($class, ValueObject::class) => self::STRING,
+            is_subclass_of($class, AbstractIntValueObject::class) => self::INT,
+            is_subclass_of($class, AbstractFloatValueObject::class) => self::FLOAT,
+            is_subclass_of($class, BackedEnum::class) => self::ENUM,
+            default => null,
+        };
     }
 
     /**

@@ -1,14 +1,15 @@
 # Changelog
 
-## [Unreleased]
-
-To be released as 1.1.1.
+## [1.1.1] - 2026-11-13
 
 **Fixed:** `Payload\ValueObjectMapper` no longer supports an interface or an abstract class without a codec.
 `supports()`, `supportsUntrusted()` and `isScalarBacked()` return false for them, and `fromPayload()`,
 `fromUntrustedPayload()` and `payloadType()` throw the `LogicException` of an unsupported class. Before, an interface
 such as one extending `StringConvertible` and `ValueObject` was reported as supported and reading it failed with an
 `\Error` ("Cannot call abstract method"), a server error for request input.
+
+**Changed:** `ValueObjectMapper` classifies a class once per call (one reflection instead of one per check); the
+results are unchanged.
 
 ## 1.1.0 - 2026-11-11
 
