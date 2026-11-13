@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.1.1] - 2026-11-13
+## 1.1.1 - 2026-11-13
 
 **Fixed:** `Payload\ValueObjectMapper` no longer supports an interface or an abstract class without a codec.
 `supports()`, `supportsUntrusted()` and `isScalarBacked()` return false for them, and `fromPayload()`,
