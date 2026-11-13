@@ -17,6 +17,8 @@ Framework support lives in separate packages, each with its own
 | `msstc4php/vo-base-cycle` | Cycle ORM 2 typecast handler (`untrustedCastInput` opt-in for `make(typecast: true)` with request data) |
 | `msstc4php/vo-base-spiral` | Spiral 3 bootloader: filter caster, route argument interceptor, `vo:valid` checker |
 
+Not a `vo-base-*` bridge: `msstc4php/vo-documents` (document-number and personal-name value objects built on this core; composites need `new ValueObjectMapper(Codecs::all())`) and `msstc4php/vo-documents-doctrine` (its Doctrine types).
+
 ## Optional runtime libraries
 
 Two packages are optional at runtime and degrade explicitly rather than

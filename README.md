@@ -158,6 +158,10 @@ appears. Integration lives in separate packages, all built on the same storage f
 Install whichever you need; none is required by this package, and each pulls
 in only the stack it actually bridges.
 
+Separate from the bridges, [`msstc4php/vo-documents`](https://github.com/msstc4php/vo-documents) builds on this
+package with identity-document and personal-name value objects (Russia, Australia), and
+[`msstc4php/vo-documents-doctrine`](https://github.com/msstc4php/vo-documents-doctrine) adds their Doctrine types.
+
 ## Development
 
 ```bash

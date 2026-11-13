@@ -8,6 +8,7 @@ Guidance for Claude Code in this repository. Deep references live under `.claude
 dependency at runtime (`deptrac.yaml` forbids every bridged framework's namespace). Bridges
 (sibling checkouts, all on `Payload\ValueObjectMapper`): `vo-base-doctrine`, `vo-base-bundle` (Symfony),
 `vo-base-laravel`, `vo-base-yii2`, `vo-base-codeigniter4`, `vo-base-cycle`, `vo-base-spiral`.
+Not a bridge: `vo-documents` (identity documents and names built on this core) and its `vo-documents-doctrine`.
 
 ## Common commands
 
