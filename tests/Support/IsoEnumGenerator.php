@@ -218,8 +218,8 @@ final class IsoEnumGenerator
                  */
                 public static function fromNumeric(string \$numeric): self
                 {
-                    return match (str_pad(\$numeric, 3, '0', STR_PAD_LEFT)) {
-            {$fromNumericArms}            default => throw new InvalidCurrencyCodeException(sprintf('Unknown ISO 4217 numeric code "%s".', InvalidCurrencyCodeException::excerpt(\$numeric))),
+                    return match (\\str_pad(\$numeric, 3, '0', \\STR_PAD_LEFT)) {
+            {$fromNumericArms}            default => throw new InvalidCurrencyCodeException(\\sprintf('Unknown ISO 4217 numeric code "%s".', InvalidCurrencyCodeException::excerpt(\$numeric))),
                     };
                 }
             }

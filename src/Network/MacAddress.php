@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidMacAddressException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use MSSTC4PHP\ValueObject\Support\HexOctets;
 use Override;
 
 /**
@@ -15,12 +16,6 @@ use Override;
  */
 final class MacAddress extends AbstractStringValueObject
 {
-    private const string COLON = '/^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){5}$/D';
-
-    private const string HYPHEN = '/^[0-9A-Fa-f]{2}(-[0-9A-Fa-f]{2}){5}$/D';
-
-    private const string DOTTED = '/^[0-9A-Fa-f]{4}(\.[0-9A-Fa-f]{4}){2}$/D';
-
     public function oui(): Oui
     {
         return new Oui(\substr($this->value, 0, 8));
@@ -29,16 +24,11 @@ final class MacAddress extends AbstractStringValueObject
     #[Override]
     protected function parse(string $value): string
     {
-        $matchesNotation = \preg_match(self::COLON, $value) === 1
-            || \preg_match(self::HYPHEN, $value) === 1
-            || \preg_match(self::DOTTED, $value) === 1;
-
-        if (!$matchesNotation) {
+        $canonical = HexOctets::canonical($value, 6, 'dotted');
+        if ($canonical === null) {
             throw new InvalidMacAddressException(\sprintf('Value "%s" is not a valid MAC address.', InvalidMacAddressException::excerpt($value)));
         }
 
-        $hex = \strtolower(\str_replace([':', '-', '.'], '', $value));
-
-        return \implode(':', \str_split($hex, 2));
+        return $canonical;
     }
 }

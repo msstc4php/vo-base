@@ -8,11 +8,13 @@ use MSSTC4PHP\ValueObject\Exception\InvalidMacAddressException;
 use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Network\MacAddress;
 use MSSTC4PHP\ValueObject\Network\Oui;
+use MSSTC4PHP\ValueObject\Support\HexOctets;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[UsesClass(InvalidValueObjectException::class)]
+#[UsesClass(HexOctets::class)]
 #[CoversClass(MacAddress::class)]
 #[UsesClass(Oui::class)]
 final class MacAddressTest extends TestCase

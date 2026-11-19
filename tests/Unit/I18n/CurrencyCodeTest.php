@@ -211,6 +211,7 @@ final class CurrencyCodeTest extends TestCase
         yield 'unassigned' => ['001'];
         yield 'empty' => [''];
         yield 'too long' => ['0978'];
+        yield 'overlong but padded-looking' => ['00978'];
         yield 'not digits' => ['abc'];
     }
 

@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Network;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidEui64Exception;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use MSSTC4PHP\ValueObject\Support\HexOctets;
 use Override;
 
 /**
@@ -16,12 +17,6 @@ use Override;
  */
 final class Eui64 extends AbstractStringValueObject
 {
-    private const string COLON = '/^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){7}$/D';
-
-    private const string HYPHEN = '/^[0-9A-Fa-f]{2}(-[0-9A-Fa-f]{2}){7}$/D';
-
-    private const string DOTTED = '/^[0-9A-Fa-f]{4}(\.[0-9A-Fa-f]{4}){3}$/D';
-
     public function oui(): Oui
     {
         return new Oui(\substr($this->value, 0, 8));
@@ -30,16 +25,11 @@ final class Eui64 extends AbstractStringValueObject
     #[Override]
     protected function parse(string $value): string
     {
-        $matchesNotation = \preg_match(self::COLON, $value) === 1
-            || \preg_match(self::HYPHEN, $value) === 1
-            || \preg_match(self::DOTTED, $value) === 1;
-
-        if (!$matchesNotation) {
+        $canonical = HexOctets::canonical($value, 8, 'dotted');
+        if ($canonical === null) {
             throw new InvalidEui64Exception(\sprintf('Value "%s" is not a valid EUI-64.', InvalidEui64Exception::excerpt($value)));
         }
 
-        $hex = \strtolower(\str_replace([':', '-', '.'], '', $value));
-
-        return \implode(':', \str_split($hex, 2));
+        return $canonical;
     }
 }

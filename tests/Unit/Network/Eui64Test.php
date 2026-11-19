@@ -9,11 +9,13 @@ use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Network\Eui64;
 use MSSTC4PHP\ValueObject\Network\MacAddress;
 use MSSTC4PHP\ValueObject\Network\Oui;
+use MSSTC4PHP\ValueObject\Support\HexOctets;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[UsesClass(HexOctets::class)]
 #[CoversClass(Eui64::class)]
 #[UsesClass(InvalidValueObjectException::class)]
 #[UsesClass(Oui::class)]
