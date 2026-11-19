@@ -91,7 +91,7 @@ $random->currencyCode();   // always one with ISO minor units
 
 | Group | Value objects |
 |---|---|
-| Network | `Ipv4Address`, `Ipv6Address`, `IpAddress`, `MacAddress`, `Hostname`, `DomainName`, `Port`, `UrlScheme`, `UrlPath`, `Uri`, `Url`, `QueryString`, `QueryParameter`, `Cidr`, `IpRange`, `HttpMethod` |
+| Network | `Ipv4Address`, `Ipv6Address`, `IpAddress`, `MacAddress`, `Eui64`, `Oui`, `Hostname`, `DomainName`, `Port`, `UrlScheme`, `UrlPath`, `Uri`, `Url`, `QueryString`, `QueryParameter`, `Cidr`, `IpRange`, `HttpMethod` |
 | Identity | `EmailAddress`, `Uuid` (validate, version detect, `v4()`/`v7()`/`v7Now()`) |
 | i18n / geo | `CountryCode`, `CurrencyCode`, `LanguageCode` (ISO enums), `Locale`, `Latitude`, `Longitude`, `GeoCoordinates` |
 | Finance | `Iban`, `Bic`, `CreditCardNumber` (Luhn), `Decimal` (arbitrary precision) |

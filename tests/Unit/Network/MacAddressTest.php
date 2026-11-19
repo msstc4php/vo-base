@@ -7,12 +7,14 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Network;
 use MSSTC4PHP\ValueObject\Exception\InvalidMacAddressException;
 use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Network\MacAddress;
+use MSSTC4PHP\ValueObject\Network\Oui;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(MacAddress::class)]
+#[UsesClass(Oui::class)]
 final class MacAddressTest extends TestCase
 {
     public function testNormalizesColonNotationToLowercase(): void
@@ -36,5 +38,10 @@ final class MacAddressTest extends TestCase
         $this->expectException(InvalidMacAddressException::class);
 
         MacAddress::from('AA:BB:CC:DD:EE');
+    }
+
+    public function testOuiIsTheFirstThreeOctets(): void
+    {
+        self::assertSame('aa:bb:cc', MacAddress::from('AA-BB-CC-DD-EE-FF')->oui()->value);
     }
 }

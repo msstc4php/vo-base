@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+**Added:**
+
+- `Contract\Maskable`: `masked(): non-empty-string`, the form of a sensitive value that is safe for logs and screens.
+- `Exception\AmbiguousValueException`: a factory found that a value fits several types. `candidates()` lists them in
+  order; the message names the type and the candidates, never the input.
+- `I18n\CurrencyCode::numeric(): ?string` (ISO 4217 numeric code, three digits, null for codes without one such as
+  CNH) and `CurrencyCode::fromNumeric()` (one to three digits; a code shared by a current and a withdrawn currency
+  resolves to the current one; unknown codes throw the new `Exception\InvalidCurrencyCodeException`). Generated from
+  the brick/money ISO table.
+- `Network\Eui64` (64-bit, canonical lowercase colon form) and `Network\Oui` (24-bit, canonical `aa:bb:cc`), with
+  `MacAddress::oui()` and `Eui64::oui()`.
+
 ## 1.1.1 - 2026-11-13
 
 **Fixed:** `Payload\ValueObjectMapper` no longer supports an interface or an abstract class without a codec.

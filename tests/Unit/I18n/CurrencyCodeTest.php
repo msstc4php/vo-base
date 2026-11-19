@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Tests\Unit\I18n;
 
+use MSSTC4PHP\ValueObject\Exception\InvalidCurrencyCodeException;
 use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\I18n\CurrencyCode;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -157,5 +158,67 @@ final class CurrencyCodeTest extends TestCase
             $actual,
             'ISO minor units changed. Decide whether already-stored amounts need recomputing, then update the snapshot.',
         );
+    }
+
+    public function testNumericCodes(): void
+    {
+        self::assertSame('978', CurrencyCode::EUR->numeric());
+        self::assertSame('643', CurrencyCode::RUB->numeric());
+        self::assertSame('008', CurrencyCode::ALL->numeric());
+        self::assertNull(CurrencyCode::CNH->numeric());
+        self::assertNull(CurrencyCode::XEU->numeric());
+    }
+
+    public function testEveryNumberedCodeRoundTrips(): void
+    {
+        foreach (CurrencyCode::cases() as $currency) {
+            $numeric = $currency->numeric();
+            if ($numeric === null) {
+                continue;
+            }
+
+            self::assertMatchesRegularExpression('/^\d{3}$/D', $numeric, $currency->value);
+            if ($currency !== CurrencyCode::ANG) {
+                self::assertSame($currency, CurrencyCode::fromNumeric($numeric), $currency->value);
+            }
+        }
+    }
+
+    public function testFromNumericResolvesRuble(): void
+    {
+        self::assertSame(CurrencyCode::RUB, CurrencyCode::fromNumeric('643'));
+    }
+
+    public function testFromNumericPadsShortInput(): void
+    {
+        self::assertSame(CurrencyCode::ALL, CurrencyCode::fromNumeric('8'));
+        self::assertSame(CurrencyCode::ALL, CurrencyCode::fromNumeric('08'));
+        self::assertSame(CurrencyCode::ALL, CurrencyCode::fromNumeric('008'));
+    }
+
+    public function testSharedNumericCodeResolvesToTheCurrentCurrency(): void
+    {
+        self::assertSame('532', CurrencyCode::ANG->numeric());
+        self::assertSame('532', CurrencyCode::XCG->numeric());
+        self::assertSame(CurrencyCode::XCG, CurrencyCode::fromNumeric('532'));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function unknownNumericProvider(): iterable
+    {
+        yield 'unassigned' => ['001'];
+        yield 'empty' => [''];
+        yield 'too long' => ['0978'];
+        yield 'not digits' => ['abc'];
+    }
+
+    #[DataProvider('unknownNumericProvider')]
+    public function testUnknownNumericCodeThrows(string $numeric): void
+    {
+        $this->expectException(InvalidCurrencyCodeException::class);
+
+        CurrencyCode::fromNumeric($numeric);
     }
 }

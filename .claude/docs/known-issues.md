@@ -192,3 +192,9 @@ therefore only holds when callers catch `InvalidValueObjectException` **first**:
 `LogicException` alone would swallow input errors as configuration errors, and a test expecting `LogicException`
 passes on an input error. Bridges catch `InvalidValueObjectException` before anything else, and tests expect the
 exact class.
+
+## CurrencyCode numeric codes (1.2)
+
+`numeric()` / `fromNumeric()` are generated from the same brick/money table as `isoMinorUnits()`. The only numeric
+code shared today is 532 (ANG, withdrawn, and XCG, current); `fromNumeric('532')` gives XCG, `ANG->numeric()` still
+gives '532'. An unknown code throws `InvalidCurrencyCodeException` (like `CountryCode::fromNumeric`), not `ValueError`.

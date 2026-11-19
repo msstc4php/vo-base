@@ -21,6 +21,11 @@ final class MacAddress extends AbstractStringValueObject
 
     private const string DOTTED = '/^[0-9A-Fa-f]{4}(\.[0-9A-Fa-f]{4}){2}$/D';
 
+    public function oui(): Oui
+    {
+        return new Oui(\substr($this->value, 0, 8));
+    }
+
     #[Override]
     protected function parse(string $value): string
     {

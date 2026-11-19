@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Tests\Support;
 
+use Brick\Money\CurrencyType;
 use RuntimeException;
 use Symfony\Component\Intl\Countries;
 use Symfony\Component\Intl\Currencies;
@@ -112,6 +113,8 @@ final class IsoEnumGenerator
         // reports CLDR display digits, which differ for 25 codes (HUF, IDR, IQD, ...).
         // Mixing the two shifts stored amounts by orders of magnitude.
         $isoMinorUnits = $this->isoMinorUnitsByCode();
+        $isoNumeric = $this->isoNumericByCode();
+        $numericToCode = $this->currentFirstNumericMap($isoNumeric);
 
         // ISO registers codes before CLDR picks them up (XAD), so the case set is the union of both sources.
         $cldrCodes = \array_flip(Currencies::getCurrencyCodes());
@@ -121,6 +124,8 @@ final class IsoEnumGenerator
         $cases = '';
         $displayArms = '';
         $isoArms = '';
+        $numericArms = '';
+        $fromNumericArms = '';
         foreach ($codes as $code) {
             $cases .= \sprintf("    case %s = '%s';\n", $code, $code);
             $displayArms .= \sprintf(
@@ -133,6 +138,15 @@ final class IsoEnumGenerator
                 $code,
                 isset($isoMinorUnits[$code]) ? (string) $isoMinorUnits[$code] : 'null',
             );
+            $numericArms .= \sprintf(
+                "            self::%s => %s,\n",
+                $code,
+                isset($isoNumeric[$code]) ? "'" . $isoNumeric[$code]['numeric'] . "'" : 'null',
+            );
+        }
+
+        foreach ($numericToCode as $numeric => $code) {
+            $fromNumericArms .= \sprintf("            '%s' => self::%s,\n", $numeric, $code);
         }
 
         return <<<PHP
@@ -141,6 +155,8 @@ final class IsoEnumGenerator
             declare(strict_types=1);
 
             namespace MSSTC4PHP\\ValueObject\\I18n;
+
+            use MSSTC4PHP\\ValueObject\\Exception\\InvalidCurrencyCodeException;
 
             /**
              * ISO 4217 currency code. Generated from symfony/intl and the ISO 4217 table
@@ -183,6 +199,29 @@ final class IsoEnumGenerator
                     return match (\$this) {
             {$isoArms}        };
                 }
+
+                /**
+                 * ISO 4217 numeric code, zero-padded to three digits. Null for codes the ISO
+                 * table does not number (CNH, XEU, ...); no value is invented for them.
+                 *
+                 * @return non-empty-string|null
+                 */
+                public function numeric(): ?string
+                {
+                    return match (\$this) {
+            {$numericArms}        };
+                }
+
+                /**
+                 * Accepts one to three digits. A numeric code shared by a withdrawn and a
+                 * current currency resolves to the current one.
+                 */
+                public static function fromNumeric(string \$numeric): self
+                {
+                    return match (str_pad(\$numeric, 3, '0', STR_PAD_LEFT)) {
+            {$fromNumericArms}            default => throw new InvalidCurrencyCodeException(sprintf('Unknown ISO 4217 numeric code "%s".', InvalidCurrencyCodeException::excerpt(\$numeric))),
+                    };
+                }
             }
 
             PHP;
@@ -216,6 +255,55 @@ final class IsoEnumGenerator
             {$cases}}
 
             PHP;
+    }
+
+    /**
+     * @param array<non-empty-string, array{numeric: non-empty-string, current: bool}> $isoNumeric
+     *
+     * @return array<non-empty-string, non-empty-string> numeric code => alpha code, the current currency winning
+     */
+    private function currentFirstNumericMap(array $isoNumeric): array
+    {
+        $map = [];
+        foreach ($isoNumeric as $code => $entry) {
+            if (!isset($map[$entry['numeric']]) || $entry['current']) {
+                $map[$entry['numeric']] = $code;
+            }
+        }
+
+        \ksort($map);
+
+        return $map;
+    }
+
+    /**
+     * @return array<non-empty-string, array{numeric: non-empty-string, current: bool}>
+     */
+    private function isoNumericByCode(): array
+    {
+        $table = require \dirname(__DIR__, 2) . '/vendor/brick/money/data/iso-currencies.php';
+        if (!\is_array($table)) {
+            throw new RuntimeException('brick/money ISO table is not an array.');
+        }
+
+        $numeric = [];
+        foreach ($table as $code => $entry) {
+            if (
+                !\is_string($code)
+                || \preg_match('/^[A-Z]{3}$/', $code) !== 1
+                || !\is_array($entry)
+                || !\is_int($entry[1] ?? null)
+                || $entry[1] < 0
+                || $entry[1] > 999
+                || !($entry[4] ?? null) instanceof CurrencyType
+            ) {
+                throw new RuntimeException(\sprintf('Unexpected brick/money ISO table entry "%s".', $code));
+            }
+
+            $numeric[$code] = ['numeric' => \str_pad((string) $entry[1], 3, '0', STR_PAD_LEFT), 'current' => $entry[4] === CurrencyType::IsoCurrent];
+        }
+
+        return $numeric;
     }
 
     /**
