@@ -777,7 +777,7 @@ enum CountryCode: string
 
     public static function fromAlpha3(string $alpha3): self
     {
-        return match (strtoupper($alpha3)) {
+        return match (\strtoupper($alpha3)) {
             'AND' => self::AD,
             'ARE' => self::AE,
             'AFG' => self::AF,
@@ -1027,13 +1027,13 @@ enum CountryCode: string
             'ZAF' => self::ZA,
             'ZMB' => self::ZM,
             'ZWE' => self::ZW,
-            default => throw new InvalidCountryCodeException(sprintf('Unknown ISO 3166-1 alpha-3 code "%s".', InvalidCountryCodeException::excerpt($alpha3))),
+            default => throw new InvalidCountryCodeException(\sprintf('Unknown ISO 3166-1 alpha-3 code "%s".', InvalidCountryCodeException::excerpt($alpha3))),
         };
     }
 
     public static function fromNumeric(string $numeric): self
     {
-        return match (str_pad($numeric, 3, '0', STR_PAD_LEFT)) {
+        return match (\str_pad($numeric, 3, '0', \STR_PAD_LEFT)) {
             '020' => self::AD,
             '784' => self::AE,
             '004' => self::AF,
@@ -1283,7 +1283,7 @@ enum CountryCode: string
             '710' => self::ZA,
             '894' => self::ZM,
             '716' => self::ZW,
-            default => throw new InvalidCountryCodeException(sprintf('Unknown ISO 3166-1 numeric code "%s".', InvalidCountryCodeException::excerpt($numeric))),
+            default => throw new InvalidCountryCodeException(\sprintf('Unknown ISO 3166-1 numeric code "%s".', InvalidCountryCodeException::excerpt($numeric))),
         };
     }
 }

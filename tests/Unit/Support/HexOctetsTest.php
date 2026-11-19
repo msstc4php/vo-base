@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Support;
 
+use LogicException;
 use MSSTC4PHP\ValueObject\Support\HexOctets;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -36,5 +37,12 @@ final class HexOctetsTest extends TestCase
     public function testCanonical(string $value, int $octets, string $alternative, ?string $expected): void
     {
         self::assertSame($expected, HexOctets::canonical($value, $octets, $alternative));
+    }
+
+    public function testDottedNotationNeedsAnEvenOctetCount(): void
+    {
+        $this->expectException(LogicException::class);
+
+        HexOctets::canonical('aabb.cc', 3, 'dotted');
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Support;
 
+use LogicException;
+
 /**
  * Notation handling shared by the IEEE identifiers (MAC address, EUI-64, OUI).
  *
@@ -18,14 +20,20 @@ final class HexOctets
      *
      * @param positive-int $octets
      * @param 'dotted'|'bare' $alternative
+     *
+     * @throws LogicException when the dotted notation is asked for an odd number of octets
      */
     public static function canonical(string $value, int $octets, string $alternative): ?string
     {
+        if ($alternative === 'dotted' && $octets % 2 !== 0) {
+            throw new LogicException('The dotted notation needs an even number of octets.');
+        }
+
         $patterns = [
             \sprintf('/^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){%d}$/D', $octets - 1),
             \sprintf('/^[0-9A-Fa-f]{2}(-[0-9A-Fa-f]{2}){%d}$/D', $octets - 1),
             $alternative === 'dotted'
-                ? \sprintf('/^[0-9A-Fa-f]{4}(\.[0-9A-Fa-f]{4}){%d}$/D', $octets / 2 - 1)
+                ? \sprintf('/^[0-9A-Fa-f]{4}(\.[0-9A-Fa-f]{4}){%d}$/D', intdiv($octets, 2) - 1)
                 : \sprintf('/^[0-9A-Fa-f]{%d}$/D', $octets * 2),
         ];
 
