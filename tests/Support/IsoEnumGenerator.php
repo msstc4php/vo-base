@@ -201,8 +201,10 @@ final class IsoEnumGenerator
                 }
 
                 /**
-                 * ISO 4217 numeric code, zero-padded to three digits. Null for codes the ISO
-                 * table does not number (CNH, XEU, ...); no value is invented for them.
+                 * ISO 4217 numeric code, zero-padded to three digits, from brick/money's ISO
+                 * 4217 table. Null for codes that table does not number: codes ISO never
+                 * numbered (CNH, XEU) and withdrawn ones it omits although ISO's historic
+                 * list numbers them (SUR, CSK, DDM, ...); no value is invented for them.
                  *
                  * @return non-empty-string|null
                  */

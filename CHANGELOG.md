@@ -7,8 +7,8 @@
 - `Contract\Maskable`: `masked(): non-empty-string`, the form of a sensitive value that is safe for logs and screens.
 - `Exception\AmbiguousValueException`: a factory found that a value fits several types. `candidates()` lists them in
   order; the message names the type and the candidates, never the input.
-- `I18n\CurrencyCode::numeric(): ?string` (ISO 4217 numeric code, three digits, null for codes without one such as
-  CNH) and `CurrencyCode::fromNumeric()` (one to three digits; a code shared by a current and a withdrawn currency
+- `I18n\CurrencyCode::numeric(): ?string` (ISO 4217 numeric code, three digits; null for codes the brick/money ISO
+  table leaves unnumbered: CNH, and withdrawn codes such as SUR or CSK that ISO's historic list does number) and `CurrencyCode::fromNumeric()` (one to three digits; a code shared by a current and a withdrawn currency
   resolves to the current one; unknown codes throw the new `Exception\InvalidCurrencyCodeException`). Generated from
   the brick/money ISO table.
 - `Network\Eui64` (64-bit, canonical lowercase colon form) and `Network\Oui` (24-bit, canonical `aa:bb:cc`), with
