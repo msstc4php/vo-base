@@ -37,7 +37,7 @@ final class IsoEnumGenerator
         foreach (Countries::getCountryCodes() as $alpha2) {
             try {
                 $alpha3 = Countries::getAlpha3Code($alpha2);
-                $numeric = \str_pad(Countries::getNumericCode($alpha2), 3, '0', STR_PAD_LEFT);
+                $numeric = \str_pad(Countries::getNumericCode($alpha2), 3, '0', \STR_PAD_LEFT);
             } catch (MissingResourceException) {
                 continue;
             }
@@ -300,7 +300,7 @@ final class IsoEnumGenerator
                 throw new RuntimeException(\sprintf('Unexpected brick/money ISO table entry "%s".', $code));
             }
 
-            $numeric[$code] = ['numeric' => \str_pad((string) $entry[1], 3, '0', STR_PAD_LEFT), 'current' => $entry[4] === CurrencyType::IsoCurrent];
+            $numeric[$code] = ['numeric' => \str_pad((string) $entry[1], 3, '0', \STR_PAD_LEFT), 'current' => $entry[4] === CurrencyType::IsoCurrent];
         }
 
         return $numeric;
