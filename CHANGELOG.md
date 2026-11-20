@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased
+
+**Added:**
+
+- `Finance\Iban::bankIdentifier()`, `branchIdentifier()` (both `?string`, read at the positions of the SWIFT IBAN
+  Registry) and `isSepaCountry()` (`?bool`). All three return null for a country absent from the registry;
+  `branchIdentifier()` is also null where the registry gives the country no branch identifier.
+- `tools/generate-iban-registry.php` writes the `@internal` `Support\IbanRegistry` from the registry's TXT edition.
+  Only structural facts are embedded, because SWIFT's terms do not allow redistribution (`docs/sources/IBAN.md`).
+
+**Changed:**
+
+- `Finance\Iban` checks the length and the BBAN character pattern of every country in the SWIFT IBAN Registry (89
+  countries). An IBAN of a registered country with the wrong length or characters, a German one of 21 characters for
+  instance, was accepted before and now throws `InvalidIbanException`: it is not an IBAN under ISO 13616. A country
+  absent from the registry keeps the generic check and is never refused for that.
+
+**Deprecated:**
+
+- `Finance\CreditCardNumber`: use `MSSTC4PHP\ValueObject\Financial\Card\PaymentCardNumber` from
+  `msstc4php/vo-finance`. Behaviour is unchanged, there is no runtime deprecation notice (it would fire on every
+  hydration from the database), and removal is no earlier than 2.0.
+
 ## 1.2.0 - 2026-11-20
 
 **Added:**

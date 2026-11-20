@@ -11,6 +11,9 @@ use Override;
 /**
  * Primary Account Number (PAN): 12..19 digits passing the Luhn checksum.
  * Separators (spaces, hyphens) are stripped before storage.
+ *
+ * @deprecated since 1.3, use MSSTC4PHP\ValueObject\Financial\Card\PaymentCardNumber from msstc4php/vo-finance;
+ *             removed no earlier than 2.0. Behaviour is unchanged.
  */
 final class CreditCardNumber extends AbstractStringValueObject
 {

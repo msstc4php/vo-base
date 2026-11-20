@@ -7,6 +7,8 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Finance;
 use MSSTC4PHP\ValueObject\Exception\InvalidIbanException;
 use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Finance\Iban;
+use MSSTC4PHP\ValueObject\Support\IbanFormat;
+use MSSTC4PHP\ValueObject\Support\IbanRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -14,6 +16,8 @@ use PHPUnit\Framework\TestCase;
 
 #[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(Iban::class)]
+#[CoversClass(IbanFormat::class)]
+#[CoversClass(IbanRegistry::class)]
 final class IbanTest extends TestCase
 {
     public function testNormalizesToCompactUppercaseForm(): void
@@ -72,5 +76,94 @@ final class IbanTest extends TestCase
         $this->expectException(InvalidIbanException::class);
 
         Iban::from($value);
+    }
+
+    public function testRefusesAGermanIbanOfTwentyOneCharacters(): void
+    {
+        // DE89 3704 0044 0532 0130 00 without its last digit, re-checksummed: only the length is wrong.
+        $this->expectException(InvalidIbanException::class);
+        $this->expectExceptionMessage('does not match the registered format');
+
+        Iban::from('DE51 3704 0044 0532 0130 0');
+    }
+
+    public function testRefusesALetterWhereTheRegistryAllowsOnlyDigits(): void
+    {
+        $this->expectException(InvalidIbanException::class);
+        $this->expectExceptionMessage('does not match the registered format');
+
+        Iban::from('GB82 WEST 1234 5698 7654 3A');
+    }
+
+    public function testAcceptsACountryAbsentFromTheRegistry(): void
+    {
+        // ZZ is not an ISO 3166 code, so no registry entry can ever exist; the checksum is valid (mod 97 = 1).
+        $iban = Iban::from('ZZ44 ABCD 1234 5678');
+
+        self::assertSame('ZZ44ABCD12345678', $iban->value);
+        self::assertNull($iban->bankIdentifier());
+        self::assertNull($iban->branchIdentifier());
+        self::assertNull($iban->isSepaCountry());
+    }
+
+    public function testReadsBankAndBranchIdentifiers(): void
+    {
+        $iban = Iban::from('GB82 WEST 1234 5698 7654 32');
+
+        self::assertSame('WEST', $iban->bankIdentifier());
+        self::assertSame('123456', $iban->branchIdentifier());
+        self::assertTrue($iban->isSepaCountry());
+    }
+
+    public function testBranchIdentifierIsNullWhereTheRegistryGivesNone(): void
+    {
+        $iban = Iban::from('DE89 3704 0044 0532 0130 00');
+
+        self::assertSame('37040044', $iban->bankIdentifier());
+        self::assertNull($iban->branchIdentifier());
+    }
+
+    public function testReportsANonSepaCountry(): void
+    {
+        self::assertFalse(Iban::from('AE07 0331 2345 6789 0123 456')->isSepaCountry());
+    }
+
+    /**
+     * @return iterable<string, array{string, string, ?string, bool}>
+     */
+    public static function registryExamples(): iterable
+    {
+        /** @var array<string, array{string, string, ?string, bool}> $examples */
+        $examples = require \dirname(__DIR__, 2) . '/Fixtures/iban-registry-examples.php';
+
+        yield from $examples;
+    }
+
+    #[DataProvider('registryExamples')]
+    public function testEveryRegistryExampleIsAcceptedWithItsIdentifiers(string $example, string $bank, ?string $branch, bool $sepa): void
+    {
+        $iban = Iban::from($example);
+
+        self::assertSame($bank, $iban->bankIdentifier());
+        self::assertSame($branch, $iban->branchIdentifier());
+        self::assertSame($sepa, $iban->isSepaCountry());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function registryExampleIbans(): iterable
+    {
+        foreach (self::registryExamples() as $country => [$example]) {
+            yield $country => [$example];
+        }
+    }
+
+    #[DataProvider('registryExampleIbans')]
+    public function testEveryRegistryExampleIsRefusedWhenOneCharacterShorter(string $example): void
+    {
+        $this->expectException(InvalidIbanException::class);
+
+        Iban::from(\substr($example, 0, -1));
     }
 }

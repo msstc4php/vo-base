@@ -1,0 +1,15 @@
+Data element	Description - Pattern - Example	Description - Pattern - Example	Description - Pattern - Example	Description - Pattern - Example
+Name of country	Andorra	Germany	Falkland Islands	Italy
+IBAN prefix country code (ISO 3166)	AD	DE	FK	IT
+SEPA country	Yes	Yes	No	Yes
+BBAN structure	4!n4!n12!c	8!n10!n	2!a12!n	1!a5!n5!n12!c
+BBAN length	20	18	14	23
+Bank identifier position within the BBAN	1-4	1-8	1-2	2-6
+Bank identifier pattern	4!n 	8!n 	2!a 	5!n 
+Branch identifier position within the BBAN	5-8		N/A	7-11
+Branch identifier pattern	4!n		N/A	5!n
+IBAN length	24	22	18	27
+IBAN electronic format example	AD1200012030200359100100	DE89370400440532013000	FK88SC123456789012	IT60X0542811101000000123456
+Street Address	"Line one
+Line two"	Street	Street	Street
+Updates				
