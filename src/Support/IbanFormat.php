@@ -20,7 +20,7 @@ final readonly class IbanFormat
      * and $branchStart and $branchLength are given together or not at all (null when the registry gives the country
      * no branch identifier).
      *
-     * @throws InvalidArgumentException when a value is out of range or only one of the branch values is given
+     * @throws InvalidArgumentException when the pattern is empty, a value is out of range or only one of the branch values is given
      */
     public function __construct(
         public int $length,
@@ -31,7 +31,10 @@ final readonly class IbanFormat
         public ?int $branchStart = null,
         public ?int $branchLength = null,
     ) {
-        if ($length < 15 || $length > 34 || $bbanPattern === '' || $bankStart < 0 || $bankLength < 1) {
+        if ($bbanPattern === '') {
+            throw new InvalidArgumentException('IBAN format has an empty BBAN pattern.');
+        }
+        if ($length < 15 || $length > 34 || $bankStart < 0 || $bankLength < 1) {
             throw new InvalidArgumentException('IBAN format out of range.');
         }
         if (($branchStart === null) !== ($branchLength === null)) {

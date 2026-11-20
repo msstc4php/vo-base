@@ -63,7 +63,6 @@ final class IbanFormatTest extends TestCase
         yield 'branch length without start' => [static fn (): IbanFormat => new IbanFormat(length: 15, bbanPattern: '/x/', bankStart: 0, bankLength: 3, sepa: false, branchLength: 2)];
         yield 'negative branch start' => [static fn (): IbanFormat => new IbanFormat(length: 15, bbanPattern: '/x/', bankStart: 0, bankLength: 3, sepa: false, branchStart: -1, branchLength: 2)];
         yield 'empty branch identifier' => [static fn (): IbanFormat => new IbanFormat(length: 15, bbanPattern: '/x/', bankStart: 0, bankLength: 3, sepa: false, branchStart: 4, branchLength: 0)];
-        yield 'empty pattern' => [static fn (): IbanFormat => new IbanFormat(length: 15, bbanPattern: '', bankStart: 0, bankLength: 3, sepa: false)];
     }
 
     /**
@@ -75,6 +74,14 @@ final class IbanFormatTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         $construct();
+    }
+
+    public function testRefusesAnEmptyBbanPatternWithItsOwnMessage(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('IBAN format has an empty BBAN pattern.');
+
+        new IbanFormat(length: 15, bbanPattern: '', bankStart: 0, bankLength: 3, sepa: false);
     }
 
     public function testAcceptsTheLimits(): void

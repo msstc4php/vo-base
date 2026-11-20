@@ -20,8 +20,9 @@
 **Deprecated:**
 
 - `Finance\CreditCardNumber` and `Testing\RandomValueObjects::creditCardNumber()`: use
-  `MSSTC4PHP\ValueObject\Financial\Card\PaymentCardNumber` from `msstc4php/vo-finance`. Behaviour is unchanged, there is no runtime deprecation notice (it would fire on every
-  hydration from the database), and removal is no earlier than 2.0.
+  `MSSTC4PHP\ValueObject\Financial\Card\PaymentCardNumber` from `msstc4php/vo-finance`. Behaviour is unchanged,
+  there is no runtime deprecation notice (it would fire on every hydration from the database), and removal is no
+  earlier than 2.0.
 
 ## 1.2.0 - 2026-11-20
 

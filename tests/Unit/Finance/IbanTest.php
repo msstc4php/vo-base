@@ -180,6 +180,11 @@ final class IbanTest extends TestCase
             $numeric .= \ctype_alpha($char) ? (string) (\ord($char) - 55) : $char;
         }
 
-        return \substr($iban, 0, 2) . \sprintf('%02d', 98 - (int) \bcmod($numeric, '97')) . \substr($iban, 4);
+        $remainder = 0;
+        foreach (\str_split($numeric) as $digit) {
+            $remainder = ($remainder * 10 + (int) $digit) % 97;
+        }
+
+        return \substr($iban, 0, 2) . \sprintf('%02d', 98 - $remainder) . \substr($iban, 4);
     }
 }
