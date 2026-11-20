@@ -76,7 +76,7 @@ final class Iban extends AbstractStringValueObject
             throw new InvalidIbanException(\sprintf('IBAN %s does not match the registered format of its country.', $this->masked($value)));
         }
 
-        if ($this->mod97($compact) !== '1') {
+        if ($this->mod97($compact) !== 1) {
             throw new InvalidIbanException(\sprintf('IBAN %s fails the ISO 7064 checksum.', $this->masked($value)));
         }
 
@@ -90,23 +90,19 @@ final class Iban extends AbstractStringValueObject
 
     /**
      * ISO 7064 mod-97: move the first four characters to the end, map letters to
-     * numbers (A=10 .. Z=35) and take the remainder modulo 97.
-     *
-     * @return numeric-string
+     * numbers (A=10 .. Z=35) and take the remainder modulo 97, digit by digit.
      */
-    private function mod97(string $compact): string
+    private function mod97(string $compact): int
     {
-        $rearranged = \substr($compact, 4) . \substr($compact, 0, 4);
-
-        $numeric = '';
-        foreach (\str_split($rearranged) as $char) {
-            $numeric .= \ctype_alpha($char) ? (string) (\ord($char) - 55) : $char;
+        $remainder = 0;
+        foreach (\str_split(\substr($compact, 4) . \substr($compact, 0, 4)) as $char) {
+            $numeric = \ctype_alpha($char) ? (string) (\ord($char) - 55) : $char;
+            foreach (\str_split($numeric) as $digit) {
+                $remainder = ($remainder * 10 + (int) $digit) % 97;
+            }
         }
 
-        // The rearranged string only contains digits after the letter mapping.
-        \assert(\is_numeric($numeric));
-
-        return \bcmod($numeric, '97');
+        return $remainder;
     }
 
     /**

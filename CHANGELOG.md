@@ -16,6 +16,8 @@
   countries). An IBAN of a registered country with the wrong length or characters, a German one of 21 characters for
   instance, was accepted before and now throws `InvalidIbanException`: it is not an IBAN under ISO 13616. A country
   absent from the registry keeps the generic check and is never refused for that.
+- `Finance\Iban` computes its ISO 7064 checksum with integer arithmetic, so IBAN validation no longer needs
+  `ext-bcmath`.
 
 **Deprecated:**
 

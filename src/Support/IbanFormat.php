@@ -20,7 +20,8 @@ final readonly class IbanFormat
      * and $branchStart and $branchLength are given together or not at all (null when the registry gives the country
      * no branch identifier).
      *
-     * @throws InvalidArgumentException when the pattern is empty, a value is out of range or only one of the branch values is given
+     * @throws InvalidArgumentException when the pattern is empty, a value is out of range or only one of the branch
+     *                                  values is given
      */
     public function __construct(
         public int $length,
