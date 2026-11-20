@@ -4,33 +4,39 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Tests\Unit\Support;
 
-use MSSTC4PHP\ValueObject\Support\IbanFormat;
-use MSSTC4PHP\ValueObject\Support\IbanRegistry;
 use MSSTC4PHP\ValueObject\Tests\Support\IbanRegistryGenerator;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
-#[CoversClass(IbanFormat::class)]
-#[CoversClass(IbanRegistry::class)]
+#[CoversNothing]
 final class IbanRegistryGeneratorTest extends TestCase
 {
     private const string EDITION = 'sample edition';
 
     public function testRendersTheSampleRegistryDeterministically(): void
     {
-        $sample = $this->sample();
         $generator = new IbanRegistryGenerator();
 
-        self::assertSame($generator->render($sample, self::EDITION), $generator->render($sample, self::EDITION));
+        self::assertSame($generator->render($this->sample(), self::EDITION), $generator->render($this->sample(), self::EDITION));
+    }
+
+    public function testOutputDoesNotDependOnTheColumnOrderOfTheSource(): void
+    {
+        $generator = new IbanRegistryGenerator();
+
+        self::assertSame(
+            $this->withoutSha($generator->render($this->sample(), self::EDITION)),
+            $this->withoutSha($generator->render($this->withReversedColumns(), self::EDITION)),
+        );
     }
 
     public function testRendersCountriesInCodeOrderWithTheirFacts(): void
     {
         $output = new IbanRegistryGenerator()->render($this->sample(), self::EDITION);
 
-        self::assertStringContainsString(' * Edition: sample edition' . "\n", $output);
+        self::assertStringContainsString(' * Edition: sample edition.' . "\n", $output);
         self::assertStringContainsString(' * Source SHA-256: ' . \hash('sha256', $this->sample()) . ".\n", $output);
         self::assertLessThan(\strpos($output, "'DE'"), \strpos($output, "'AD'"));
         self::assertLessThan(\strpos($output, "'FK'"), \strpos($output, "'DE'"));
@@ -44,23 +50,17 @@ final class IbanRegistryGeneratorTest extends TestCase
             $output,
         );
         self::assertStringContainsString("'FK' => new IbanFormat(length: 18, bbanPattern: '/^[A-Z]{2}[0-9]{12}\$/D', bankStart: 0, bankLength: 2, sepa: false),", $output);
-        self::assertStringContainsString('bankStart: 1, bankLength: 5, sepa: true, branchStart: 6, branchLength: 5)', $output);
+        self::assertStringContainsString(
+            "'IT' => new IbanFormat(length: 27, bbanPattern: '/^[A-Z]{1}[0-9]{5}[0-9]{5}[A-Z0-9]{12}\$/D', bankStart: 1, bankLength: 5, sepa: true, branchStart: 6, branchLength: 5),",
+            $output,
+        );
     }
 
     public function testNeutralisesACommentTerminatorInTheEdition(): void
     {
         $output = new IbanRegistryGenerator()->render($this->sample(), 'a */ b');
 
-        self::assertStringContainsString('Edition: a * / b', $output);
-    }
-
-    public function testFormatWithHalfAGivenBranchPositionHasNoBranchIdentifier(): void
-    {
-        $withoutLength = new IbanFormat(length: 15, bbanPattern: '/^[0-9]{11}$/D', bankStart: 0, bankLength: 3, sepa: false, branchStart: 4);
-        $withoutStart = new IbanFormat(length: 15, bbanPattern: '/^[0-9]{11}$/D', bankStart: 0, bankLength: 3, sepa: false, branchLength: 2);
-
-        self::assertNull($withoutLength->branchIdentifier('XX0001234567890'));
-        self::assertNull($withoutStart->branchIdentifier('XX0001234567890'));
+        self::assertStringContainsString('Edition: a * / b.', $output);
     }
 
     /**
@@ -72,6 +72,8 @@ final class IbanRegistryGeneratorTest extends TestCase
         yield 'duplicate country' => ['IBAN prefix country code (ISO 3166)', 'AD', 'is listed twice'];
         yield 'bad structure' => ['BBAN structure', 'ab', 'unreadable BBAN structure'];
         yield 'structure length' => ['BBAN length', '17', 'is not 17 characters long'];
+        yield 'unreadable BBAN length' => ['BBAN length', '1x', 'unreadable BBAN length'];
+        yield 'unreadable IBAN length' => ['IBAN length', '', 'unreadable IBAN length'];
         yield 'iban length' => ['IBAN length', '30', 'does not fit BBAN length'];
         yield 'bank position' => ['Bank identifier position within the BBAN', 'x', 'unreadable identifier position'];
         yield 'position outside' => ['Bank identifier position within the BBAN', '1-19', 'lies outside the BBAN'];
@@ -91,32 +93,27 @@ final class IbanRegistryGeneratorTest extends TestCase
         new IbanRegistryGenerator()->render($this->withGermanCell($label, $replacement), self::EDITION);
     }
 
+    public function testRefusesARepeatedRowThatItReads(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('two "SEPA country" rows');
+
+        new IbanRegistryGenerator()->render($this->sample() . "SEPA country\tNo\tNo\tNo\tNo\n", self::EDITION);
+    }
+
+    public function testIgnoresARepeatedRowThatItDoesNotRead(): void
+    {
+        $output = new IbanRegistryGenerator()->render($this->sample() . "Street Address\tx\tx\tx\tx\n", self::EDITION);
+
+        self::assertSame($this->withoutSha($output), $this->withoutSha(new IbanRegistryGenerator()->render($this->sample(), self::EDITION)));
+    }
+
     public function testRefusesARegistryWithoutACountryRow(): void
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('no "IBAN prefix country code (ISO 3166)" row');
 
         new IbanRegistryGenerator()->render("Name of country\tX\n", self::EDITION);
-    }
-
-    public function testCommittedRegistryKnowsTheGermanFormat(): void
-    {
-        $format = IbanRegistry::find('DE');
-
-        self::assertInstanceOf(IbanFormat::class, $format);
-        self::assertSame(22, $format->length);
-        self::assertNull(IbanRegistry::find('ZZ'));
-    }
-
-    public function testFormatReadsIdentifiersAtItsPositions(): void
-    {
-        $format = new IbanFormat(length: 15, bbanPattern: '/^[0-9]{11}$/D', bankStart: 1, bankLength: 3, sepa: false, branchStart: 4, branchLength: 2);
-
-        self::assertSame('123', $format->bankIdentifier('XX0001234567890'));
-        self::assertSame('45', $format->branchIdentifier('XX0001234567890'));
-        self::assertTrue($format->accepts('XX0001234567890'));
-        self::assertFalse($format->accepts('XX000123456789'));
-        self::assertFalse($format->accepts('XX000123456789A'));
     }
 
     private function withGermanCell(string $label, string $replacement): string
@@ -134,6 +131,27 @@ final class IbanRegistryGeneratorTest extends TestCase
         unset($line);
 
         return \implode("\n", $lines);
+    }
+
+    private function withoutSha(string $output): string
+    {
+        return \preg_replace('/^ \* Source SHA-256:.*\n/m', '', $output) ?? '';
+    }
+
+    private function withReversedColumns(): string
+    {
+        $in = \fopen('php://memory', 'r+');
+        $out = \fopen('php://memory', 'r+');
+        self::assertIsResource($in);
+        self::assertIsResource($out);
+        \fwrite($in, $this->sample());
+        \rewind($in);
+        while (($cells = \fgetcsv($in, null, "\t", '"', '')) !== false) {
+            \fputcsv($out, [$cells[0], ...\array_reverse(\array_slice($cells, 1))], "\t", '"', '');
+        }
+        \rewind($out);
+
+        return (string) \stream_get_contents($out);
     }
 
     private function sample(): string

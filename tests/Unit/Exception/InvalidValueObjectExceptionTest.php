@@ -13,14 +13,15 @@ use MSSTC4PHP\ValueObject\Support\IbanFormat;
 use MSSTC4PHP\ValueObject\Support\IbanRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
 #[CoversClass(InvalidValueObjectException::class)]
 #[CoversClass(CreditCardNumber::class)]
 #[CoversClass(Iban::class)]
-#[CoversClass(IbanFormat::class)]
-#[CoversClass(IbanRegistry::class)]
+#[UsesClass(IbanFormat::class)]
+#[UsesClass(IbanRegistry::class)]
 #[CoversClass(CountryCode::class)]
 final class InvalidValueObjectExceptionTest extends TestCase
 {

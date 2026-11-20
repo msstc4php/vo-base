@@ -9,6 +9,7 @@ use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Finance\Iban;
 use MSSTC4PHP\ValueObject\Support\IbanFormat;
 use MSSTC4PHP\ValueObject\Support\IbanRegistry;
+use MSSTC4PHP\ValueObject\Tests\Fixtures\IbanRegistryExamples;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -16,8 +17,8 @@ use PHPUnit\Framework\TestCase;
 
 #[UsesClass(InvalidValueObjectException::class)]
 #[CoversClass(Iban::class)]
-#[CoversClass(IbanFormat::class)]
-#[CoversClass(IbanRegistry::class)]
+#[UsesClass(IbanFormat::class)]
+#[UsesClass(IbanRegistry::class)]
 final class IbanTest extends TestCase
 {
     public function testNormalizesToCompactUppercaseForm(): void
@@ -97,10 +98,10 @@ final class IbanTest extends TestCase
 
     public function testAcceptsACountryAbsentFromTheRegistry(): void
     {
-        // ZZ is not an ISO 3166 code, so no registry entry can ever exist; the checksum is valid (mod 97 = 1).
-        $iban = Iban::from('ZZ44 ABCD 1234 5678');
+        // The United States is an ISO 3166 country with no entry in the IBAN Registry; the checksum is valid.
+        $iban = Iban::from('US13 ABCD 1234 5678');
 
-        self::assertSame('ZZ44ABCD12345678', $iban->value);
+        self::assertSame('US13ABCD12345678', $iban->value);
         self::assertNull($iban->bankIdentifier());
         self::assertNull($iban->branchIdentifier());
         self::assertNull($iban->isSepaCountry());
@@ -133,10 +134,7 @@ final class IbanTest extends TestCase
      */
     public static function registryExamples(): iterable
     {
-        /** @var array<string, array{string, string, ?string, bool}> $examples */
-        $examples = require \dirname(__DIR__, 2) . '/Fixtures/iban-registry-examples.php';
-
-        yield from $examples;
+        yield from IbanRegistryExamples::all();
     }
 
     #[DataProvider('registryExamples')]
@@ -150,20 +148,38 @@ final class IbanTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string}>
+     * Each example one character shorter, with its check digits recomputed so that only the length is wrong.
+     *
+     * @return iterable<string, array{string, string}> shortened IBAN, expected message
      */
-    public static function registryExampleIbans(): iterable
+    public static function shortenedRegistryExamples(): iterable
     {
-        foreach (self::registryExamples() as $country => [$example]) {
-            yield $country => [$example];
+        foreach (IbanRegistryExamples::all() as $country => [$example]) {
+            $shortened = self::withValidCheckDigits(\substr($example, 0, -1));
+
+            yield $country => [
+                $shortened,
+                \strlen($shortened) < 15 ? 'Invalid IBAN' : 'does not match the registered format',
+            ];
         }
     }
 
-    #[DataProvider('registryExampleIbans')]
-    public function testEveryRegistryExampleIsRefusedWhenOneCharacterShorter(string $example): void
+    #[DataProvider('shortenedRegistryExamples')]
+    public function testEveryRegistryExampleIsRefusedWhenOneCharacterShorter(string $shortened, string $message): void
     {
         $this->expectException(InvalidIbanException::class);
+        $this->expectExceptionMessage($message);
 
-        Iban::from(\substr($example, 0, -1));
+        Iban::from($shortened);
+    }
+
+    private static function withValidCheckDigits(string $iban): string
+    {
+        $numeric = '';
+        foreach (\str_split(\substr($iban, 4) . \substr($iban, 0, 2) . '00') as $char) {
+            $numeric .= \ctype_alpha($char) ? (string) (\ord($char) - 55) : $char;
+        }
+
+        return \substr($iban, 0, 2) . \sprintf('%02d', 98 - (int) \bcmod($numeric, '97')) . \substr($iban, 4);
     }
 }

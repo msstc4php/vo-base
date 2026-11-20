@@ -11,12 +11,21 @@ SWIFT, has been designated by the ISO Technical Management Board to act as the R
   Registry (in PDF format) free of charge. The Registry is also available in .txt format."
 - Files, from that page: `https://www.swift.com/swift-resource/11971/download` (TXT) and
   `https://www.swift.com/swift-resource/9606/download` (PDF).
-- Reached on 2026-11-20 through the Internet Archive, because swift.com answers automated requests with HTTP 403:
-  snapshot `20261103001712` of the page, and the files fetched in raw form (`.../web/20261103001712id_/<file URL>`),
-  which the Archive serves unmodified.
-- Edition: the page dates both files 2026-09-17. The TXT carries no release number; its newest per-country "Last
-  update date" is Jun-26 (BH). The PDF on the same snapshot is older: "Release 99 - Dec 2024". The generated file
-  records the TXT's SHA-256 (`a98aae4d7b59544973415491accb1345cb449bfd75a67c8bc704fbe6e161c303`), 89 countries.
+- Reached on 2026-11-20 through the Internet Archive, because swift.com answers automated requests with HTTP 403.
+  Each URL resolves to the Archive's nearest capture, fetched in raw form (`.../web/<timestamp>id_/<URL>`), which the
+  Archive serves unmodified:
+
+  | Document | Capture (UTC) |
+  |---|---|
+  | IBAN page | `20261103001712` (2026-11-03T00:17:12Z) |
+  | TXT, swift-resource 11971 | `20260810144021` (2026-08-10T14:40:21Z) |
+  | PDF, swift-resource 9606 | `20251101145752` (2025-11-01T14:57:52Z) |
+  | Website terms of use | `20261001040716` (2026-10-01T04:07:16Z) |
+
+- Edition: the TXT carries no release number; its newest per-country "Last update date" is Jun-26 (BH), 89
+  countries. The page, captured later than the TXT, dates both files 2026-09-17, so a newer TXT than the one used here
+  may exist; compare before the next regeneration. The PDF capture is older still: "Release 99 - Dec 2024". The
+  generated file records the TXT's SHA-256 (`a98aae4d7b59544973415491accb1345cb449bfd75a67c8bc704fbe6e161c303`).
 
 ## Terms of use (verdict: facts only, no redistribution)
 
@@ -24,8 +33,8 @@ The registry's legal notice (PDF, last page): "SWIFT (c) 2022. All rights reserv
 publication for information purposes only. The information in this publication may change from time to time. You
 must always refer to the latest available version."
 
-swift.com's website terms (<https://www.swift.com/about-us/legal/online-services/swift-website-terms-use>, same
-snapshot): "This Website contains proprietary Materials of S.W.I.F.T. SC and/or of its affiliates and/or their
+swift.com's website terms (<https://www.swift.com/about-us/legal/online-services/swift-website-terms-use>, capture
+`20261001040716`): "This Website contains proprietary Materials of S.W.I.F.T. SC and/or of its affiliates and/or their
 respective licensors. All rights are reserved. Swift grants the swift.com User, however, a limited, personal,
 non-transferable and revocable right to view, download and make available the Materials published on this Website
 within the swift.com User's own organisation as may be reasonably necessary for the purpose for which it is supplied,
@@ -35,8 +44,10 @@ Neither text allows publishing the file or a derivative of it. So the repository
 the generated `src/Support/IbanRegistry.php` embeds only structural facts (length, BBAN character classes, the
 positions of the bank and branch identifiers, the SEPA flag), typed by the generator from the file. The generator
 reads a copy that the maintainer downloads. `tests/Fixtures/iban-registry-sample.txt` is a four-country excerpt in the
-registry's layout written for the generator's tests. `tests/Fixtures/iban-registry-examples.php` holds the registry's
-example IBANs, which the brief for this feature makes test cases.
+registry's layout, written for the generator's tests. `tests/Fixtures/IbanRegistryExamples.php` lists one example IBAN
+per country with its bank identifier, branch identifier and SEPA flag. These are factual test vectors, not the
+registry's expression, and they are used only to test that the facts above were transcribed correctly; the file is not
+a copy or a derivative of the registry's text.
 
 ## TXT layout
 
@@ -47,7 +58,7 @@ element, one column per country (the first column is the label). Rows the genera
 |---|---|---|
 | `IBAN prefix country code (ISO 3166)` | `AD` | key |
 | `SEPA country` | `Yes` / `No` | `isSepaCountry()` |
-| `BBAN structure` | `4!n4!n12!c` | BBAN pattern; `n` digits, `a` upper-case letters, `c` upper- and lower-case letters and digits; `nn!` fixed length |
+| `BBAN structure` | `4!n4!n12!c` | BBAN pattern; `n` digits, `a` upper-case letters, `c` upper- and lower-case letters and digits, mapped to `[A-Z0-9]` because `Iban` upper-cases its input; `nn!` fixed length |
 | `BBAN length` | `20` | cross-check; the IBAN length is this plus 4 |
 | `IBAN length` | `24` | length check |
 | `Bank identifier position within the BBAN` | `1-4` (one-based, inclusive) | `bankIdentifier()` |
@@ -64,9 +75,12 @@ pattern` and `Branch identifier pattern` rows are not used: the BBAN structure a
 - SE: the bank identifier example `123` disagrees with the IBAN example (`500...`).
 - IT and SM: the bank identifier starts at BBAN position 2 (a national check character comes first).
 - FK: branch identifier position is `N/A`.
+- CZ: the `IBAN structure` row (`CZ2!n4!n6!n10!n`) splits the account number differently from the `BBAN structure` row
+  (`4!n16!n`); the generator reads only the BBAN structure, which agrees with the IBAN length and example.
 - Territories that share a country's code (for instance GF, GP under FR) have no entry of their own.
 
-The tests read the identifiers for BA, PL and SE from the positions.
+The tests read the identifiers for BA, PL and SE from the positions. The `Branch identifier example` of PL holds the
+bank identifier; the generator ignores example cells for identifiers.
 
 ## Regenerating
 

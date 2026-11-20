@@ -415,6 +415,8 @@ final readonly class RandomValueObjects
 
     /**
      * A 16-digit Visa-style number (prefix 4) with a valid Luhn check digit.
+     *
+     * @deprecated since 1.3 together with {@see CreditCardNumber}; removed no earlier than 2.0
      */
     public function creditCardNumber(): CreditCardNumber
     {

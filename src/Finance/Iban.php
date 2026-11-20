@@ -35,6 +35,8 @@ final class Iban extends AbstractStringValueObject
 
     /**
      * The bank identifier at the position the registry gives for the country; null for a country absent from it.
+     *
+     * @return non-empty-string|null
      */
     public function bankIdentifier(): ?string
     {
@@ -43,6 +45,8 @@ final class Iban extends AbstractStringValueObject
 
     /**
      * Null when the country is absent from the registry or the registry gives it no branch identifier.
+     *
+     * @return non-empty-string|null
      */
     public function branchIdentifier(): ?string
     {

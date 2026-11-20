@@ -20,5 +20,8 @@ if ($registry === false) {
 }
 
 $target = dirname(__DIR__) . '/src/Support/IbanRegistry.php';
-file_put_contents($target, (new IbanRegistryGenerator())->render($registry, $edition));
+if (file_put_contents($target, (new IbanRegistryGenerator())->render($registry, $edition)) === false) {
+    fwrite(STDERR, "Cannot write {$target}\n");
+    exit(1);
+}
 echo "wrote src/Support/IbanRegistry.php\n";
