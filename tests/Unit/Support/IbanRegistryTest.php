@@ -42,5 +42,11 @@ final class IbanRegistryTest extends TestCase
     public function testKnowsNothingOfACountryAbsentFromTheRegistry(): void
     {
         self::assertNull(IbanRegistry::find('US'));
+        self::assertNull(IbanRegistry::find('US'));
+    }
+
+    public function testBuildsEachFormatOnce(): void
+    {
+        self::assertSame(IbanRegistry::find('DE'), IbanRegistry::find('DE'));
     }
 }

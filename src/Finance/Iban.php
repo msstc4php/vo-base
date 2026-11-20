@@ -73,7 +73,9 @@ final class Iban extends AbstractStringValueObject
 
         $format = IbanRegistry::find(\substr($compact, 0, 2));
         if ($format instanceof IbanFormat && !$format->accepts($compact)) {
-            throw new InvalidIbanException(\sprintf('IBAN %s does not match the registered format of its country.', $this->masked($value)));
+            $message = \sprintf('IBAN %s does not match the registered format of its country.', $this->masked($value));
+
+            throw new InvalidIbanException($message);
         }
 
         if ($this->mod97($compact) !== 1) {

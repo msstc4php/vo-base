@@ -17,7 +17,12 @@
   instance, was accepted before and now throws `InvalidIbanException`: it is not an IBAN under ISO 13616. A country
   absent from the registry keeps the generic check and is never refused for that.
 - `Finance\Iban` computes its ISO 7064 checksum with integer arithmetic, so IBAN validation no longer needs
-  `ext-bcmath`.
+  `ext-bcmath`. `Finance\Decimal::compareTo()` still calls `bccomp()` and needs it.
+- `Support\IbanRegistry` builds each country's format once and reuses it.
+
+**Upgrade note:** an IBAN stored before this release that breaks its country's registered format now throws
+`InvalidIbanException` when it is read, also on hydration through vo-base-doctrine's `vo_iban` type. Before deploying,
+run `Iban::tryFrom()` over the stored values; the rows that give null were never valid IBANs and need correcting.
 
 **Deprecated:**
 

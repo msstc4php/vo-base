@@ -55,7 +55,23 @@ final class IbanRegistryGenerator
              */
             final class IbanRegistry
             {
+                /** @var array<string, IbanFormat> the formats built so far, by country code */
+                private static array $formats = [];
+            
+                /**
+                 * Builds a country's format once and reuses it; a country absent from the registry is not cached.
+                 */
                 public static function find(string $countryCode): ?IbanFormat
+                {
+                    $format = self::$formats[$countryCode] ?? self::build($countryCode);
+                    if ($format !== null) {
+                        self::$formats[$countryCode] = $format;
+                    }
+            
+                    return $format;
+                }
+            
+                private static function build(string $countryCode): ?IbanFormat
                 {
                     return match ($countryCode) {
             %s            default => null,

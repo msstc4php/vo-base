@@ -37,6 +37,7 @@ final class IbanRegistryGeneratorTest extends TestCase
         $output = new IbanRegistryGenerator()->render($this->sample(), self::EDITION);
 
         self::assertStringContainsString(' * Edition: sample edition.' . "\n", $output);
+        self::assertStringContainsString('$format = self::$formats[$countryCode] ?? self::build($countryCode);', $output);
         self::assertStringContainsString(' * Source SHA-256: ' . \hash('sha256', $this->sample()) . ".\n", $output);
         self::assertLessThan(\strpos($output, "'DE'"), \strpos($output, "'AD'"));
         self::assertLessThan(\strpos($output, "'FK'"), \strpos($output, "'DE'"));
