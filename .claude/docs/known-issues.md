@@ -179,9 +179,8 @@ their number directly.
 `excerpt()` also escapes backslashes (a literal `\n` stays distinguishable from a newline), renders only bytes that are
 not valid UTF-8 as `\xNN`, and steps back at most three bytes to cut on a character boundary. Two types never quote
 their input: `CreditCardNumber` reports only the length (a failed number is often a real PAN, and raw input may end
-in a CVV that still looks like digits; PCI DSS), `Iban` carries no part of the input, not even its length, since 1.3 (owner's decision on
-CR-003 of the finance wave; before 1.3 it kept the country and last four): an account number is personal data and the
-input may be any value typed into the wrong field.
+in a CVV that still looks like digits; PCI DSS), `Iban` keeps country and last four of IBAN-shaped input (15-34 chars,
+`CC99...`) and only the length for anything else (personal data; may be any value typed into the wrong field).
 
 `QueryString::fromLoose()` is public only so `UriComponents` can reach it; it is `@internal`, not API.
 
@@ -199,24 +198,3 @@ exact class.
 `numeric()` / `fromNumeric()` are generated from the same brick/money table as `isoMinorUnits()`. The only numeric
 code shared today is 532 (ANG, withdrawn, and XCG, current); `fromNumeric('532')` gives XCG, `ANG->numeric()` still
 gives '532'. An unknown code throws `InvalidCurrencyCodeException` (like `CountryCode::fromNumeric`), not `ValueError`.
-
-- Full `make infection` can die at the end with the JSON reporter out of memory (512 MB) after printing the metrics;
-  run `php -d memory_limit=-1 vendor/bin/infection` with the Makefile's arguments locally. CI completes normally.
-- The ISO enum generator lives in `tests/Support/IsoEnumGenerator.php` (called by `tools/generate-iso-enums.php`);
-  `CountryCode`/`CurrencyCode` are generated — change the template, never the enum.
-
-## IBAN registry (1.3)
-
-- `tools/generate-iban-registry.php` (generator in `tests/Support/IbanRegistryGenerator.php`) reads the SWIFT IBAN
-  Registry TXT; the TXT is not committed (SWIFT terms), so there is no up-to-date guard test — the source SHA-256 in
-  the generated header is the only link. The embedded TXT is the Internet Archive capture of 2026-08-10; the page dated
-  the files 2026-09-17, so check for a newer TXT before tagging 1.3.0 and regenerate if it differs.
-- The registry's own examples are wrong for BA, PL, SE (and CZ structure row); tests read identifiers from the
-  positions instead (`docs/sources/IBAN.md`).
-- Stricter than 1.2: a stored IBAN of a registered country with the wrong length now fails on hydration.
-- `Finance\Decimal::compareTo()` still calls `\bccomp()` and vo-base does not declare `ext-bcmath` (final review CR-014;
-  ruled out of wave 2's scope). vo-finance returns `Decimal` from every `amount()` and declares `ext-bcmath` itself
-  while it allows vo-base ^1.2; decide on declaring the extension or replacing `bccomp` before vo-finance drops it.
-- Release step (final review CR-021): before tagging 1.3.0 look for an IBAN Registry TXT newer than the 2026-08-10
-  capture, regenerate `Support\IbanRegistry` if it differs and keep the SHA-256 in the header current.
-- `Support\IbanRegistry::find()` caches the formats it builds (static array, hits only; at most 89 entries).

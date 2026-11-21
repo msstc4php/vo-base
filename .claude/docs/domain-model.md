@@ -36,15 +36,11 @@ All value objects are immutable and validate at construction. `from()` throws,
   `toArray()`/`jsonSerialize()` → `{lat, lng}`).
 
 ## Finance (`src/Finance/`)
-- `Iban` — strips spaces, uppercases, validates format + ISO 7064 mod-97 (integer
-  digit-by-digit since 1.3, no bcmath); `countryCode()`/`checkDigits()`. Since 1.3 a country in the SWIFT IBAN
-  Registry must match its length and BBAN pattern (`Support\IbanRegistry`, generated, facts only — SWIFT forbids
-  redistributing the registry); unregistered countries keep the generic check. `bankIdentifier()`,
-  `branchIdentifier()`, `isSepaCountry()` (null when unregistered).
+- `Iban` — strips spaces, uppercases, validates format + ISO 7064 mod-97 (via
+  `bcmath`); `countryCode()`/`checkDigits()`.
 - `Bic` — SWIFT/BIC 8 or 11 chars; `bankCode/countryCode/locationCode/branchCode`.
 - `CreditCardNumber` — strips separators, 12–19 digits, Luhn check;
-  `last4()`, `brand()` (`visa|mastercard|amex|discover|unknown`). `@deprecated` since 1.3 (docblock only, no runtime
-  notice) in favour of `msstc4php/vo-finance` `Financial\Card\PaymentCardNumber`; removed no earlier than 2.0.
+  `last4()`, `brand()` (`visa|mastercard|amex|discover|unknown`).
 - `Decimal` — arbitrary-precision numeric string implementing `Comparable`
   (`bccomp` at max scale); normalizes sign/leading/trailing zeros; `isZero()`.
 
@@ -127,17 +123,3 @@ Value objects gained domain operations (additive, semver-minor). Highlights:
 - `UriComponents::queryString()` is null without `?`, an empty `QueryString` for a bare `?`, and percent-encodes
   what a `QueryString` cannot hold (non-ASCII, `{`, stray `%`), so it is total for a valid `Url`/`Uri`; the older
   `queryParameters()` keeps `parse_str()`.
-
-## v1.2 additions (2026-11-19 UTC)
-
-- `Contract\Maskable` — `masked(): non-empty-string`; used by sibling packages (vo-gs1, later vo-finance and
-  vo-documents' MRZ release) for log-safe forms.
-- `Exception\AmbiguousValueException` (final) — a factory found several candidate types; `candidates()` keeps order;
-  the message names the type and candidate basenames, never the input. Single-class ambiguity (e.g. vo-gs1 `Ndc`)
-  lists the one class and recovers the alternatives through that class's own API.
-- `CurrencyCode::numeric(): ?string` / `fromNumeric()` — generated from brick/money's ISO table (null where that
-  table has no numeric code); 532 is shared by ANG (withdrawn) and XCG and resolves to XCG; unknown → new
-  `InvalidCurrencyCodeException`.
-- `Network\Eui64` (canonical `aa:bb:cc:dd:ee:ff:00:11`), `Network\Oui` (`aa:bb:cc`), `MacAddress::oui()`,
-  `Eui64::oui()`; notation handling shared in `@internal Support\HexOctets` (odd octet counts with the dotted
-  notation are a LogicException).
