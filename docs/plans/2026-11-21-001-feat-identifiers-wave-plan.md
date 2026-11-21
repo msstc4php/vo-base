@@ -68,7 +68,7 @@ and by `vo-gs1` and `vo-finance` as built apply.
 ## Decisions this plan makes
 
 - **Doctrine type names:** `id_<snake_name>` (`id_isbn`, `id_container_number`, `id_imei`). The column length is the
-  class's maximum length. In `vo-documents-doctrine` the MRZ type is `doc_icao_mrz` (its existing prefix), length 92
+  class's maximum length. In `vo-documents-doctrine` the MRZ type is `vod_icao_mrz` (its existing `vod_` prefix), length 92
   (three lines of 30 plus two separators).
 - **Exceptions** in `Identifiers\Exception\`, all extending vo-base `InvalidValueObjectException`:
   `InvalidPublicationIdentifierException`, `InvalidTransportIdentifierException`, `InvalidTelecomIdentifierException`,
@@ -290,7 +290,7 @@ tests.
 
 **Files:** `vo-documents/src/Icao/Mrz/{MachineReadableZone,Td1,Td2,Td3}.php`, `src/Exception/InvalidMrzException.php`,
 `src/Internal/MrzCheckDigit.php`, `docs/sources/ICAO.md` (MRZ section added), tests; `vo-documents-doctrine`: ORM
-and ODM `doc_icao_mrz` types, registrar entries, tests.
+and ODM `vod_icao_mrz` types, registrar entries, tests.
 
 - [ ] Research, quoted into `ICAO.md`: Doc 9303 Part 3 (check digit, codes outside ISO 3166, dates), Part 4 (TD3),
   Part 5 (TD1, long document numbers), Part 6 (TD2), and their specimens.
