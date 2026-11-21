@@ -19,6 +19,12 @@
 - `Finance\Iban` computes its ISO 7064 checksum with integer arithmetic, so IBAN validation no longer needs
   `ext-bcmath`. `Finance\Decimal::compareTo()` still calls `bccomp()` and needs it.
 - `Support\IbanRegistry` builds each country's format once and reuses it.
+- `Finance\Iban` exception messages carry no part of the input: `Invalid IBAN.`, `IBAN does not match the registered
+  format of its country.` and `IBAN fails the ISO 7064 checksum.` Before, they kept the country code and the last four
+  characters, or the input length. An account number is personal data, and the input may be any value typed into the
+  wrong field. Code that matched the old message text needs updating.
+  The deprecated `Finance\CreditCardNumber` keeps reporting the input length, and other value objects keep quoting a
+  short excerpt of their input; only `Iban` follows the stricter rule.
 
 **Upgrade note:** an IBAN stored before this release that breaks its country's registered format now throws
 `InvalidIbanException` when it is read, also on hydration through vo-base-doctrine's `vo_iban` type. Before deploying,

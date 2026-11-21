@@ -68,18 +68,16 @@ final class Iban extends AbstractStringValueObject
 
         $length = \strlen($compact);
         if ($length < 15 || $length > 34 || \preg_match(self::PATTERN, $compact) !== 1) {
-            throw new InvalidIbanException(\sprintf('Invalid IBAN (%s).', $this->masked($value)));
+            throw new InvalidIbanException('Invalid IBAN.');
         }
 
         $format = IbanRegistry::find(\substr($compact, 0, 2));
         if ($format instanceof IbanFormat && !$format->accepts($compact)) {
-            $message = \sprintf('IBAN %s does not match the registered format of its country.', $this->masked($value));
-
-            throw new InvalidIbanException($message);
+            throw new InvalidIbanException('IBAN does not match the registered format of its country.');
         }
 
         if ($this->mod97($compact) !== 1) {
-            throw new InvalidIbanException(\sprintf('IBAN %s fails the ISO 7064 checksum.', $this->masked($value)));
+            throw new InvalidIbanException('IBAN fails the ISO 7064 checksum.');
         }
 
         return $compact;
@@ -105,20 +103,5 @@ final class Iban extends AbstractStringValueObject
         }
 
         return $remainder;
-    }
-
-    /**
-     * An account number is personal data: messages keep only the country and the last four characters, and
-     * nothing of input that is not IBAN-shaped (it may be any value typed into the wrong field, a card number
-     * included).
-     */
-    private function masked(string $value): string
-    {
-        $compact = \strtoupper(\str_replace(' ', '', $value));
-        if (\strlen($compact) < 15 || \strlen($compact) > 34 || \preg_match('/^[A-Z]{2}\d{2}[A-Z0-9]+$/D', $compact) !== 1) {
-            return \sprintf('%d characters', \strlen($value));
-        }
-
-        return \substr($compact, 0, 2) . \str_repeat('*', \strlen($compact) - 6) . \substr($compact, -4);
     }
 }

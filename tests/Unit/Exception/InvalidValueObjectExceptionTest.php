@@ -91,15 +91,16 @@ final class InvalidValueObjectExceptionTest extends TestCase
      */
     public static function ibanProvider(): iterable
     {
-        yield 'checksum failure keeps country and last four' => ['DE89370400440532013001', 'IBAN DE****************3001 fails the ISO 7064 checksum.'];
-        yield 'too short is fully hidden' => ['1234567', 'Invalid IBAN (7 characters).'];
-        yield 'odd characters are fully hidden' => ['DE89 3704 0044 0532 0130 0!', 'Invalid IBAN (27 characters).'];
-        yield 'too long is fully hidden' => [\str_repeat('A', 5000), 'Invalid IBAN (5000 characters).'];
-        yield 'a card number typed into the iban field' => ['4111111111111111', 'Invalid IBAN (16 characters).'];
+        yield 'checksum failure' => ['DE89370400440532013001', 'IBAN fails the ISO 7064 checksum.'];
+        yield 'registered format broken' => ['DE8937040044053201300', 'IBAN does not match the registered format of its country.'];
+        yield 'too short' => ['1234567', 'Invalid IBAN.'];
+        yield 'odd characters' => ['DE89 3704 0044 0532 0130 0!', 'Invalid IBAN.'];
+        yield 'too long' => [\str_repeat('A', 5000), 'Invalid IBAN.'];
+        yield 'a card number typed into the iban field' => ['4111111111111111', 'Invalid IBAN.'];
     }
 
     #[DataProvider('ibanProvider')]
-    public function testIbanMessagesAreMasked(string $input, string $expected): void
+    public function testIbanMessagesCarryNoPartOfTheInput(string $input, string $expected): void
     {
         self::assertSame($expected, $this->messageOf(static fn (): Iban => Iban::from($input)));
     }

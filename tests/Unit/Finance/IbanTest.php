@@ -83,7 +83,7 @@ final class IbanTest extends TestCase
     {
         // DE89 3704 0044 0532 0130 00 without its last digit, re-checksummed: only the length is wrong.
         $this->expectException(InvalidIbanException::class);
-        $this->expectExceptionMessage('does not match the registered format');
+        $this->expectExceptionMessage('IBAN does not match the registered format of its country.');
 
         Iban::from('DE51 3704 0044 0532 0130 0');
     }
@@ -91,7 +91,7 @@ final class IbanTest extends TestCase
     public function testRefusesALetterWhereTheRegistryAllowsOnlyDigits(): void
     {
         $this->expectException(InvalidIbanException::class);
-        $this->expectExceptionMessage('does not match the registered format');
+        $this->expectExceptionMessage('IBAN does not match the registered format of its country.');
 
         Iban::from('GB82 WEST 1234 5698 7654 3A');
     }
@@ -105,6 +105,12 @@ final class IbanTest extends TestCase
         self::assertNull($iban->bankIdentifier());
         self::assertNull($iban->branchIdentifier());
         self::assertNull($iban->isSepaCountry());
+    }
+
+    public function testAcceptsThirtyFourCharactersAndRefusesThirtyFive(): void
+    {
+        self::assertSame('ZZ641111111111111111111111111111AB', Iban::from('ZZ641111111111111111111111111111AB')->value);
+        self::assertNull(Iban::tryFrom('ZZ641111111111111111111111111111AB1'));
     }
 
     public function testReadsBankAndBranchIdentifiers(): void
@@ -159,7 +165,7 @@ final class IbanTest extends TestCase
 
             yield $country => [
                 $shortened,
-                \strlen($shortened) < 15 ? 'Invalid IBAN' : 'does not match the registered format',
+                \strlen($shortened) < 15 ? 'Invalid IBAN.' : 'IBAN does not match the registered format of its country.',
             ];
         }
     }
