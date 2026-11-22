@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Support;
 
+use LogicException;
 use MSSTC4PHP\ValueObject\Contract\StringConvertible;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
@@ -27,6 +28,37 @@ abstract class AbstractStringValueObject implements StringConvertible, ValueObje
     public function __toString(): string
     {
         return $this->value;
+    }
+
+    /**
+     * @return array{value: string}
+     */
+    public function __serialize(): array
+    {
+        return ['value' => $this->value];
+    }
+
+    /**
+     * Runs {@see parse()} again, so a forged or stale payload never yields an
+     * instance that {@see from()} would refuse. Other keys are ignored.
+     *
+     * @param array<array-key, mixed> $data untrusted: whatever the serialized string holds
+     *
+     * @throws InvalidValueObjectException when the data holds no string value, or the value is not valid
+     * @throws LogicException when called on an object that already holds a value
+     */
+    public function __unserialize(array $data): void
+    {
+        if (isset($this->value)) {
+            throw new LogicException('A value object is immutable; __unserialize() runs only on a new object.');
+        }
+
+        $value = $data['value'] ?? null;
+        if (!\is_string($value)) {
+            throw new InvalidValueObjectException(\sprintf('A serialized %s must hold its value as a string.', static::class));
+        }
+
+        $this->value = $this->parse($value);
     }
 
     #[Override]

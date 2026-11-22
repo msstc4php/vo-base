@@ -70,6 +70,26 @@ final class RandomValueObjectsTest extends TestCase
         }
     }
 
+    #[DataProvider('generatorProvider')]
+    public function testEveryDrawSurvivesSerialization(string $method, int $seed): void
+    {
+        $random = new RandomValueObjects($seed);
+        $generator = new ReflectionMethod(RandomValueObjects::class, $method);
+
+        for ($i = 0; $i < 50; $i++) {
+            $value = $generator->invoke($random);
+            $restored = \unserialize(\serialize($value));
+            $message = \sprintf('%s, seed %d, draw %d', $method, $seed, $i);
+
+            if ($value instanceof ValueObject) {
+                self::assertInstanceOf(ValueObject::class, $restored, $message);
+                self::assertTrue($value->equals($restored), $message);
+            } else {
+                self::assertSame($value, $restored, $message);
+            }
+        }
+    }
+
     public function testTheGeneratorSetIsDeliberate(): void
     {
         self::assertSame([

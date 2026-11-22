@@ -26,6 +26,14 @@
   The deprecated `Finance\CreditCardNumber` keeps reporting the input length, and other value objects keep quoting a
   short excerpt of their input; only `Iban` follows the stricter rule.
 
+- `Support\AbstractStringValueObject`, `AbstractIntValueObject` and `AbstractFloatValueObject` serialize only
+  `value` and run `parse()` again on `unserialize()`. A forged or stale serialized string no longer yields an instance
+  that `from()` would refuse; it throws `InvalidValueObjectException`, the class's own subclass of it, or
+  `LogicException` when `__unserialize()` is called on an instance that already holds a value. A payload written by
+  1.2 or earlier has the same shape and still unserializes; for a float type an integer value is taken as a float.
+  Any other property of a subclass is no longer serialized: a subclass that keeps state `parse()` does not rebuild
+  must override both methods. None in this package does.
+
 **Upgrade note:** an IBAN stored before this release that breaks its country's registered format now throws
 `InvalidIbanException` when it is read, also on hydration through vo-base-doctrine's `vo_iban` type. Before deploying,
 run `Iban::tryFrom()` over the stored values; the rows that give null were never valid IBANs and need correcting.
