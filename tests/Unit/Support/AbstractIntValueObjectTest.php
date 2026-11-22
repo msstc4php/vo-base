@@ -72,7 +72,7 @@ final class AbstractIntValueObjectTest extends TestCase
         $this->forged(11);
     }
 
-    public function testAPayloadWithoutAIntValueIsRefusedWithoutEchoingIt(): void
+    public function testAPayloadWithoutAnIntValueIsRefusedWithoutEchoingIt(): void
     {
         foreach ([\serialize('7'), \serialize(7.0), 'N;'] as $raw) {
             $this->assertRefusedWithoutEcho('s:5:"value";' . $raw);
