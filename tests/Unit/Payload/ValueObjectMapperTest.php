@@ -32,13 +32,19 @@ use MSSTC4PHP\ValueObject\Support\AbstractFloatValueObject;
 use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
 use MSSTC4PHP\ValueObject\Temporal\DateRange;
+use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\AbstractCode;
+use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\AbstractCodeWithoutFrom;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\AbstractCount;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\AbstractRatio;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\BackedEnumContract;
+use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\LongCode;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\LyingCodec;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\NoCases;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\Priority;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\RangeAsTextCodec;
+use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\RangeCodecs;
+use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\ResolvingNonValueObject;
+use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\ShortCode;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\StringOnly;
 use MSSTC4PHP\ValueObject\Tests\Unit\Payload\Fixture\StringValueObjectContract;
 use Override;
@@ -229,6 +235,7 @@ final class ValueObjectMapperTest extends TestCase
         yield 'abstract string-backed' => [AbstractStringValueObject::class, false];
         yield 'abstract int-backed' => [AbstractCount::class, false];
         yield 'abstract float-backed' => [AbstractRatio::class, false];
+        yield 'abstract resolving its concrete class' => [AbstractCode::class, true];
     }
 
     /**
@@ -241,6 +248,8 @@ final class ValueObjectMapperTest extends TestCase
         yield 'abstract int-backed' => [AbstractCount::class];
         yield 'abstract float-backed' => [AbstractRatio::class];
         yield 'enum interface' => [BackedEnumContract::class];
+        yield 'resolving marker with the base from()' => [AbstractCodeWithoutFrom::class];
+        yield 'resolving marker on no value object' => [ResolvingNonValueObject::class];
     }
 
     #[DataProvider('classesWithoutAnInstance')]
@@ -285,6 +294,51 @@ final class ValueObjectMapperTest extends TestCase
     {
         $this->expectException(LogicException::class);
         $this->mapper->fromUntrustedPayload(stdClass::class, 'x');
+    }
+
+    public function testAnAbstractClassThatResolvesItsConcreteClassIsAStringType(): void
+    {
+        self::assertTrue($this->mapper->supports(AbstractCode::class));
+        self::assertTrue($this->mapper->supportsUntrusted(AbstractCode::class));
+        self::assertFalse($this->mapper->isComposite(AbstractCode::class));
+        self::assertSame('string', $this->mapper->payloadType(AbstractCode::class));
+    }
+
+    public function testAnAbstractClassThatResolvesItsConcreteClassRoundTripsToTheFittingSubclass(): void
+    {
+        $original = LongCode::from('abcd');
+
+        $restored = $this->mapper->fromPayload(AbstractCode::class, $this->mapper->toPayload($original));
+
+        self::assertInstanceOf(LongCode::class, $restored);
+        self::assertTrue($original->equals($restored));
+        self::assertInstanceOf(ShortCode::class, $this->mapper->fromUntrustedPayload(AbstractCode::class, 'abc'));
+    }
+
+    public function testAnAbstractClassThatResolvesItsConcreteClassKeepsItsOwnException(): void
+    {
+        $this->expectExceptionObject(new InvalidValueObjectException('Not a valid code.'));
+
+        $this->mapper->fromUntrustedPayload(AbstractCode::class, 'ABC');
+    }
+
+    public function testAConcreteSubclassRefusesTheValueOfAnother(): void
+    {
+        $this->expectExceptionObject(new InvalidValueObjectException('The code is of another kind.'));
+
+        $this->mapper->fromPayload(ShortCode::class, 'abcd');
+    }
+
+    public function testAnAbstractClassThatResolvesItsConcreteClassTakesOnlyAString(): void
+    {
+        $this->expectException(InvalidPayloadException::class);
+
+        $this->mapper->fromUntrustedPayload(AbstractCode::class, 123);
+    }
+
+    public function testAPackagesCodecsArriveThroughItsProvider(): void
+    {
+        self::assertSame(['range' => '1..2'], new ValueObjectMapper(RangeCodecs::all())->toPayload(new IntRange(1, 2)));
     }
 
     public function testCompositesAreTheClassesWithACodec(): void

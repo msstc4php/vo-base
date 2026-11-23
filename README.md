@@ -134,8 +134,11 @@ $mapper->fromPayload(Port::class, '8080');                  // Port 8080: numeri
 
 String-backed value objects map to strings, int- and float-backed ones to numbers, the ISO enums to their codes,
 and the composites (`BoundedString`, `IntRange`, `GeoCoordinates`, `DateRange`) to flat arrays through a
-`Payload\PayloadCodec`; pass your own codecs to the constructor for your own composites. A wrong type or shape
-throws `InvalidPayloadException`, invalid content the value object's own exception; both extend
+`Payload\PayloadCodec`; pass your own codecs to the constructor for your own composites, or a package's whole set
+through its `Payload\ProvidesCodecs` class (vo-documents: `new ValueObjectMapper(Codecs::all())`). An abstract class
+is mapped only when it implements `Contract\ResolvesConcreteClass` and declares its own `from()`, which builds the one
+subclass the value fits: the column holds the value, and the fitting subclass comes back. A wrong type or shape throws
+`InvalidPayloadException`, invalid content the value object's own exception; both extend
 `InvalidValueObjectException`.
 
 Use `fromPayload()` for storage your application wrote and `fromUntrustedPayload()` for request input. The latter
@@ -164,9 +167,12 @@ appears. Integration lives in separate packages, all built on the same storage f
 Install whichever you need; none is required by this package, and each pulls
 in only the stack it actually bridges.
 
-Separate from the bridges, [`msstc4php/vo-documents`](https://github.com/msstc4php/vo-documents) builds on this
-package with identity-document and personal-name value objects (Russia, Australia), and
-[`msstc4php/vo-documents-doctrine`](https://github.com/msstc4php/vo-documents-doctrine) adds their Doctrine types.
+Separate from the bridges, domain packages build on this one, each with a Doctrine bridge of its own:
+[`msstc4php/vo-gs1`](https://github.com/msstc4php/vo-gs1) (GS1 keys, element strings, Digital Link, UDI),
+[`msstc4php/vo-finance`](https://github.com/msstc4php/vo-finance) (securities identifiers, card numbers, payment QR),
+[`msstc4php/vo-identifiers`](https://github.com/msstc4php/vo-identifiers) (publication, transport, telecom, chemistry,
+trade and energy identifiers) and [`msstc4php/vo-documents`](https://github.com/msstc4php/vo-documents) (identity
+documents and personal names). Their value objects go through the framework bridges like the ones here.
 
 ## Development
 

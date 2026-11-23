@@ -6,6 +6,7 @@ namespace MSSTC4PHP\ValueObject\Payload;
 
 use BackedEnum;
 use LogicException;
+use MSSTC4PHP\ValueObject\Contract\ResolvesConcreteClass;
 use MSSTC4PHP\ValueObject\Contract\StringConvertible;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidPayloadException;
@@ -14,6 +15,7 @@ use MSSTC4PHP\ValueObject\Support\AbstractFloatValueObject;
 use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
 use ReflectionClass;
 use ReflectionEnum;
+use ReflectionMethod;
 
 /**
  * The storage form every framework bridge shares: a string, int or float for a
@@ -72,7 +74,8 @@ final readonly class ValueObjectMapper
     }
 
     /**
-     * An interface or an abstract class is supported only through a codec: without one there is no class to build.
+     * An interface or an abstract class is supported only through a codec, or as a string when it is a
+     * {@see ResolvesConcreteClass} whose from() picks the concrete class: otherwise there is no class to build.
      */
     public function supports(string $class): bool
     {
@@ -97,7 +100,7 @@ final readonly class ValueObjectMapper
 
     /**
      * A value object whose payload is a single string, int or float: what a URL segment or a form field can carry.
-     * Excludes enums, composites, interfaces and abstract classes.
+     * Excludes enums, composites, interfaces and abstract classes other than a {@see ResolvesConcreteClass}.
      *
      * @phpstan-assert-if-true class-string<ValueObject> $class
      */
@@ -238,8 +241,12 @@ final readonly class ValueObjectMapper
             return self::CODEC;
         }
 
-        if (!class_exists($class) || new ReflectionClass($class)->isAbstract()) {
+        if (!class_exists($class)) {
             return null;
+        }
+
+        if (new ReflectionClass($class)->isAbstract()) {
+            return $this->resolvesConcreteClass($class) ? self::STRING : null;
         }
 
         return match (true) {
@@ -249,6 +256,23 @@ final readonly class ValueObjectMapper
             is_subclass_of($class, BackedEnum::class) => self::ENUM,
             default => null,
         };
+    }
+
+    /**
+     * The marker alone is not enough: a from() inherited from the string base, or still abstract, cannot build anything,
+     * and that must show up as unsupported when a bridge is configured, not as an Error on the first request.
+     *
+     * @param class-string $class
+     */
+    private function resolvesConcreteClass(string $class): bool
+    {
+        if (!is_subclass_of($class, ResolvesConcreteClass::class) || !is_subclass_of($class, ValueObject::class)) {
+            return false;
+        }
+
+        $from = new ReflectionMethod($class, 'from');
+
+        return !$from->isAbstract() && is_subclass_of($from->getDeclaringClass()->name, ResolvesConcreteClass::class);
     }
 
     /**

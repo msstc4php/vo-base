@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.4.0 - unreleased
+
+**Added:**
+
+- `Contract\ResolvesConcreteClass`: an abstract string value object whose `from()` builds the one concrete subclass the
+  value fits (by its length or line count, never a guess between candidates). `Payload\ValueObjectMapper` supports such
+  a class as a string type although it is abstract, so every bridge can type a column, a property or a parameter with
+  it and get the fitting subclass back. Other abstract classes stay unsupported.
+- `Payload\ProvidesCodecs`: a package's set of payload codecs behind one static `all()`, for bridges that register
+  codecs by class name.
+
 ## 1.3.1 - 2026-11-23
 
 **Fixed:**
