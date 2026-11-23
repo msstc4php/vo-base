@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Geo;
 
+use LogicException;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
+use MSSTC4PHP\ValueObject\Support\FreshInstance;
 use Override;
 
 /**
@@ -16,6 +19,37 @@ final readonly class GeoCoordinates implements ValueObject
         public Latitude $latitude,
         public Longitude $longitude,
     ) {
+    }
+
+    /**
+     * @return array{latitude: Latitude, longitude: Longitude}
+     */
+    public function __serialize(): array
+    {
+        return ['latitude' => $this->latitude, 'longitude' => $this->longitude];
+    }
+
+    /**
+     * Runs the constructor's checks again, so a forged or stale payload never yields an instance the constructor
+     * would refuse. Other keys are ignored.
+     *
+     * @param array<array-key, mixed> $data untrusted: whatever the serialized string holds
+     *
+     * @throws InvalidValueObjectException when a key is missing or of the wrong type, or the values break the type's rules
+     * @throws LogicException when called on an object that already holds a value
+     */
+    public function __unserialize(array $data): void
+    {
+        FreshInstance::assert($this, 'latitude');
+
+        $latitude = $data['latitude'] ?? null;
+        $longitude = $data['longitude'] ?? null;
+        if (!$latitude instanceof Latitude || !$longitude instanceof Longitude) {
+            throw new InvalidValueObjectException(\sprintf('A serialized %s must hold a Latitude and a Longitude.', self::class));
+        }
+
+        $this->latitude = $latitude;
+        $this->longitude = $longitude;
     }
 
     public static function fromFloats(float $latitude, float $longitude): self

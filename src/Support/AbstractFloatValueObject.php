@@ -50,9 +50,7 @@ abstract class AbstractFloatValueObject implements Comparable, ValueObject, Stri
      */
     public function __unserialize(array $data): void
     {
-        if (isset($this->value)) {
-            throw new LogicException('A value object is immutable; __unserialize() runs only on a new object.');
-        }
+        FreshInstance::assert($this, 'value');
 
         $value = $data['value'] ?? null;
         if (\is_int($value)) {

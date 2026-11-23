@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Network;
 
+use LogicException;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
+use MSSTC4PHP\ValueObject\Support\FreshInstance;
 use Override;
 
 /**
@@ -17,6 +20,37 @@ final readonly class QueryParameter implements ValueObject
         public string $name,
         public string $value,
     ) {
+    }
+
+    /**
+     * @return array{name: string, value: string}
+     */
+    public function __serialize(): array
+    {
+        return ['name' => $this->name, 'value' => $this->value];
+    }
+
+    /**
+     * Runs the constructor's checks again, so a forged or stale payload never yields an instance the constructor
+     * would refuse. Other keys are ignored.
+     *
+     * @param array<array-key, mixed> $data untrusted: whatever the serialized string holds
+     *
+     * @throws InvalidValueObjectException when a key is missing or of the wrong type, or the values break the type's rules
+     * @throws LogicException when called on an object that already holds a value
+     */
+    public function __unserialize(array $data): void
+    {
+        FreshInstance::assert($this, 'name');
+
+        $name = $data['name'] ?? null;
+        $value = $data['value'] ?? null;
+        if (!\is_string($name) || !\is_string($value)) {
+            throw new InvalidValueObjectException(\sprintf('A serialized %s must hold name and value as strings.', self::class));
+        }
+
+        $this->name = $name;
+        $this->value = $value;
     }
 
     #[Override]

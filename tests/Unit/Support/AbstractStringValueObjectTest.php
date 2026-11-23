@@ -7,12 +7,14 @@ namespace MSSTC4PHP\ValueObject\Tests\Unit\Support;
 use LogicException;
 use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Support\AbstractStringValueObject;
+use MSSTC4PHP\ValueObject\Support\FreshInstance;
 use MSSTC4PHP\ValueObject\Tests\Fixtures\LowercaseWord;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[UsesClass(InvalidValueObjectException::class)]
+#[UsesClass(FreshInstance::class)]
 #[CoversClass(AbstractStringValueObject::class)]
 final class AbstractStringValueObjectTest extends TestCase
 {

@@ -6,8 +6,11 @@ namespace MSSTC4PHP\ValueObject\Temporal;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use LogicException;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidDateRangeException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
+use MSSTC4PHP\ValueObject\Support\FreshInstance;
 use Override;
 
 /**
@@ -19,9 +22,39 @@ final readonly class DateRange implements ValueObject
         public DateTimeImmutable $start,
         public DateTimeImmutable $end,
     ) {
-        if ($start > $end) {
-            throw new InvalidDateRangeException(\sprintf('Range start "%s" must not be after end "%s".', $start->format(DateTimeInterface::ATOM), $end->format(DateTimeInterface::ATOM)));
+        $this->check($start, $end);
+    }
+
+    /**
+     * @return array{start: DateTimeImmutable, end: DateTimeImmutable}
+     */
+    public function __serialize(): array
+    {
+        return ['start' => $this->start, 'end' => $this->end];
+    }
+
+    /**
+     * Runs the constructor's checks again, so a forged or stale payload never yields an instance the constructor
+     * would refuse. Other keys are ignored.
+     *
+     * @param array<array-key, mixed> $data untrusted: whatever the serialized string holds
+     *
+     * @throws InvalidValueObjectException when a key is missing or of the wrong type, or the values break the type's rules
+     * @throws LogicException when called on an object that already holds a value
+     */
+    public function __unserialize(array $data): void
+    {
+        FreshInstance::assert($this, 'start');
+
+        $start = $data['start'] ?? null;
+        $end = $data['end'] ?? null;
+        if (!$start instanceof DateTimeImmutable || !$end instanceof DateTimeImmutable) {
+            throw new InvalidValueObjectException(\sprintf('A serialized %s must hold start and end as DateTimeImmutable.', self::class));
         }
+
+        $this->check($start, $end);
+        $this->start = $start;
+        $this->end = $end;
     }
 
     public function start(): DateTimeImmutable
@@ -118,5 +151,15 @@ final readonly class DateRange implements ValueObject
             'start' => $this->start->format(DateTimeInterface::ATOM),
             'end' => $this->end->format(DateTimeInterface::ATOM),
         ];
+    }
+
+    /**
+     * @throws InvalidDateRangeException
+     */
+    private function check(DateTimeImmutable $start, DateTimeImmutable $end): void
+    {
+        if ($start > $end) {
+            throw new InvalidDateRangeException(\sprintf('Range start "%s" must not be after end "%s".', $start->format(DateTimeInterface::ATOM), $end->format(DateTimeInterface::ATOM)));
+        }
     }
 }

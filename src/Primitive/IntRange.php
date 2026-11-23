@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Primitive;
 
+use LogicException;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidIntRangeException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
+use MSSTC4PHP\ValueObject\Support\FreshInstance;
 use Override;
 use RangeException;
 
@@ -18,9 +21,39 @@ final readonly class IntRange implements ValueObject
         public int $min,
         public int $max,
     ) {
-        if ($min > $max) {
-            throw new InvalidIntRangeException(\sprintf('Range minimum %d must not exceed maximum %d.', $min, $max));
+        $this->check($min, $max);
+    }
+
+    /**
+     * @return array{min: int, max: int}
+     */
+    public function __serialize(): array
+    {
+        return ['min' => $this->min, 'max' => $this->max];
+    }
+
+    /**
+     * Runs the constructor's checks again, so a forged or stale payload never yields an instance the constructor
+     * would refuse. Other keys are ignored.
+     *
+     * @param array<array-key, mixed> $data untrusted: whatever the serialized string holds
+     *
+     * @throws InvalidValueObjectException when a key is missing or of the wrong type, or the values break the type's rules
+     * @throws LogicException when called on an object that already holds a value
+     */
+    public function __unserialize(array $data): void
+    {
+        FreshInstance::assert($this, 'min');
+
+        $min = $data['min'] ?? null;
+        $max = $data['max'] ?? null;
+        if (!\is_int($min) || !\is_int($max)) {
+            throw new InvalidValueObjectException(\sprintf('A serialized %s must hold min and max as ints.', self::class));
         }
+
+        $this->check($min, $max);
+        $this->min = $min;
+        $this->max = $max;
     }
 
     public function contains(int $value): bool
@@ -90,5 +123,15 @@ final readonly class IntRange implements ValueObject
     public function jsonSerialize(): array
     {
         return ['min' => $this->min, 'max' => $this->max];
+    }
+
+    /**
+     * @throws InvalidIntRangeException
+     */
+    private function check(int $min, int $max): void
+    {
+        if ($min > $max) {
+            throw new InvalidIntRangeException(\sprintf('Range minimum %d must not exceed maximum %d.', $min, $max));
+        }
     }
 }

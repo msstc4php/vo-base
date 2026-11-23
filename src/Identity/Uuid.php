@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Identity;
 
+use LogicException;
 use MSSTC4PHP\ValueObject\Contract\StringConvertible;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidUuidException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
+use MSSTC4PHP\ValueObject\Support\FreshInstance;
 use Override;
 
 /**
@@ -24,17 +27,42 @@ final readonly class Uuid implements StringConvertible, ValueObject
 
     public function __construct(string $value)
     {
-        if (\preg_match(self::CANONICAL_PATTERN, $value) !== 1) {
-            throw new InvalidUuidException(\sprintf('Value "%s" is not a canonical UUID.', InvalidUuidException::excerpt($value)));
-        }
-
-        $this->value = \strtolower($value);
+        $this->value = $this->canonical($value);
     }
 
     #[Override]
     public function __toString(): string
     {
         return $this->value;
+    }
+
+    /**
+     * @return array{value: string}
+     */
+    public function __serialize(): array
+    {
+        return ['value' => $this->value];
+    }
+
+    /**
+     * Runs the constructor's checks again, so a forged or stale payload never yields an instance the constructor
+     * would refuse. Other keys are ignored.
+     *
+     * @param array<array-key, mixed> $data untrusted: whatever the serialized string holds
+     *
+     * @throws InvalidValueObjectException when a key is missing or of the wrong type, or the values break the type's rules
+     * @throws LogicException when called on an object that already holds a value
+     */
+    public function __unserialize(array $data): void
+    {
+        FreshInstance::assert($this, 'value');
+
+        $value = $data['value'] ?? null;
+        if (!\is_string($value)) {
+            throw new InvalidValueObjectException(\sprintf('A serialized %s must hold its value as a string.', self::class));
+        }
+
+        $this->value = $this->canonical($value);
     }
 
     #[Override]
@@ -154,5 +182,17 @@ final readonly class Uuid implements StringConvertible, ValueObject
             \substr($hex, 16, 4),
             \substr($hex, 20, 12),
         );
+    }
+
+    /**
+     * @throws InvalidUuidException
+     */
+    private function canonical(string $value): string
+    {
+        if (\preg_match(self::CANONICAL_PATTERN, $value) !== 1) {
+            throw new InvalidUuidException(\sprintf('Value "%s" is not a canonical UUID.', InvalidUuidException::excerpt($value)));
+        }
+
+        return \strtolower($value);
     }
 }

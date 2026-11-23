@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.3.1 - unreleased
+
+**Fixed:**
+
+- `Primitive\BoundedString`, `Primitive\IntRange`, `Temporal\DateRange`, `Geo\GeoCoordinates`,
+  `Network\QueryParameter`, `Identity\Uuid` and `Format\ClassString` run their constructor checks again on
+  `unserialize()`, as the string, int and float bases do since 1.3.0. A forged serialized string could restore
+  `IntRange(5, 1)`, a reversed `DateRange`, a `BoundedString` outside its bounds or `Uuid("zzz")`, and a payload with a
+  missing key left a property uninitialized. Such a payload now throws `InvalidValueObjectException`, with a message
+  that carries no part of the payload, or the type's own exception when the values break its rules.
+- Payloads written by 1.3.0 and earlier keep loading: the serialized keys are the property names, as before. Extra
+  keys are ignored. `__unserialize()` on an instance that already holds a value throws `LogicException`.
+- `Format\ClassString` checks again on `unserialize()` that the class exists, which may autoload it. A payload
+  naming a class that this process cannot load, for example one removed since, now throws
+  `InvalidClassStringException` instead of restoring a name `new ClassString()` would refuse.
+
 ## 1.3.0 - 2026-11-22
 
 **Added:**

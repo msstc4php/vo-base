@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Format;
 
+use LogicException;
 use MSSTC4PHP\ValueObject\Contract\StringConvertible;
 use MSSTC4PHP\ValueObject\Contract\ValueObject;
 use MSSTC4PHP\ValueObject\Exception\InvalidClassStringException;
+use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
+use MSSTC4PHP\ValueObject\Support\FreshInstance;
 use Override;
 
 /**
@@ -22,22 +25,42 @@ final readonly class ClassString implements StringConvertible, ValueObject
 
     public function __construct(string $value)
     {
-        if (
-            !\class_exists($value)
-            && !\interface_exists($value)
-            && !\trait_exists($value)
-            && !\enum_exists($value)
-        ) {
-            throw new InvalidClassStringException(\sprintf('Unknown class, interface, trait or enum: "%s".', InvalidClassStringException::excerpt($value)));
-        }
-
-        $this->value = $value;
+        $this->value = $this->existing($value);
     }
 
     #[Override]
     public function __toString(): string
     {
         return $this->value;
+    }
+
+    /**
+     * @return array{value: class-string}
+     */
+    public function __serialize(): array
+    {
+        return ['value' => $this->value];
+    }
+
+    /**
+     * Runs the constructor's checks again, so a forged or stale payload never yields an instance the constructor
+     * would refuse. Other keys are ignored.
+     *
+     * @param array<array-key, mixed> $data untrusted: whatever the serialized string holds
+     *
+     * @throws InvalidValueObjectException when a key is missing or of the wrong type, or the values break the type's rules
+     * @throws LogicException when called on an object that already holds a value
+     */
+    public function __unserialize(array $data): void
+    {
+        FreshInstance::assert($this, 'value');
+
+        $value = $data['value'] ?? null;
+        if (!\is_string($value)) {
+            throw new InvalidValueObjectException(\sprintf('A serialized %s must hold its value as a string.', self::class));
+        }
+
+        $this->value = $this->existing($value);
     }
 
     #[Override]
@@ -83,5 +106,24 @@ final readonly class ClassString implements StringConvertible, ValueObject
     public function jsonSerialize(): string
     {
         return $this->value;
+    }
+
+    /**
+     * @return class-string
+     *
+     * @throws InvalidClassStringException
+     */
+    private function existing(string $value): string
+    {
+        if (
+            !\class_exists($value)
+            && !\interface_exists($value)
+            && !\trait_exists($value)
+            && !\enum_exists($value)
+        ) {
+            throw new InvalidClassStringException(\sprintf('Unknown class, interface, trait or enum: "%s".', InvalidClassStringException::excerpt($value)));
+        }
+
+        return $value;
     }
 }

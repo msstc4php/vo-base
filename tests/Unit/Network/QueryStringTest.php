@@ -10,12 +10,14 @@ use MSSTC4PHP\ValueObject\Network\QueryParameter;
 use MSSTC4PHP\ValueObject\Network\QueryString;
 use MSSTC4PHP\ValueObject\Network\Uri;
 use MSSTC4PHP\ValueObject\Network\Url;
+use MSSTC4PHP\ValueObject\Support\FreshInstance;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[UsesClass(InvalidValueObjectException::class)]
+#[UsesClass(FreshInstance::class)]
 #[CoversClass(QueryString::class)]
 #[CoversClass(QueryParameter::class)]
 #[UsesClass(Url::class)]
