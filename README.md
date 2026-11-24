@@ -158,7 +158,7 @@ appears. Integration lives in separate packages, all built on the same storage f
 
 | Package | What it gives you |
 |---|---|
-| [`msstc4php/vo-base-doctrine`](https://github.com/msstc4php/vo-base-doctrine) | 38 Doctrine field types per branch (ORM and MongoDB ODM), plus money embeddables that aggregate in SQL |
+| [`msstc4php/vo-base-doctrine`](https://github.com/msstc4php/vo-base-doctrine) | 40 Doctrine field types per branch (ORM and MongoDB ODM), plus money embeddables that aggregate in SQL |
 | [`msstc4php/vo-base-bundle`](https://github.com/msstc4php/vo-base-bundle) | Symfony: Validator constraints, Serializer normalizer, route argument resolver, and the Doctrine types from one line in `bundles.php` |
 | [`msstc4php/vo-base-laravel`](https://github.com/msstc4php/vo-base-laravel) | Laravel 13.30+: Eloquent cast, validation rule, `$request->valueObject()`, form-request helper, route parameters |
 | [`msstc4php/vo-base-yii2`](https://github.com/msstc4php/vo-base-yii2) | Yii 2: validator, ActiveRecord behavior, model values, action parameters |
