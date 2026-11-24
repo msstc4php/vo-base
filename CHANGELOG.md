@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.1 - 2026-11-24
+
+**Fixed:**
+
+- `composer.json` requires `ext-bcmath`: `Finance\Decimal::compareTo()` (and every comparison helper built on it)
+  calls `bccomp()`, so an install without the extension failed only at runtime. Composer now reports it at install.
+
 ## 1.4.0 - 2026-11-23
 
 **Added:**

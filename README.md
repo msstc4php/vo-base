@@ -13,6 +13,8 @@ composer config repositories.vo-base vcs https://github.com/msstc4php/vo-base
 composer require msstc4php/vo-base:^1.0
 ```
 
+Requires PHP 8.4 and `ext-bcmath` (`Decimal` compares with `bccomp()`).
+
 Optional, for arithmetic on `Decimal` and `Percentage`:
 
 ```bash
