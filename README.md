@@ -160,7 +160,7 @@ appears. Integration lives in separate packages, all built on the same storage f
 |---|---|
 | [`msstc4php/vo-base-doctrine`](https://github.com/msstc4php/vo-base-doctrine) | 40 Doctrine field types per branch (ORM and MongoDB ODM), plus money embeddables that aggregate in SQL |
 | [`msstc4php/vo-base-bundle`](https://github.com/msstc4php/vo-base-bundle) | Symfony: Validator constraints, Serializer normalizer, route argument resolver, and the Doctrine types from one line in `bundles.php` |
-| [`msstc4php/vo-base-laravel`](https://github.com/msstc4php/vo-base-laravel) | Laravel 13.30+: Eloquent cast, validation rule, `$request->valueObject()`, form-request helper, route parameters |
+| [`msstc4php/vo-base-laravel`](https://github.com/msstc4php/vo-base-laravel) | Laravel 13.40+: Eloquent cast, validation rule, `$request->valueObject()`, form-request helper, route parameters |
 | [`msstc4php/vo-base-yii2`](https://github.com/msstc4php/vo-base-yii2) | Yii 2: validator, ActiveRecord behavior, model values, action parameters |
 | [`msstc4php/vo-base-codeigniter4`](https://github.com/msstc4php/vo-base-codeigniter4) | CodeIgniter 4: Entity and Model casts, validation rule, validated data, controller arguments |
 | [`msstc4php/vo-base-cycle`](https://github.com/msstc4php/vo-base-cycle) | Cycle ORM 2: typecast handler |
@@ -175,6 +175,50 @@ Separate from the bridges, domain packages build on this one, each with a Doctri
 [`msstc4php/vo-identifiers`](https://github.com/msstc4php/vo-identifiers) (publication, transport, telecom, chemistry,
 trade and energy identifiers) and [`msstc4php/vo-documents`](https://github.com/msstc4php/vo-documents) (identity
 documents and personal names). Their value objects go through the framework bridges like the ones here.
+
+## The package family
+
+Every package follows semantic versioning; its README has a "Backward compatibility" section saying what a minor may
+and may not change. Releases as of 2026-11-27 (UTC):
+
+| Package | Release | Requires | Gives you |
+|---|---|---|---|
+| `msstc4php/vo-base` | 1.4.1 | PHP 8.4, `ext-bcmath` | the core: scalar, money, identity, network, geo and time value objects, the payload mapper |
+| `msstc4php/vo-base-doctrine` | 1.3.0 | vo-base ^1.2 | Doctrine ORM / MongoDB ODM types and embeddables for the core |
+| `msstc4php/vo-base-bundle` | 1.3.0 (1.x), 2.2.0 (2.x) | vo-base ^1.1 (2.x: ^1.4), Symfony 7.4 / 8 | Symfony constraints, normalizer, argument resolver; registers the Doctrine types of the core **and of every installed domain bridge** |
+| `msstc4php/vo-base-laravel` | 1.0.0 | vo-base ^1.4, Laravel 13.40+ | Eloquent cast, validation rule, request input, route parameters |
+| `msstc4php/vo-base-yii2` | 1.0.0 | vo-base ^1.4, Yii 2.0.55+ | validator, ActiveRecord behavior, model values, action parameters |
+| `msstc4php/vo-base-codeigniter4` | 1.0.0 | vo-base ^1.4, CodeIgniter 4.7.4+ | Entity/Model casts, validation rule, validated data, controller arguments |
+| `msstc4php/vo-base-cycle` | 1.0.0 | vo-base ^1.4, Cycle ORM 2.10+ | typecast handler |
+| `msstc4php/vo-base-spiral` | 1.0.0 | vo-base ^1.4, Spiral 3.18+ | filter caster, route argument interceptor, `vo:valid` checker |
+| `msstc4php/vo-gs1` | 1.2.0 | vo-base ^1.4 | GS1 keys, element strings, Digital Link, EPC URIs, UDI, NDC, Russian and EU marking codes |
+| `msstc4php/vo-gs1-doctrine` | 1.0.0 | vo-gs1 ^1.0, vo-base-doctrine ^1.3 | Doctrine types for vo-gs1 |
+| `msstc4php/vo-identifiers` | 2.0.0 | vo-base ^1.4, vo-gs1 ^1.0 | publication, transport, telecom, chemistry, trade and energy identifiers |
+| `msstc4php/vo-identifiers-doctrine` | 1.1.0 | vo-identifiers ^1.0 \|\| ^2.0, vo-base-doctrine ^1.3 | Doctrine types for vo-identifiers |
+| `msstc4php/vo-documents` | 1.3.0 | vo-base ^1.4 | identity documents and personal names, ICAO 9303 Latin names |
+| `msstc4php/vo-documents-doctrine` | 1.0.0 | vo-documents ^1.0, vo-base-doctrine ^1.3 | Doctrine types for vo-documents |
+| `msstc4php/vo-finance` | 1.2.0 | vo-base ^1.4 | securities identifiers, payment card numbers, payment QR payloads |
+| `msstc4php/vo-finance-doctrine` | 1.0.0 | vo-finance ^1.0, vo-base-doctrine ^1.3 | Doctrine types for vo-finance |
+
+Every bridge converts through the core's `Payload\ValueObjectMapper`, so the domain value objects work in every
+framework bridge without a package of their own: a domain package plus the bridge of your framework is enough. Only
+Doctrine needs a per-domain package (the `-doctrine` bridges), because each Doctrine type is a class of its own.
+
+### Getting started
+
+Until the packages are on Packagist, register each one you install as a VCS repository, as in "Install" above
+(`composer config repositories.<name> vcs https://github.com/msstc4php/<name>`), including the ones it requires.
+
+- **Symfony with Doctrine:** `msstc4php/vo-base-bundle`, `msstc4php/vo-base-doctrine`, the domain packages you need and
+  their `-doctrine` bridges. Add the bundle to `bundles.php`; it registers every installed type (`domain_types: false`
+  turns the domain ones off), and the constraints work for domain value objects too.
+- **Laravel:** `msstc4php/vo-base-laravel` and the domain packages; the service provider is auto-discovered.
+- **Yii 2, CodeIgniter 4, Spiral (+ Cycle):** the bridge of your framework and the domain packages; each README shows
+  the configuration.
+- **Composite values of a domain package** (for example vo-documents' names, which store a JSON object): give the
+  mapper the package's codec set, `new ValueObjectMapper(\MSSTC4PHP\ValueObject\Documents\Codecs::all())`, through
+  your framework's container (each bridge README has the binding; the Symfony bundle takes `codec_providers` on 2.x).
+- **Plain PHP:** the core and the domain packages need no framework at all.
 
 ## Development
 
